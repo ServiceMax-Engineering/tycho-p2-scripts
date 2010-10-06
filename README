@@ -1,0 +1,20 @@
+=== Tycho and p2 release scripts ===
+This project contains various scripts useful when building p2-repositories with tycho
+or generating composite repositories.
+
+== tycho-release.sh ==
+This script can be used to tag a maven-tycho build and to deploy the generated p2 repositories.
+It assumes a unix environment. It requires bash and the XML:XPath perl module.
+
+== Generate Composite Repository ==
+This script generates a p2 composite repository: http://wiki.eclipse.org/Equinox/p2/Composite_Repositories_(new)
+It requires ruby.
+
+It traverses the file system looking for $repo-name.composite.mkrepo files.
+Whenever it finds one it looks at the versionned repository inside that folder, chooses the latest one
+and add it to the collection of children repositories.
+
+An html page is generated to describe the contents of the composite repository.
+
+The project's comes with a sample directory structure to experiment with.
+
