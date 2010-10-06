@@ -2,6 +2,8 @@
 This project contains various scripts useful when building p2-repositories with tycho
 or generating composite repositories.
 
+These scripts are dual licensed EPL-1.0 and Apache-2.0
+
 == tycho-release.sh ==
 This script can be used to tag a maven-tycho build and to deploy the generated p2 repositories.
 It assumes a unix environment. It requires bash and the XML:XPath perl module.
