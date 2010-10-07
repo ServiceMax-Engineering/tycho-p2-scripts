@@ -12,6 +12,7 @@
 # You may elect to redistribute this code under either of these licenses. 
 # ========================================================================
 # Author hmalphettes
+# Sources published here: github.com/intalio/tycho-p2-scripts
 #
 # This script generates a p2 composite repository:
 # http://wiki.eclipse.org/Equinox/p2/Composite_Repositories_(new)
@@ -69,7 +70,7 @@ class CompositeRepository
     return @versionned_output_dir
   end
   def is_changed()
-    return @currently_released_repo != @children_repo.sort!
+    return @currently_released_repo.nil? || @currently_released_repo.empty? || @currently_released_repo != @children_repo.sort!
   end
 
   def get_binding
@@ -106,8 +107,6 @@ class CompositeRepository
       if FileTest.file?(path) and !FileTest.symlink?(File.dirname(path))
         aversion= File.basename File.dirname(path)
         sortedversions << aversion
-      else
-        puts "nope #{path}"
       end
     end
     return sortedversions.last
@@ -198,7 +197,7 @@ Find.find(basefolder) do |path|
       next
     end
   else
-    if File.basename(path) == "#{name}.composite.mkrepo"
+    if File.basename(path).downcase == "#{name.downcase}.composite.mkrepo"
       compositeRepository.add_childrepo path
     end
   end
@@ -209,8 +208,9 @@ if not compositeRepository.is_changed
   exit 1
 end
 
+current_dir=File.expand_path(File.dirname(__FILE__))
 #Generate the Artifact Repository
-template=ERB.new File.new("composite.xml.rhtml").read, nil, "%"
+template=ERB.new File.new(File.join(current_dir,"composite.xml.rhtml")).read, nil, "%"
 artifactsRes=template.result(compositeRepository.get_binding)
 
 #Generate the Metadata Repository
@@ -218,7 +218,7 @@ compositeRepository.set_ArtifactOrMetaData "Metadata"
 metadataRes=template.result(compositeRepository.get_binding)
 
 #Generate the HTML page.
-html_template=ERB.new File.new("composite_index_html.rhtml").read, nil, "%"
+html_template=ERB.new File.new(File.join(current_dir,"composite_index_html.rhtml")).read, nil, "%"
 htmlRes=html_template.result(compositeRepository.get_binding)
 
 
