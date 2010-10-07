@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?compositeMetadataRepository version="1.0.0"?>
+<repository name="&quot;all-1.0.0.019&quot;"
+    type="org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository" version="1.0.0">
+  <properties size="1">
+    <property name="p2.timestamp" value="1286418935"/>
+  </properties>
+  <children size="2">
+    <child location="../../be/3.0.0.178"/>
+    <child location="../../cas/3.0.0.030"/>
+    
+  </children>
+</repository>

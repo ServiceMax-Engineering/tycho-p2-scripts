@@ -24,29 +24,138 @@
 
 require "find"
 require "erb"
+require "pathname"
+require "fileutils"
 
 class CompositeRepository
-  def initialize(output, basefolder, name)
-    @output = output
-    @basefolder = basefolder
+  
+  def initialize(output, version, basefolder, name, test)
+    @outputPath = Pathname.new(output).expand_path
+    @basefolder = Pathname.new(basefolder).expand_path
     @name = name
+    @version = version
+    @test = test
 
+    #contain the list of relative path to the linked versioned repos
     @children_repo = [ ]
+    
+    #contain the list of relative path to the linked versioned repos
+    #according to the last released aggregate repository
+    #we read it in the last released composite repo.
+    #if nothing has changed then we don't need to make a new release.
+    @currently_released_repo = []
+    
     @ArtifactOrMetadata="Artifact"
     @timestamp=Time.now.to_i
     
+    @versionned_output_dir=nil
+    compute_versioned_output
   end
 
   def add_childrepo( compositeMkrepoFile )
-    @children_repo << compositeMkrepoFile
+    compositeRepoParentFolder=Pathname.new Pathname.new(File.dirname compositeMkrepoFile).expand_path
+    #make it a path relative to the @versionned_output_dir
+    relative=compositeRepoParentFolder.relative_path_from(Pathname.new(@versionned_output_dir))
+    last_version=compute_last_version compositeRepoParentFolder
+    relative=File.join(relative.to_s,last_version)
+    @children_repo << relative
   end
- # Support templating of member data.
+  
+  def get_versionned_output_dir()
+    return @versionned_output_dir
+  end
+  def is_changed()
+    return @currently_released_repo != @children_repo.sort!
+  end
+
   def get_binding
     binding
   end
   
   def set_ArtifactOrMetaData(artifactOrMetadata)
     @ArtifactOrMetadata=artifactOrMetadata
+  end
+  
+  def compute_version()
+    if @version
+      return
+    end
+    #find the directories that contain a p2 repository
+    #sort them by name and use the last one for the actual last version.
+    #increment that version.
+    current_latest=compute_last_version @outputPath
+    if current_latest.nil?
+      @version="1.0.0.000"
+    else
+      @currently_released_repo=compute_children_repos File.join(@outputPath,current_latest)
+      @version=increment_version current_latest
+    end
+    #puts @version
+  end
+
+  #returns the last version folder
+  #parent_dir contains version folders such as 1.0.0.001, 1.0.0.002 etc
+  def compute_last_version(parent_dir)
+    versions = Dir.glob("#{parent_dir}/*/artifacts.*") | Dir.glob("#{parent_dir}/*/dummy")
+    sortedversions= Array.new
+    versions.uniq.sort.each do |path|
+      if FileTest.file?(path) and !FileTest.symlink?(File.dirname(path))
+        aversion= File.basename File.dirname(path)
+        sortedversions << aversion
+      else
+        puts "nope #{path}"
+      end
+    end
+    return sortedversions.last
+  end
+  
+  def compute_versioned_output()
+    compute_version
+    @versionned_output_dir = "#{@outputPath}/#{@version}"
+    puts "Got #{@versionned_output_dir}"
+    if @test != "true"
+      if File.exist? @versionned_output_dir
+        puts "warning: removing the existing directory #{@versionned_output_dir}"
+        FileUtils.rm_rf @versionned_output_dir
+      end
+      puts @versionned_output_dir
+      FileUtils.mkdir_p @versionned_output_dir
+    end
+  end
+  
+  # increment a version. if the version passed is 1.0.0.019, returns 1.0.0.020
+  # keeps the padded zeros
+  def increment_version(version)
+    toks = version.split "."
+    buildnb = toks.last
+    incremented = buildnb.to_i+1
+    inc_str_padded = "#{incremented.to_s.rjust(buildnb.size, "0")}"
+    toks.pop
+    toks.push inc_str_padded
+    return toks.join "."
+  end
+  
+  def compute_children_repos(compositeRepoFolder)
+    children_repos = Array.new
+    compositeArtifacts=File.join(compositeRepoFolder,"compositeArtifacts.xml")
+    if !File.exist? compositeArtifacts
+      puts "Warn #{compositeArtifacts} does not exists"
+      return;
+    end
+    file = File.new(compositeArtifacts, "r")
+      
+    while (line = file.gets)
+      #look for a line that contains <child location="../../be/3.0.0.178"/>
+      #extract the location attribute.
+      #put it in the array.
+      m = /<child location="(.*)"\/>/.match line
+      if m
+        children_repos.push m[1]
+        puts "found one in '#{m[1]}'"
+      end
+    end
+    file.close
+    children_repos.sort!
   end
   
 end
@@ -56,25 +165,25 @@ require "getopt/long"
 opt = Getopt::Long.getopts(
   ["--basefolder", "-b", Getopt::REQUIRED],
   ["--output", "-o", Getopt::REQUIRED],
-  ["--name", "-n", Getopt::OPTIONAL]
+  ["--name", "-n", Getopt::OPTIONAL],
+  ["--test", "-t", Getopt::OPTIONAL],
+  ["--version", "-v", Getopt::OPTIONAL]
 )
 
-basefolder="."
-if opt["basefolder"]
-  basefolder=opt["basefolder"]
-end
-name="all"
-if opt["name"]
-  name=opt["name"]
-end
+basefolder = opt["basefolder"] || "."
+name = opt["name"] || "all"
+version = opt["version"]
 if opt["output"]
   output=opt["output"]
 else
   #look for the all folder and use this as the directory.
 end
 
-compositeRepository=CompositeRepository.new output, basefolder, name
+test=opt["test"] || "false"
 
+compositeRepository=CompositeRepository.new output, version, basefolder, name, test
+
+#collect the child repos.
 Find.find(basefolder) do |path|
   if FileTest.directory?(path)
     if File.basename(path)[0] == ?. and File.basename(path) != '.'
@@ -91,9 +200,29 @@ Find.find(basefolder) do |path|
   end
 end
 
+if not compositeRepository.is_changed
+  puts "No changes"
+  exit 1
+end
+
+#Generate the Artifact Repository
 template=ERB.new File.new("composite.xml.rhtml").read, nil, "%"
-res=template.result(compositeRepository.get_binding)
-puts res
+artifactsRes=template.result(compositeRepository.get_binding)
+
+#Generate the Metadata Repository
 compositeRepository.set_ArtifactOrMetaData "Metadata"
-res=template.result(compositeRepository.get_binding)
-puts res
+metadataRes=template.result(compositeRepository.get_binding)
+
+#Generate the HTML page.
+
+if test == "true"
+  puts "=== compositeArtifacts.xml:"
+  puts artifactsRes
+  puts "=== compositeContent.xml:"
+  puts metadataRes
+elsif
+  out_dir=compositeRepository.get_versionned_output_dir
+  puts "Writing the composite repository in #{out_dir}"
+  File.open(File.join(out_dir,"compositeArtifacts.xml"), 'w') {|f| f.puts(artifactsRes) }
+  File.open(File.join(out_dir,"compositeContext.xml"), 'w') {|f| f.puts(metadataRes) }
+end
