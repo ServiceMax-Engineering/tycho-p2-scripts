@@ -25,7 +25,7 @@
 # Replace the forceContextQualifier's value by qualifier
 # Commit
 # git branch to checkout.
-echo `pwd`"is the current pwd"
+echo "Executing tycho-release.sh in the folder "`pwd`
 #make sure we are at the root of the folder where the chckout actually happened.
 if [ ! -d ".git" -a ! -d ".svn" ]; then
   echo "FATAL: could not find .git or .svn in the Current Directory `pwd`"
