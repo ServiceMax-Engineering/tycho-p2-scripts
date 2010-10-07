@@ -21,6 +21,9 @@
 # when it finds one, it expects to find version numbers as the folders
 # It looks by default for the latest version and adds the corresponding
 # to the composite repository.
+#
+# Todo: ability to define the major versions numbers to build for each children repos
+#
 
 require "find"
 require "erb"
@@ -47,6 +50,7 @@ class CompositeRepository
     
     @ArtifactOrMetadata="Artifact"
     @timestamp=Time.now.to_i
+    @date=Time.now.utc
     
     @versionned_output_dir=nil
     compute_versioned_output
@@ -214,15 +218,21 @@ compositeRepository.set_ArtifactOrMetaData "Metadata"
 metadataRes=template.result(compositeRepository.get_binding)
 
 #Generate the HTML page.
+html_template=ERB.new File.new("composite_index_html.rhtml").read, nil, "%"
+htmlRes=html_template.result(compositeRepository.get_binding)
+
 
 if test == "true"
   puts "=== compositeArtifacts.xml:"
   puts artifactsRes
   puts "=== compositeContent.xml:"
   puts metadataRes
+  puts "=== index.html:"
+  puts htmlRes
 elsif
   out_dir=compositeRepository.get_versionned_output_dir
   puts "Writing the composite repository in #{out_dir}"
   File.open(File.join(out_dir,"compositeArtifacts.xml"), 'w') {|f| f.puts(artifactsRes) }
   File.open(File.join(out_dir,"compositeContext.xml"), 'w') {|f| f.puts(metadataRes) }
+  File.open(File.join(out_dir,"index.html"), 'w') {|f| f.puts(htmlRes) }
 end
