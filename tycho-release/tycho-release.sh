@@ -164,6 +164,10 @@ do
        fi
        p2repoPath=$BASE_FILE_PATH_P2_REPO/`echo $groupId | tr '.' '/'`/$artifactId
        echo "Deploying $groupId:$artifactId:$completeVersion in $p2repoPath/$completeVersion"
+       if [ -d $p2repoPath/$completeVersion ]; then
+         echo "Warn: Removing the existing repository $p2repoPath/$completeVersion"
+         rm -rf $p2repoPath/$completeVersion
+       fi
        mkdir -p $p2repoPath
        mv "$module_dir/target/repository" "$module_dir/target/$completeVersion"
        mv "$module_dir/target/$completeVersion" $p2repoPath
