@@ -73,7 +73,7 @@ if [ -z "$buildNumberLine" ]; then
   echo "Could not find the build-number to use in pom.xml; The line $reg2 must be defined"
   exit 2;
 fi
-currentBuildrNumber=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
+currentBuildNumber=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
 
 reg_prop=".{(.*)}"
 prop=`echo "$currentBuildNumber" | awk 'match($0, "'$reg_prop'", a) { print a[1] }'`
@@ -90,10 +90,10 @@ if [ -n "$prop" ]; then
   buildNumber=$4
   echo "$version   $buildNumber"
 else
-  echo "Increment the buildNumber"
-  strlength=`expr length $currentBuildrNumber`
+  echo "Increment the buildNumber $currentBuildNumber"
+  strlength=`expr length $currentBuildNumber`
   #increment the context qualifier
-  buildNumber=`expr $currentBuildrNumber + 1`
+  buildNumber=`expr $currentBuildNumber + 1`
   #pad with zeros so the build number is as many characters long as before
   printf_format="%0"$strlength"d\n"
   buildNumber=`printf "$printf_format" "$buildNumber"`
@@ -196,6 +196,7 @@ if [ -n "$DEB_COLLECT_DIR" ]; then
     echo "Unable to find the shell script in charge of generating the debian packages"
     exit 2;
   fi
+  echo "Executing $path_to_deb_generation_script"
   `$path_to_deb_generation_script`
 else
   echo "No debian packages to build as the constant DEB_COLLECT_DIR is not defined."

@@ -91,7 +91,7 @@ def read_built_feature_version(control_file)
     Dir.glob(File.join(feature_project_folder, "*.product")).each do|product_file|
       xmlfile = File.new product_file
       xmlprod = Document.new(xmlfile)
-      return xmlprod.root.attributes["uid"]
+      return xmlprod.root.attributes["version"]
     end
   end
 end
