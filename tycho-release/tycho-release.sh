@@ -75,10 +75,12 @@ if [ -z "$buildNumberLine" ]; then
 fi
 currentBuildrNumber=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
 
+strlength=`expr length $currentBuildrNumber`
 #increment the context qualifier
 buildNumber=`expr $currentBuildrNumber + 1`
-#pad with zeros so the build number is 3 digits long
-buildNumber=`printf "%03d\n" "$buildNumber"`
+#pad with zeros so the build number is as many characters long as before
+printf_format="%0"$strlength"d\n"
+buildNumber=`printf "$printf_format" "$buildNumber"`
 completeVersion="$version.$buildNumber"
 export completeVersion
 export version
