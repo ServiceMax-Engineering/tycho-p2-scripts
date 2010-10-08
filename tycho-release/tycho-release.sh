@@ -75,17 +75,35 @@ if [ -z "$buildNumberLine" ]; then
 fi
 currentBuildrNumber=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
 
-strlength=`expr length $currentBuildrNumber`
-#increment the context qualifier
-buildNumber=`expr $currentBuildrNumber + 1`
-#pad with zeros so the build number is as many characters long as before
-printf_format="%0"$strlength"d\n"
-buildNumber=`printf "$printf_format" "$buildNumber"`
-completeVersion="$version.$buildNumber"
+reg_prop=".{(.*)}"
+prop=`echo "$currentBuildNumber" | awk 'match($0, "'$reg_prop'", a) { print a[1] }'`
+if [ -n "$prop" ]; then
+  echo "Force the buildNumber to match the value of the property $prop"
+  reg_named_prop="<$prop>(.*)<\/$prop>"
+  line_prop=`awk '{if ($1 ~ /'$reg_named_prop'/){print $1}}' < pom.xml | head -1`
+  completeVersion=`echo "$line_prop" | awk 'match($0, "'$reg_named_prop'", a) { print a[1] }'`
+  # reconstruct the version and buildNumber.
+  # make the assumption that the completeVersion matches a 4 seg numbers.
+  var=$(echo $completeVersion | awk -F"." '{print $1,$2,$3,$4}')   
+  set -- $var
+  version=$1.$2.$3
+  buildNumber=$4
+  echo "$version   $buildNumber"
+else
+  echo "Increment the buildNumber"
+  strlength=`expr length $currentBuildrNumber`
+  #increment the context qualifier
+  buildNumber=`expr $currentBuildrNumber + 1`
+  #pad with zeros so the build number is as many characters long as before
+  printf_format="%0"$strlength"d\n"
+  buildNumber=`printf "$printf_format" "$buildNumber"`
+  completeVersion="$version.$buildNumber"
+fi
+
 export completeVersion
 export version
 export buildNumber
-echo "Building $completeVersion"
+echo "Build Version $completeVersion"
 
 #update the numbers for the release
 sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQualifier>$buildNumber<\/forceContextQualifier>/" pom.xml
