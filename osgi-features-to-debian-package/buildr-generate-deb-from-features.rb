@@ -161,7 +161,7 @@ def build_deb(control_file,deb)
           puts "Exposing #{jar_file} as #{control_file}"
           read_m = read_manifest_from_jar(_(jar_file).to_s).main
           version=read_m["Bundle-Version"]
-          id=read_m["Bundle-Version"]
+          id=read_m["Bundle-SymbolicName"]
           label=read_m["Bundle-Description"]
           if label.nil?
             label=read_m["Bundle-Name"]
