@@ -155,4 +155,25 @@ do
   fi
 done
 
+### Debian packages build
+# Run it if indeed a location has been defined to deploy the deb packages.
+if [ -n "$DEB_COLLECT_DIR" ]; then
+  # Absolute path to this script.
+  SCRIPT=$(readlink -f $0)
+  # Absolute path this script is in.
+  SCRIPTPATH=`dirname $SCRIPT` 
+  path_to_deb_generation_script=$SCRIPTPATH/../osgi-features-to-debian-package/generate-and-collect-features-deb.sh
+  if [ ! -f "$path_to_deb_generation_script" ]; then
+    #try a second location.
+    path_to_deb_generation_script=$SCRIPTPATH/osgi-features-to-debian-package/generate-and-collect-features-deb.sh
+  fi
+  if [ ! -f "$path_to_deb_generation_script" ]; then
+    echo "$path_to_deb_generation_script does not exist."
+    echo "Unable to find the shell script in charge of generating the debian packages"
+    exit 2;
+  fi
+  `$path_to_deb_generation_script`
+else
+  echo "No debian packge to build as the constant DEB_COLLECT_DIR is not defined."
+fi
 

@@ -80,9 +80,20 @@ end
 def read_built_feature_version(control_file)
   feature_project_folder = File.dirname(control_file)
   target_folder = File.join(feature_project_folder, "target")
-  xmlfile = File.new File.join(target_folder, "feature.xml")
-  xmlfeat = Document.new(xmlfile)
-  return xmlfeat.root.attributes["version"]
+  featfile=File.join(target_folder, "feature.xml")
+  if File.exist? featfile
+    xmlfile = File.new File.join(target_folder, "feature.xml")
+    xmlfeat = Document.new(xmlfile)
+    return xmlfeat.root.attributes["version"]
+  else
+    #look for the product filename
+    #at the moment we support a single product file.
+    Dir.glob(File.join(feature_project_folder, "*.product")).each do|product_file|
+      xmlfile = File.new product_file
+      xmlprod = Document.new(xmlfile)
+      return xmlprod.root.attributes["uid"]
+    end
+  end
 end
 
 # Reads the built target/feature.xml file
@@ -91,25 +102,42 @@ end
 def build_deb(control_file,deb)
   feature_project_folder = File.dirname(control_file)
   target_folder = File.join(feature_project_folder, "target")
-  xmlfile = File.new File.join(target_folder, "feature.xml")
-  xmlfeat = Document.new(xmlfile)
-  version=xmlfeat.root.attributes["version"]
-  id=xmlfeat.root.attributes["id"]+".feature.group"
-  label=xmlfeat.root.attributes["label"]
-  if label =~ /^%/
-    feature_properties=load_properties File.join(feature_project_folder, "feature.properties")
-    label.slice!(0)
-    label=feature_properties[label]
+  featfile=File.join(target_folder, "feature.xml")
+  id="unknown"
+  if File.exist? featfile
+    xmlfile = File.new featfile
+    xmlfeat = Document.new(xmlfile)
+    version=xmlfeat.root.attributes["version"]
+    id=xmlfeat.root.attributes["id"]+".feature.group"
+    label=xmlfeat.root.attributes["label"]
+    if label =~ /^%/
+      feature_properties=load_properties File.join(feature_project_folder, "feature.properties")
+      label.slice!(0)
+      label=feature_properties[label]
+    end
+  else
+    puts "No feature.xml looking for products"
+    #look for the product filename
+    #at the moment we support a single product file.
+    Dir.glob(File.join(feature_project_folder, "*.product")).each do|product_file|
+    puts "prod #{product_file}"
+      xmlfile = File.new product_file
+      xmlprod = Document.new(xmlfile)
+      version=xmlprod.root.attributes["version"]
+      id=xmlprod.root.attributes["uid"]
+      label=xmlprod.root.attributes["name"]
+    end
+    
   end
 
-#  puts "version=#{version}"
-#  puts "id=#{id}"
-#  puts "label=#{label}"
+  puts "version=#{version}"
+  puts "id=#{id}"
+  puts "label=#{label}"
 
   control_content=nil
   if controle_file_empty?(control_file)
     control_content= <<-CONTROL
-Package: #{File.basename(control_file)}
+Package: #{File.basename(control_file).chomp(".control")}
 Version: #{version}
 Section: Intalio-Cloud
 Priority: optional

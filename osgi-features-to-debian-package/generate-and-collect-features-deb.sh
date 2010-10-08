@@ -30,19 +30,28 @@ if [ -z "$CURRENT_DIR" ]; then
  CURRENT_DIR=`pwd`
 fi
 
+if [ -z "$EMPTY_DEB_FOLDER" ]; then
+  EMPTY_DEBS_FOLDER="" #false by default don't remove the previous debs. override only
+fi
+
 #clean up the deb file to files for paranoia reasons
 find $CURRENT_DIR -type f -name "*.deb" -exec rm -f {} \;
-rm -rf $CURRENT_DIR/target
 buildr --buildfile $BUILDR_FILE package
 
 if [ -z "$DEB_COLLECT_DIR" ]; then
  DEB_COLLECT_DIR=$CURRENT_DIR/generated_debs
 fi
-rm -rf $DEB_COLLECT_DIR
+[ -n "$EMPTY_DEB_FOLDER" ] && rm -rf $DEB_COLLECT_DIR
 mkdir -p $DEB_COLLECT_DIR
 
 echo "moving in $DEB_COLLECT_DIR"
 #exclude the directory where the debs are moved
 #otherwise it will find the debs it just moved!
-find $CURRENT_DIR -type f ! -path "$DEB_COLLECT_DIR/*" -name "*.deb" -exec mv {} $DEB_COLLECT_DIR \;
+find $CURRENT_DIR -type f ! -path "$DEB_COLLECT_DIR/*" -name "*.deb" -exec mv -f {} $DEB_COLLECT_DIR \;
 
+# move the gpl debs in their own folder if it exists
+if [ -n "$DEB_GPL_COLLECT_DIR" ]; then
+  [ -n "$EMPTY_DEB_FOLDER" ] && rm -rf $DEB_GPL_COLLECT_DIR
+  mkdir -p $DEB_GPL_COLLECT_DIR
+  find $DEB_COLLECT_DIR -type f -name "*gpl*.deb" -exec mv -f {} $DEB_GPL_COLLECT_DIR \;
+fi
