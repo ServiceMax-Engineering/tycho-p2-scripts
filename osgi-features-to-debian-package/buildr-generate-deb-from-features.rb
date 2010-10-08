@@ -88,7 +88,7 @@ def read_built_feature_version(control_file)
   else
     #look for the product filename
     #at the moment we support a single product file.
-    Dir.glob(File.join(feature_project_folder, "*.product")).each do|product_file|
+    Dir.glob(File.join(target_folder, "*.product")).each do|product_file|
       xmlfile = File.new product_file
       xmlprod = Document.new(xmlfile)
       return xmlprod.root.attributes["version"]
@@ -119,7 +119,7 @@ def build_deb(control_file,deb)
     puts "No feature.xml looking for products"
     #look for the product filename
     #at the moment we support a single product file.
-    Dir.glob(File.join(feature_project_folder, "*.product")).each do|product_file|
+    Dir.glob(File.join(target_folder, "*.product")).each do|product_file|
     puts "prod #{product_file}"
       xmlfile = File.new product_file
       xmlprod = Document.new(xmlfile)
@@ -127,7 +127,6 @@ def build_deb(control_file,deb)
       id=xmlprod.root.attributes["uid"]
       label=xmlprod.root.attributes["name"]
     end
-    
   end
 
   puts "version=#{version}"
