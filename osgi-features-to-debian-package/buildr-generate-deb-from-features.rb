@@ -159,7 +159,7 @@ def build_deb(control_file,deb)
         #make sure it is not the source bundle:
         if (jar_file =~ /-source/).nil?
           puts "Exposing #{jar_file} as #{control_file}"
-          read_m = read_manifest_from_jar(_(jar_file).to_s).main
+          read_m = read_manifest_from_jar(jar_file).main
           version=read_m["Bundle-Version"]
           id=read_m["Bundle-SymbolicName"]
           label=read_m["Bundle-Description"]
