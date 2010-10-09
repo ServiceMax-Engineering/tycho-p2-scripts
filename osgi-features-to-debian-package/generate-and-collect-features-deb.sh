@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 # ========================================================================
 # Copyright (c) 2006-2010 Intalio Inc
 # ------------------------------------------------------------------------
@@ -44,14 +44,41 @@ fi
 [ -n "$EMPTY_DEB_FOLDER" ] && rm -rf $DEB_COLLECT_DIR
 mkdir -p $DEB_COLLECT_DIR
 
-echo "moving in $DEB_COLLECT_DIR"
 #exclude the directory where the debs are moved
 #otherwise it will find the debs it just moved!
+echo "Deploying in $DEB_COLLECT_DIR the following debs"
+find $CURRENT_DIR -type f ! -path "$DEB_COLLECT_DIR/*" -name "*.deb"
 find $CURRENT_DIR -type f ! -path "$DEB_COLLECT_DIR/*" -name "*.deb" -exec mv -f {} $DEB_COLLECT_DIR \;
 
 # move the gpl debs in their own folder if it exists
 if [ -n "$DEB_GPL_COLLECT_DIR" ]; then
   [ -n "$EMPTY_DEB_FOLDER" ] && rm -rf $DEB_GPL_COLLECT_DIR
   mkdir -p $DEB_GPL_COLLECT_DIR
+  echo "Deploying in $DEB_GPL_COLLECT_DIR the following debs:"
+  find $DEB_COLLECT_DIR -type f -name "*gpl*.deb"
   find $DEB_COLLECT_DIR -type f -name "*gpl*.deb" -exec mv -f {} $DEB_GPL_COLLECT_DIR \;
 fi
+
+# now look for the apt.sh script in the parent folders and execute
+# it to re-generate the index of the apt-repo
+ORI_CD=`pwd`
+for DEST in $DEB_COLLECT_DIR $DEB_GPL_COLLECT_DIR;
+do
+  cd $DEST
+  echo "Looking for apt.sh in $DEST"
+  i=0
+  max=6
+  while [ $i -le $max ];
+  do
+    [ `pwd` = "/" ] && i=`expr $max + 1`
+    if [ -f "apt.sh" ]; then
+      echo "Executing "`pwd`"/apt.sh"
+      ./apt.sh
+      i=`expr $max + 1`
+    fi
+    cd ..
+    i=`expr $i + 1`
+  done
+done
+cd $ORI_CD
+

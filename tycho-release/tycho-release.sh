@@ -114,7 +114,7 @@ $MAVEN3_HOME/bin/mvn clean package
 echo "Finished building"
 
 ### Tag the source controle
-if [ -n GIT_BRANCH ]; then
+if [ -n "$GIT_BRANCH" ]; then
   git commit pom.xml -m "Release $completeVersion"
   git tag $completeVersion
   git push origin $GIT_BRANCH
@@ -132,7 +132,7 @@ fi
 
 #restore the commented out forceContextQualifier
 sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$buildNumber<\/forceContextQualifier-->/" pom.xml
-if [ -d ".git" ]; then
+if [ -n "$GIT_BRANCH" ]; then
   git commit pom.xml -m "Restore pom.xml for development"
   git push origin $GIT_BRANCH
 elif [ -d ".svn" ]; then
