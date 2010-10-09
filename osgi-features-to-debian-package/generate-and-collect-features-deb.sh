@@ -34,9 +34,13 @@ if [ -z "$EMPTY_DEB_FOLDER" ]; then
   EMPTY_DEBS_FOLDER="" #false by default don't remove the previous debs. override only
 fi
 
-#clean up the deb file to files for paranoia reasons
-find $CURRENT_DIR -type f -name "*.deb" -exec rm -f {} \;
-buildr --buildfile $BUILDR_FILE package
+# if this is a maven3-tycho build then go
+# ahead and invoke the generic deb scritp
+if [ -f "pom.xml" ]; then
+  #clean up the deb file to files for paranoia reasons
+  find $CURRENT_DIR -type f -name "*.deb" -exec rm -f {} \;
+  buildr --buildfile $BUILDR_FILE package
+fi
 
 if [ -z "$DEB_COLLECT_DIR" ]; then
  DEB_COLLECT_DIR=$CURRENT_DIR/generated_debs
