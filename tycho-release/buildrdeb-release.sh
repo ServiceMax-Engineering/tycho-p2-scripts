@@ -95,7 +95,10 @@ buildr package
 
 ### Tag the source controle
 if [ -n "$GIT_BRANCH" ]; then
-  [ -n "$restore_buildNumberLine" ] && git commit Buildfile -m "Release $completeVersion"
+ # [ -n "$restore_buildNumberLine" ] &&
+ # when releasing the composite repository we need to commit
+ # the file
+  git commit Buildfile -m "Release $completeVersion"
   git tag $completeVersion
   git push origin $GIT_BRANCH
   git push origin refs/tags/$completeVersion
