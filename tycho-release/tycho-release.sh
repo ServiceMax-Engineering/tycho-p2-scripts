@@ -111,14 +111,15 @@ sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQ
 #### Build now
 $MAVEN3_HOME/bin/mvn clean package
 
-echo "Finished building"
+tag=$completeVersion
+[ -n "$SUB_DIRECTORY" ] && tag="$SUB_DIRECTORY-$completeVersion"
 
 ### Tag the source controle
 if [ -n "$GIT_BRANCH" ]; then
   git commit pom.xml -m "Release $completeVersion"
-  git tag $completeVersion
+  git tag $tag
   git push origin $GIT_BRANCH
-  git push origin refs/tags/$completeVersion
+  git push origin refs/tags/$tag
 elif [ -d ".svn" ]; then
   svn commit pom.xml -m "Release $completeVersion"
   echo "Committed the pom.ml"
@@ -127,7 +128,7 @@ elif [ -d ".svn" ]; then
   #for example: URL: http://io.intalio.com/svn/n3/intaliocrm/trunk
   svn_url=`echo "$svn_url" | awk 'match($0, "URL: (.*)/trunk", a) { print a[1] }'`
   #This should be for example: http://io.intalio.com/svn/n3/intaliocrm
-  svn copy $svn_url/trunk $svn_url/tags/$completeVersion
+  svn copy $svn_url/trunk $svn_url/tags/$tag
 fi
 
 #restore the commented out forceContextQualifier

@@ -93,7 +93,8 @@ class CompositeRepository
     #increment that version.
     current_latest=compute_last_version @outputPath
     if current_latest.nil?
-      @version="1.0.0.000"
+     # raise "Expecting to find a version number in #{@outputPath}"
+      @version="3.0.0.000"
     else
       @currently_released_repo=compute_children_repos File.join(@outputPath,current_latest)
       @version=increment_version current_latest
@@ -104,7 +105,8 @@ class CompositeRepository
   #returns the last version folder
   #parent_dir contains version folders such as 1.0.0.001, 1.0.0.002 etc
   def compute_last_version(parent_dir)
-    versions = Dir.glob("#{parent_dir}/*/artifacts.*") | Dir.glob("#{parent_dir}/*/dummy")
+    puts "Looking for the last version in #{parent_dir}"
+    versions = Dir.glob("#{parent_dir}/*/artifacts.*") | Dir.glob("#{parent_dir}/*/dummy") | Dir.glob("#{parent_dir}/*/compositeArtifacts.*")
     sortedversions= Array.new
     versions.uniq.sort.each do |path|
       if FileTest.file?(path) and !FileTest.symlink?(File.dirname(path))
@@ -207,8 +209,8 @@ Find.find(basefolder) do |path|
 end
 
 if not compositeRepository.is_changed
-  puts "No changes"
-  exit 1
+  puts "WARNING: None of the children repositories have changed since the last release."
+  #exit 1
 end
 
 current_dir=File.expand_path(File.dirname(__FILE__))
@@ -239,7 +241,7 @@ elsif
   File.open(File.join(out_dir,"compositeContext.xml"), 'w') {|f| f.puts(metadataRes) }
   File.open(File.join(out_dir,"index.html"), 'w') {|f| f.puts(htmlRes) }
   current_symlink=File.join(output,"current")
-  if File.exists? current_symlink
+  if File.symlink?(current_symlink) || File.exists?(current_symlink)
     File.delete current_symlink
   end
   File.symlink(out_dir,current_symlink)
@@ -249,7 +251,7 @@ end
 #so that when buildrdeb-release.sh is called
 # it will tag and commit with this version number.
 if File.exists? "Buildfile"
-  puts "Updating the Buildfile"
+  puts "Updating the Buildfile #{File.expand_path('Buildfile')}."
   File.open("Buildfile_n", "w") do |infile|
     File.open("Buildfile", "r") do |rfile|
       while (line = rfile.gets)
@@ -261,7 +263,13 @@ if File.exists? "Buildfile"
       end
     end
   end
-  File.delete "Buildfile"
-  File.rename("Buildfile_n","Buildfile")
+  if File.exists? "target"
+    puts "Deleting the target repository before the deb package generation."
+    FileUtils.rm_rf "target"
+  end
+  
+  #let the buildrdeb.sh script do the renaming after it has updated from the git repo
+  #File.delete "Buildfile"
+  #File.rename("Buildfile_n","Buildfile")
 end
 

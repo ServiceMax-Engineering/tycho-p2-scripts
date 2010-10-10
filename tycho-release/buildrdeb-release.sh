@@ -93,24 +93,26 @@ echo "Build Version $completeVersion"
 #### Build now
 buildr package
 
+tag=$completeVersion
+[ -n "$SUB_DIRECTORY" ] && tag="$SUB_DIRECTORY-$completeVersion"
+
 ### Tag the source controle
 if [ -n "$GIT_BRANCH" ]; then
- # [ -n "$restore_buildNumberLine" ] &&
- # when releasing the composite repository we need to commit
- # the file
+ # when releasing the composite repository we need to commit the file
+  [ -n "$restore_buildNumberLine" -o -n "$commit_Buildfile" ] &&
   git commit Buildfile -m "Release $completeVersion"
-  git tag $completeVersion
+  git tag $tag
   git push origin $GIT_BRANCH
-  git push origin refs/tags/$completeVersion
+  git push origin refs/tags/$tag
 elif [ -d ".svn" ]; then
-  [ -n "$restore_buildNumberLine" ] && svn commit Buildfile -m "Release $completeVersion"
+  [ -n "$restore_buildNumberLine" -o -n "$commit_Buildfile" ] && svn commit Buildfile -m "Release $completeVersion"
   echo "Committed the pom.ml"
   #grab the trunk from which the checkout is done:
   svn_url=`svn info |grep URL`
   #for example: URL: http://io.intalio.com/svn/n3/intaliocrm/trunk
   svn_url=`echo "$svn_url" | awk 'match($0, "URL: (.*)/trunk", a) { print a[1] }'`
   #This should be for example: http://io.intalio.com/svn/n3/intaliocrm
-  svn copy $svn_url/trunk $svn_url/tags/$completeVersion
+  svn copy $svn_url/trunk $svn_url/tags/$tag
 fi
 
 if [ -n "$restore_buildNumberLine" ]; then
