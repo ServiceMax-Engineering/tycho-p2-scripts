@@ -33,7 +33,7 @@ require "fileutils"
 
 class CompositeRepository
   
-  def initialize(output, version, basefolder, name, test)
+  def initialize(output, version, basefolder, name, otherurls, test)
     @outputPath = Pathname.new(output).expand_path
     @basefolder = Pathname.new(basefolder).expand_path
     @name = name
@@ -54,6 +54,9 @@ class CompositeRepository
     @date=Time.now.utc
     
     @versionned_output_dir=nil
+    
+    add_external_childrepos otherurls
+    
     compute_versioned_output
   end
 
@@ -64,6 +67,26 @@ class CompositeRepository
     last_version=compute_last_version compositeRepoParentFolder
     relative=File.join(relative.to_s,last_version)
     @children_repo << relative
+  end
+  
+  def add_external_childrepos(otherurls_file)
+    if otherurls_file.nil?
+      return
+    end
+    if ! File.exists?(otherurls_file)
+      raise "The file #{otherurls_file} does not exist."
+    end
+    File.open(otherurls_file, "r") do |infile|
+      while (line = infile.gets)
+        if line.strip.size != 0 && ((line =~ /^#/) == nil)
+          add_external_childrepo(eval("\"#{line.strip}\""))
+        end
+      end
+    end
+  end
+
+  def add_external_childrepo(url)
+    @children_repo << url
   end
   
   def get_versionned_output_dir()
@@ -175,21 +198,31 @@ opt = Getopt::Long.getopts(
   ["--output", "-o", Getopt::REQUIRED],
   ["--name", "-n", Getopt::OPTIONAL],
   ["--test", "-t", Getopt::OPTIONAL],
-  ["--version", "-v", Getopt::OPTIONAL]
+  ["--version", "-v", Getopt::OPTIONAL],
+  ["--otherurls", "-u", Getopt::OPTIONAL]
 )
 
+#the folder in which we start looking for the children repositories
 basefolder = opt["basefolder"] || "."
+#the name of the generated repository
 name = opt["name"] || "all"
+#forced version for the generated composite repository
 version = opt["version"]
+#The fodler where the composite repository is generated.
+#such that $output/$theversion/compositeArtifacts.xml will exist.
 if opt["output"]
   output=opt["output"]
 else
   #look for the all folder and use this as the directory.
 end
 
+# a file where each line that does not start with a '#'
+# is a url of another repository that is added to the child repos
+otherurls=opt["otherurls"]
+
 test=opt["test"] || "false"
 
-compositeRepository=CompositeRepository.new output, version, basefolder, name, test
+compositeRepository=CompositeRepository.new output, version, basefolder, name, otherurls, test
 
 #collect the child repos.
 Find.find(basefolder) do |path|

@@ -4,3 +4,4 @@
    --name all \
    --test false \
    --version 1.0.0.019 \
+   --otherurls=otherurls.repos

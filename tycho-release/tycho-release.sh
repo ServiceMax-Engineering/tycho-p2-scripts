@@ -111,35 +111,6 @@ sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQ
 #### Build now
 $MAVEN3_HOME/bin/mvn clean package
 
-tag=$completeVersion
-[ -n "$SUB_DIRECTORY" ] && tag="$SUB_DIRECTORY-$completeVersion"
-
-### Tag the source controle
-if [ -n "$GIT_BRANCH" ]; then
-  git commit pom.xml -m "Release $completeVersion"
-  git tag $tag
-  git push origin $GIT_BRANCH
-  git push origin refs/tags/$tag
-elif [ -d ".svn" ]; then
-  svn commit pom.xml -m "Release $completeVersion"
-  echo "Committed the pom.ml"
-  #grab the trunk from which the checkout is done:
-  svn_url=`svn info |grep URL`
-  #for example: URL: http://io.intalio.com/svn/n3/intaliocrm/trunk
-  svn_url=`echo "$svn_url" | awk 'match($0, "URL: (.*)/trunk", a) { print a[1] }'`
-  #This should be for example: http://io.intalio.com/svn/n3/intaliocrm
-  svn copy $svn_url/trunk $svn_url/tags/$tag
-fi
-
-#restore the commented out forceContextQualifier
-sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$buildNumber<\/forceContextQualifier-->/" pom.xml
-if [ -n "$GIT_BRANCH" ]; then
-  git commit pom.xml -m "Restore pom.xml for development"
-  git push origin $GIT_BRANCH
-elif [ -d ".svn" ]; then
-  svn commit pom.xml -m "Restore pom.xml for development"
-fi
-
 ### P2-Repository 'deployment'
 # Go into each one of the folders looking for pom.xml files that packaging type is
 # 'eclipse-repository'
@@ -203,3 +174,31 @@ else
   echo "No debian packages to build as the constant DEB_COLLECT_DIR is not defined."
 fi
 
+### Tag the source controle
+tag=$completeVersion
+[ -n "$SUB_DIRECTORY" ] && tag="$SUB_DIRECTORY-$completeVersion"
+
+if [ -n "$GIT_BRANCH" ]; then
+  git commit pom.xml -m "Release $completeVersion"
+  git tag $tag
+  git push origin $GIT_BRANCH
+  git push origin refs/tags/$tag
+elif [ -d ".svn" ]; then
+  svn commit pom.xml -m "Release $completeVersion"
+  echo "Committed the pom.ml"
+  #grab the trunk from which the checkout is done:
+  svn_url=`svn info |grep URL`
+  #for example: URL: http://io.intalio.com/svn/n3/intaliocrm/trunk
+  svn_url=`echo "$svn_url" | awk 'match($0, "URL: (.*)/trunk", a) { print a[1] }'`
+  #This should be for example: http://io.intalio.com/svn/n3/intaliocrm
+  svn copy $svn_url/trunk $svn_url/tags/$tag
+fi
+
+#restore the commented out forceContextQualifier
+sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$buildNumber<\/forceContextQualifier-->/" pom.xml
+if [ -n "$GIT_BRANCH" ]; then
+  git commit pom.xml -m "Restore pom.xml for development"
+  git push origin $GIT_BRANCH
+elif [ -d ".svn" ]; then
+  svn commit pom.xml -m "Restore pom.xml for development"
+fi
