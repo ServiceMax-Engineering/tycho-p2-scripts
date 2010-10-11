@@ -238,7 +238,7 @@ elsif
   out_dir=compositeRepository.get_versionned_output_dir
   puts "Writing the composite repository in #{out_dir}"
   File.open(File.join(out_dir,"compositeArtifacts.xml"), 'w') {|f| f.puts(artifactsRes) }
-  File.open(File.join(out_dir,"compositeContext.xml"), 'w') {|f| f.puts(metadataRes) }
+  File.open(File.join(out_dir,"compositeContent.xml"), 'w') {|f| f.puts(metadataRes) }
   File.open(File.join(out_dir,"index.html"), 'w') {|f| f.puts(htmlRes) }
   current_symlink=File.join(output,"current")
   if File.symlink?(current_symlink) || File.exists?(current_symlink)
