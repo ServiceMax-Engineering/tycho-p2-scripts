@@ -169,7 +169,7 @@ if [ -n "$DEB_COLLECT_DIR" ]; then
     exit 2;
   fi
   echo "Executing $path_to_deb_generation_script"
-  exec $path_to_deb_generation_script
+  $path_to_deb_generation_script
 else
   echo "No debian packages to build as the constant DEB_COLLECT_DIR is not defined."
 fi

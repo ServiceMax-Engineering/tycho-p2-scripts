@@ -46,6 +46,14 @@ fi
 if [ -n "$SUB_DIRECTORY" ]; then
   cd $SUB_DIRECTORY
 fi
+
+if [ -f "Buildfile_n" ]; then
+  #found the new Buildfile
+  echo "Found the Builfile updated by the previous part of the build"
+  rm Buildfile
+  mv Buildfile_n Buildfile
+fi
+
 ### Compute the build number.
 #tags the sources for a release build.
 reg2="VERSION_NUMBER=\\\"(.*)-SNAPSHOT\\\""
@@ -93,10 +101,33 @@ echo "Build Version $completeVersion"
 #### Build now
 buildr package
 
+### Debian packages build
+# Run it if indeed a location has been defined to deploy the deb packages.
+if [ -n "$DEB_COLLECT_DIR" ]; then
+  # Absolute path to this script.
+  SCRIPT=$(readlink -f $0)
+  # Absolute path this script is in.
+  SCRIPTPATH=`dirname $SCRIPT` 
+  path_to_deb_generation_script=$SCRIPTPATH/../osgi-features-to-debian-package/generate-and-collect-features-deb.sh
+  if [ ! -f "$path_to_deb_generation_script" ]; then
+    #try a second location.
+    path_to_deb_generation_script=$SCRIPTPATH/osgi-features-to-debian-package/generate-and-collect-features-deb.sh
+  fi
+  if [ ! -f "$path_to_deb_generation_script" ]; then
+    echo "$path_to_deb_generation_script does not exist."
+    echo "Unable to find the shell script in charge of generating the debian packages"
+    exit 2;
+  fi
+  echo "Executing $path_to_deb_generation_script"
+  $path_to_deb_generation_script
+else
+  echo "No debian packages to build as the constant DEB_COLLECT_DIR is not defined."
+fi
+
+### Tag the source controle
 tag=$completeVersion
 [ -n "$SUB_DIRECTORY" ] && tag="$SUB_DIRECTORY-$completeVersion"
 
-### Tag the source controle
 if [ -n "$GIT_BRANCH" ]; then
  # when releasing the composite repository we need to commit the file
   [ -n "$restore_buildNumberLine" -o -n "$commit_Buildfile" ] &&
@@ -124,28 +155,5 @@ if [ -n "$restore_buildNumberLine" ]; then
   elif [ -d ".svn" ]; then
     svn commit pom.xml -m "Restore Buildfile for development"
   fi
-fi
-
-### Debian packages build
-# Run it if indeed a location has been defined to deploy the deb packages.
-if [ -n "$DEB_COLLECT_DIR" ]; then
-  # Absolute path to this script.
-  SCRIPT=$(readlink -f $0)
-  # Absolute path this script is in.
-  SCRIPTPATH=`dirname $SCRIPT` 
-  path_to_deb_generation_script=$SCRIPTPATH/../osgi-features-to-debian-package/generate-and-collect-features-deb.sh
-  if [ ! -f "$path_to_deb_generation_script" ]; then
-    #try a second location.
-    path_to_deb_generation_script=$SCRIPTPATH/osgi-features-to-debian-package/generate-and-collect-features-deb.sh
-  fi
-  if [ ! -f "$path_to_deb_generation_script" ]; then
-    echo "$path_to_deb_generation_script does not exist."
-    echo "Unable to find the shell script in charge of generating the debian packages"
-    exit 2;
-  fi
-  echo "Executing $path_to_deb_generation_script"
-  exec $path_to_deb_generation_script
-else
-  echo "No debian packages to build as the constant DEB_COLLECT_DIR is not defined."
 fi
 
