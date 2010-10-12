@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 # ========================================================================
 # Copyright (c) 2006-2010 Intalio Inc
 # ------------------------------------------------------------------------
@@ -55,6 +55,8 @@ fi
 if [ -d ".git" ]; then
   git checkout $GIT_BRANCH
   git pull origin $GIT_BRANCH
+elif [ -d ".svn" ]; then
+  svn up
 fi
 
 if [ -n "$SUB_DIRECTORY" ]; then

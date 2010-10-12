@@ -138,7 +138,7 @@ class CompositeRepository
     versions = Dir.glob("#{parent_dir}/*/artifacts.*") | Dir.glob("#{parent_dir}/*/dummy") | Dir.glob("#{parent_dir}/*/compositeArtifacts.*")
     sortedversions= Array.new
     versions.uniq.sort.each do |path|
-      if FileTest.file?(path) and !FileTest.symlink?(File.dirname(path))
+      if FileTest.file?(path) && !FileTest.symlink?(File.dirname(path)) && "latest" != File.basename(File.dirname(path))
         aversion= File.basename File.dirname(path)
         sortedversions << aversion
       end
