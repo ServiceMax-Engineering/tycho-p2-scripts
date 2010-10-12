@@ -195,6 +195,10 @@ elif [ -d ".svn" ]; then
 fi
 
 #restore the commented out forceContextQualifier
+if [ -n "$prop" ]; then
+  #a forced build number, let's restore it the way it was
+  buildNumber='${'$prop'}'
+fi
 sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$buildNumber<\/forceContextQualifier-->/" pom.xml
 if [ -n "$GIT_BRANCH" ]; then
   git commit pom.xml -m "Restore pom.xml for development"
