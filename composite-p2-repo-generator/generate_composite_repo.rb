@@ -64,7 +64,13 @@ class CompositeRepository
     compositeRepoParentFolder=Pathname.new Pathname.new(File.dirname compositeMkrepoFile).expand_path
     #make it a path relative to the @versionned_output_dir
     relative=compositeRepoParentFolder.relative_path_from(Pathname.new(@versionned_output_dir))
+    if relative.nil?
+      raise "Could not compute the relative path of #{compositeMkrepoFile.to_s} from #{Pathname.new(@versionned_output_dir).to_s}"
+    end
     last_version=compute_last_version compositeRepoParentFolder
+    if last_version.nil?
+      raise "Could not locate a version directory in #{compositeRepoParentFolder.to_s}"
+    end
     relative=File.join(relative.to_s,last_version)
     @children_repo << relative
   end
