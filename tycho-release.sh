@@ -25,6 +25,16 @@
 # Replace the forceContextQualifier's value by qualifier
 # Commit
 # git branch to checkout.
+
+#load the environment constants
+# Absolute path to this script.
+SCRIPT=$(readlink -f $0)
+# Absolute path this script is in.
+SCRIPTPATH=`dirname $SCRIPT`
+[ -z "$RELEASE_ENV" ] && RELEASE_ENV=$SCRIPTPATH/default_env
+[ -f "$RELEASE_ENV"] . $RELEASE_ENV
+
+
 echo "Executing tycho-release.sh in the folder "`pwd`
 #make sure we are at the root of the folder where the chckout actually happened.
 if [ ! -d ".git" -a ! -d ".svn" ]; then
@@ -176,10 +186,11 @@ else
   echo "No debian packages to build as the constant DEB_COLLECT_DIR is not defined."
 fi
 
+set +e
+
 ### Tag the source controle
 tag=$completeVersion
 [ -n "$SUB_DIRECTORY" ] && tag="$SUB_DIRECTORY-$completeVersion"
-
 if [ -n "$GIT_BRANCH" ]; then
   git commit pom.xml -m "Release $completeVersion"
   git tag $tag
@@ -195,6 +206,8 @@ elif [ -d ".svn" ]; then
   #This should be for example: http://io.intalio.com/svn/n3/intaliocrm
   svn copy $svn_url/trunk $svn_url/tags/$tag
 fi
+
+set -e
 
 #restore the commented out forceContextQualifier
 if [ -n "$prop" ]; then

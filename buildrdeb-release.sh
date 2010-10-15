@@ -25,6 +25,16 @@
 # Replace the forceContextQualifier's value by qualifier
 # Commit
 # git branch to checkout.
+
+#load the environment constants
+# Absolute path to this script.
+SCRIPT=$(readlink -f $0)
+# Absolute path this script is in.
+SCRIPTPATH=`dirname $SCRIPT`
+[ -z "$RELEASE_ENV" ] && RELEASE_ENV=$SCRIPTPATH/default_env
+[ -f "$RELEASE_ENV"] . $RELEASE_ENV
+
+
 echo "Executing buildrdeb-release.sh in the folder "`pwd`
 #make sure we are at the root of the folder where the chckout actually happened.
 if [ ! -d ".git" -a ! -d ".svn" ]; then
