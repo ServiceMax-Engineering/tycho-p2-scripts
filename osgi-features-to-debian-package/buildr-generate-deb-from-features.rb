@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # ========================================================================
 # Copyright (c) 2006-2010 Intalio Inc
 # ------------------------------------------------------------------------
@@ -20,7 +21,13 @@
 # file. It uses the name of the .control to generate a debian package providing a package of the same name
 # and containing a single file "#{control-filename}.ius" that is placed in /var/www/cloud/conf/osgi
 #
+# This script is meant to be called from the shell script generate-and-collect-features-deb.sh
+#
+require 'rubygems'
+gem "buildr"
+gem "buildrdeb"
 
+require "buildr"
 require "buildrdeb"
 require "rexml/document"
 include REXML
