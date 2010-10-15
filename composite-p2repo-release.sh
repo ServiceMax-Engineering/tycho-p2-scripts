@@ -9,7 +9,7 @@ SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 #load the env
 [ -z "$RELEASE_ENV" ] && RELEASE_ENV=$SCRIPTPATH/default_env
-[ -f "$RELEASE_ENV" ] . $RELEASE_ENV
+[ -f "$RELEASE_ENV" ] && . $RELEASE_ENV
 
 if [ -n "$SUB_DIRECTORY" ]; then
   cd "$SUB_DIRECTORY"
