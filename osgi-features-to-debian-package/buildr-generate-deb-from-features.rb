@@ -195,7 +195,8 @@ CONTROL
   
   built_control=eval_file(control_file, control_content, label, version)
 
-  iu_file=File.join(feature_project_folder,File.basename(control_file).chomp(".control")+".ius")
+  control_base=File.join(feature_project_folder,File.basename(control_file).chomp(".control"))
+  iu_file=control_base+".ius"
   ius_content = <<-IUS
 # Installable Units for #{id} #{version}
 # Build-Time: #{Time.now.strftime("%Y-%m-%d %H:%M:%S")}
@@ -207,6 +208,19 @@ IUS
   deb.version=version
   deb.control=built_control.to_s
   deb.include(built_ius, :path => FOLDER_CONF_OSGI)
+  
+  postinst=control_base+".postinst"
+  if File.exists? postinst
+    deb.postinst=postinst
+  end
+  preinst=control_base+".preinst"
+  if File.exists? preinst
+    deb.preinst=preinst
+  end
+  trigger=control_base+".trigger"
+  if File.exists? trigger
+    deb.trigger=trigger
+  end
 
 end
 
