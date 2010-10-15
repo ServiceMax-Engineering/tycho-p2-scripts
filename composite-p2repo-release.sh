@@ -15,12 +15,31 @@ if [ -n "$SUB_DIRECTORY" ]; then
   cd "$SUB_DIRECTORY"
 fi
 
+#sanity checks:
+if [ -z "$composite_name" ]; then
+  echo "Missing shell variable composite_name"
+  exit 2;
+fi
+if [ -z "$composite_basefolder" ]; then
+  echo "Missing shell variable composite_basefolder"
+  exit 2;
+fi
+if [ -z "$composite_output" ]; then
+  echo "Missing shell variable composite_output"
+  exit 2;
+fi
+if [ -z "$composite_otherurls" ]; then
+  echo "Missing shell variable composite_otherurls"
+  exit 2;
+fi
+
 generate_composite_repo_path=$SCRIPTPATH/composite-p2repo/generate_composite_repo.rb
-cmd="$generate_composite_repo_path --name all --basefolder $HOME/p2repo/com/intalio/cloud/ --output $HOME/p2repo/com/intalio/cloud/all --otherurls=otherurls_for_composite_repo.txt"
+#cmd="$generate_composite_repo_path --name all --basefolder $HOME/p2repo/com/intalio/cloud/ --output $HOME/p2repo/com/intalio/cloud/all --otherurls=otherurls_for_composite_repo.txt"
+cmd="$generate_composite_repo_path --name $composite_name --basefolder $composite_basefolder --output $composite_output --otherurls=$composite_otherurls"
 echo "Executing $cmd"
 $cmd
 
-#make sure the Buildfile will be committed
+#make sure the Buildfile will be committed although it probably has no changes.
 commit_Buildfile=true
 
 if [ -n "$SUB_DIRECTORY" ]; then
