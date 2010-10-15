@@ -32,7 +32,7 @@ SCRIPT=$(readlink -f $0)
 # Absolute path this script is in.
 SCRIPTPATH=`dirname $SCRIPT`
 [ -z "$RELEASE_ENV" ] && RELEASE_ENV=$SCRIPTPATH/default_env
-[ -f "$RELEASE_ENV"] . $RELEASE_ENV
+[ -f "$RELEASE_ENV" ] . $RELEASE_ENV
 
 
 echo "Executing tycho-release.sh in the folder "`pwd`
