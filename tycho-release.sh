@@ -120,12 +120,17 @@ echo "Build Version $completeVersion"
 #update the numbers for the release
 sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQualifier>$buildNumber<\/forceContextQualifier>/" pom.xml
 
+#we write this one in the build file
+timestamp_and_id=`date +%Y-%m-%d-%H%M%S`
+
 #### Build now
 $MAVEN3_HOME/bin/mvn clean package
 
 ### P2-Repository 'deployment'
 # Go into each one of the folders looking for pom.xml files that packaging type is
 # 'eclipse-repository'
+# Add a file to identify the build and the version. eventually we could even add some html pages here.
+# Then move the repository in its 'final' destination. aka the deployment.
 current_dir=`pwd`;
 current_dir=`readlink -f $current_dir`
 reg3="<packaging>eclipse-repository<\/packaging>"
@@ -147,7 +152,7 @@ do
          groupId=`xpath -q -e "/project/parent/groupId/text()" $pom`
        fi
        p2repoPath=$BASE_FILE_PATH_P2_REPO/`echo $groupId | tr '.' '/'`/$artifactId
-       echo "Deploying $groupId:$artifactId:$completeVersion in $p2repoPath/$completeVersion"
+       echo "Deploying $groupId:$artifactId:$completeVersion in $p2repoPath/$completeVersion"       
        if [ -d $p2repoPath/$completeVersion ]; then
          echo "Warn: Removing the existing repository $p2repoPath/$completeVersion"
          rm -rf $p2repoPath/$completeVersion
@@ -158,6 +163,9 @@ do
        if [ -h "$p2repoPath/$SYM_LINK_CURRENT_NAME" ]; then
          rm "$p2repoPath/$SYM_LINK_CURRENT_NAME"
        fi
+       build_file=$p2repoPath/$completeVersion/version
+       echo "artifact $groupId:$artifactId:$completeVersion" > $build_file
+       echo "build $timestamp_and_id" >> $build_file
        ln -s $p2repoPath/$completeVersion $p2repoPath/$SYM_LINK_CURRENT_NAME
     fi
   fi
@@ -193,7 +201,7 @@ tag=$completeVersion
 [ -n "$SUB_DIRECTORY" ] && tag="$SUB_DIRECTORY-$completeVersion"
 if [ -n "$GIT_BRANCH" ]; then
   git commit pom.xml -m "Release $completeVersion"
- #in case it exsits already delete the tag
+ #in case it exists already delete the tag
  #we are not extremely strict about leaving a tag in there for ever and never touched it.
   [ -n "$prop" ] && git push origin :refs/tags/$tag
   git tag $tag
