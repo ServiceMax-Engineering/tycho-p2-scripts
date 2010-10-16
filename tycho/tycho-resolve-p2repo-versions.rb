@@ -47,6 +47,25 @@ if ! File.exists? output
   raise "The #{output} file does not exist"
 end
 
+# load properties string into a hash
+def load_properties(properties_str)
+  properties = {}
+#  File.open(properties_filename, 'r') do |properties_file|
+    properties_str.each do |line|
+      line.strip!
+      if (line[0] != ?# and line[0] != ?=)
+        i = line.index('=')
+        if (i)
+          properties[line[0..i - 1].strip] = line[i + 1..-1].strip
+        else
+          properties[line] = ''
+        end
+      end
+    end      
+#  end
+  properties
+end
+
 
 
 class P2Repository
@@ -54,6 +73,8 @@ class P2Repository
     @id = id
     @url = url
     @read_version = "unknown"
+    @read_built  = "unknown"
+    @read_artifact = "unknown"
     puts "New repo #{id} -> #{url}"
     resolve_version
   end
@@ -63,7 +84,10 @@ class P2Repository
     uri = URI.parse(url_built_version)
     response = Net::HTTP.start(uri.host, uri.port) { |http| http.get(uri.path) }
     if response.code == "200"
-      puts response.body
+      built_props= load_properties(response.body)
+      @read_version=built_props['version']
+      @read_built=built_props['built']
+      @read_artifact=built_props['artifact']
     else
    #   puts "#{url_built_version} -> #{response.code}"
     end
@@ -72,10 +96,14 @@ class P2Repository
   def print_report()
     return <<-REPORT
     <repository>
-        <!-- Read in built_version.properties: #{@read_version} -->
         <id>#{@id}</id>
         <layout>p2</layout>
-        <url>#{url}</url>
+        <url>#{@url}</url>
+        <built_version>
+           <artifact>#{@read_artifact}</artifact>
+           <version>#{@read_version}</version>
+           <built>#{@read_built}</built>
+        </built_version>
     </repository>
 REPORT
   end
@@ -134,10 +162,11 @@ XPath.each(pom_xml,"//repositories/repository[layout/text()='p2']") { |repositor
 }
 
 #now output the pom.repositories_report.xml file
-File.open(File.join(output,"pom.repositories_report.xml", 'w') {|f|
+File.open(File.join(output,"pom.repositories_report.xml"), 'w') { |f|
   f.puts "<repositories>"
   REPOSITORIES.each_pair do |k,v|
     f.puts v.print_report
   end
   f.puts "</repositories>"
 }
+
