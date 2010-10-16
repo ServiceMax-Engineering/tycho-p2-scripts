@@ -193,6 +193,9 @@ tag=$completeVersion
 [ -n "$SUB_DIRECTORY" ] && tag="$SUB_DIRECTORY-$completeVersion"
 if [ -n "$GIT_BRANCH" ]; then
   git commit pom.xml -m "Release $completeVersion"
+ #in case it exsits already delete the tag
+ #we are not extremely strict about leaving a tag in there for ever and never touched it.
+  git push origin :refs/tags/$tag
   git tag $tag
   git push origin $GIT_BRANCH
   git push origin refs/tags/$tag
