@@ -135,6 +135,8 @@ else
 fi
 
 ### Tag the source controle
+set +e
+
 tag=$completeVersion
 [ -n "$SUB_DIRECTORY" ] && tag="$SUB_DIRECTORY-$completeVersion"
 
@@ -142,8 +144,12 @@ if [ -n "$GIT_BRANCH" ]; then
  # when releasing the composite repository we need to commit the file
   [ -n "$restore_buildNumberLine" -o -n "$commit_Buildfile" ] &&
   git commit Buildfile -m "Release $completeVersion"
+ #in case it exists already delete the tag
+ #we are not extremely strict about leaving a tag in there for ever and never touched it.
+  [ -n "$prop" ] && git push origin :refs/tags/$tag
   git tag $tag
-  git push origin $GIT_BRANCH
+ # don't push this pom in the master branch: we only care for it in the tag !
+ # git push origin $GIT_BRANCH
   git push origin refs/tags/$tag
 elif [ -d ".svn" ]; then
   [ -n "$restore_buildNumberLine" -o -n "$commit_Buildfile" ] && svn commit Buildfile -m "Release $completeVersion"
@@ -156,13 +162,19 @@ elif [ -d ".svn" ]; then
   svn copy $svn_url/trunk $svn_url/tags/$tag
 fi
 
+set -e
+
 if [ -n "$restore_buildNumberLine" ]; then
   #restore the commented out forceContextQualifier
   sed -i "s/VERSION_NUMBER=\"$completeVersion\"/$buildNumberLine/" Buildfile
   if [ -n "$GIT_BRANCH" ]; then
     git commit Buildfile -m "Restore Buildfile for development"
+    #in case someone has been working and pushing things during the build:
+    git pull origin $GIT_BRANCH
     git push origin $GIT_BRANCH
   elif [ -d ".svn" ]; then
+    #in case someone has been working and pushing things during the build:
+    svn up
     svn commit pom.xml -m "Restore Buildfile for development"
   fi
 fi

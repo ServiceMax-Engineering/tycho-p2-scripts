@@ -186,18 +186,19 @@ else
   echo "No debian packages to build as the constant DEB_COLLECT_DIR is not defined."
 fi
 
+### Tag the source controle
 set +e
 
-### Tag the source controle
 tag=$completeVersion
 [ -n "$SUB_DIRECTORY" ] && tag="$SUB_DIRECTORY-$completeVersion"
 if [ -n "$GIT_BRANCH" ]; then
   git commit pom.xml -m "Release $completeVersion"
  #in case it exsits already delete the tag
  #we are not extremely strict about leaving a tag in there for ever and never touched it.
-  git push origin :refs/tags/$tag
+  [ -n "$prop" ] && git push origin :refs/tags/$tag
   git tag $tag
-  git push origin $GIT_BRANCH
+ # don't push this pom in the master branch: we only care for it in the tag !
+ # git push origin $GIT_BRANCH
   git push origin refs/tags/$tag
 elif [ -d ".svn" ]; then
   svn commit pom.xml -m "Release $completeVersion"
@@ -220,7 +221,11 @@ fi
 sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$buildNumber<\/forceContextQualifier-->/" pom.xml
 if [ -n "$GIT_BRANCH" ]; then
   git commit pom.xml -m "Restore pom.xml for development"
+  #in case someone has been working and pushing things during the build:
+  git pull origin $GIT_BRANCH
   git push origin $GIT_BRANCH
 elif [ -d ".svn" ]; then
+  #in case someone has been working and pushing things during the build:
+  svn up
   svn commit pom.xml -m "Restore pom.xml for development"
 fi
