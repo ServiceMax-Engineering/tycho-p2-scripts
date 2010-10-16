@@ -163,9 +163,10 @@ do
        if [ -h "$p2repoPath/$SYM_LINK_CURRENT_NAME" ]; then
          rm "$p2repoPath/$SYM_LINK_CURRENT_NAME"
        fi
-       build_file=$p2repoPath/$completeVersion/version
-       echo "artifact $groupId:$artifactId:$completeVersion" > $build_file
-       echo "build $timestamp_and_id" >> $build_file
+       build_file=$p2repoPath/$completeVersion/version_built.properties
+       echo "artifact=$groupId:$artifactId" > $build_file
+       echo "version=$completeVersion" >> $build_file
+       echo "built=$timestamp_and_id" >> $build_file
        ln -s $p2repoPath/$completeVersion $p2repoPath/$SYM_LINK_CURRENT_NAME
     fi
   fi
