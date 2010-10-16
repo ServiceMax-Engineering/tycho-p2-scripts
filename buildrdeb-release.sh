@@ -102,7 +102,7 @@ else
     echo "Unable to find the $reg2 line in the Buildfile"
     exit 2
   fi
-  
+  props="forced_version"
 fi
 
 export completeVersion
