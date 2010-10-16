@@ -18,6 +18,8 @@
 # It resolves the value of each URL for the p2 repositories
 # Then tries to download the #{p2_repo-url}/version_built.properties
 # If it exists, it reads this file for the actual version of the repositories
+# and it outputs all the information about repsoitories use during the built
+# in the file pom.repositories_report.xml
 #
 # This enables us to mark the exact version of each repository used during a build
 # even if during developement those urls are actually always pointing to the latest release.

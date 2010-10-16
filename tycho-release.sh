@@ -163,14 +163,22 @@ do
        if [ -h "$p2repoPath/$SYM_LINK_CURRENT_NAME" ]; then
          rm "$p2repoPath/$SYM_LINK_CURRENT_NAME"
        fi
-       build_file=$p2repoPath/$completeVersion/version_built.properties
-       echo "artifact=$groupId:$artifactId" > $build_file
-       echo "version=$completeVersion" >> $build_file
-       echo "built=$timestamp_and_id" >> $build_file
+       #Generate the build signature file that will be read by other builds via tycho-resolve-p2repo-versions.rb
+       #to identify the actual version of the repo used as a dependency.
+       version_built_file=$p2repoPath/$completeVersion/version_built.properties
+       echo "artifact=$groupId:$artifactId" > $version_built_file
+       echo "version=$completeVersion" >> $version_built_file
+       echo "built=$timestamp_and_id" >> $version_built_file
        ln -s $p2repoPath/$completeVersion $p2repoPath/$SYM_LINK_CURRENT_NAME
     fi
   fi
 done
+
+### Create a report of repositories used during this build.
+set +e
+./tycho/tycho-resolve-p2repo-versions.rb --pom $current_dir/pom.xml
+repo_report="pom.repositories_report.xml"
+set -e
 
 ### Debian packages build
 # Run it if indeed a location has been defined to deploy the deb packages.
@@ -201,7 +209,12 @@ set +e
 tag=$completeVersion
 [ -n "$SUB_DIRECTORY" ] && tag="$SUB_DIRECTORY-$completeVersion"
 if [ -n "$GIT_BRANCH" ]; then
-  git commit pom.xml -m "Release $completeVersion"
+  if [ -f "$repo_report" ]; then
+    git add $repo_report
+    git commit pom.xml $repo_report -m "Release $completeVersion"
+  else
+    git commit pom.xml -m "Release $completeVersion"
+  fi
  #in case it exists already delete the tag
  #we are not extremely strict about leaving a tag in there for ever and never touched it.
   [ -n "$prop" ] && git push origin :refs/tags/$tag
@@ -210,7 +223,12 @@ if [ -n "$GIT_BRANCH" ]; then
  # git push origin $GIT_BRANCH
   git push origin refs/tags/$tag
 elif [ -d ".svn" ]; then
-  svn commit pom.xml -m "Release $completeVersion"
+  if [ -f "$repo_report" ]; then
+    svn add $repo_report
+    svn commit pom.xml $repo_report -m "Release $completeVersion"
+  else
+    svn commit pom.xml -m "Release $completeVersion"
+  fi
   echo "Committed the pom.ml"
   #grab the trunk from which the checkout is done:
   svn_url=`svn info |grep URL`
