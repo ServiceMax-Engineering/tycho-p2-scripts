@@ -82,7 +82,7 @@ class P2Repository
   end
   
   def resolve_version()
-    url_built_version="#{@url}/built_version.properties"
+    url_built_version="#{@url}/version_built.properties"
     uri = URI.parse(url_built_version)
     response = Net::HTTP.start(uri.host, uri.port) { |http| http.get(uri.path) }
     if response.code == "200"
