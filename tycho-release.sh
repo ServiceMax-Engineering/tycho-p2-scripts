@@ -176,7 +176,7 @@ done
 
 ### Create a report of repositories used during this build.
 set +e
-./tycho/tycho-resolve-p2repo-versions.rb --pom $current_dir/pom.xml
+$SCRIPTPATH/tycho/tycho-resolve-p2repo-versions.rb --pom $current_dir/pom.xml
 repo_report="pom.repositories_report.xml"
 set -e
 
