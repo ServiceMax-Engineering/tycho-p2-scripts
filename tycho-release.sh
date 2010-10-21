@@ -96,10 +96,17 @@ if [ -n "$prop" ]; then
   completeVersion=`echo "$line_prop" | awk 'match($0, "'$reg_named_prop'", a) { print a[1] }'`
   # reconstruct the version and buildNumber.
   # make the assumption that the completeVersion matches a 4 seg numbers.
+  #if it does not then make the assumption that this buildNumber is just the forced context qualifier and use 
+  #the pom.xml's version for the rest of the version.
   var=$(echo $completeVersion | awk -F"." '{print $1,$2,$3,$4}')   
   set -- $var
-  version=$1.$2.$3
-  buildNumber=$4
+  if [ -n "$1" -a -n "$2" -a -n "$3" -a -n "$4" ]; then
+    version=$1.$2.$3
+    buildNumber=$4
+  else
+    buildNumber=$completeVersion
+    completeVersion="$version.$buildNumber"
+  fi
   echo "$version   $buildNumber"
 else
   echo "Increment the buildNumber $currentBuildNumber"
