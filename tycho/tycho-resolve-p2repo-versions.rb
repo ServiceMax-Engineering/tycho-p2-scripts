@@ -101,11 +101,11 @@ class P2Repository
         <id>#{@id}</id>
         <layout>p2</layout>
         <url>#{@url}</url>
-        <built_version>
+        <version_built>
            <artifact>#{@read_artifact}</artifact>
            <version>#{@read_version}</version>
            <built>#{@read_built}</built>
-        </built_version>
+        </version_built>
     </repository>
 REPORT
   end
