@@ -131,7 +131,7 @@ sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQ
 timestamp_and_id=`date +%Y-%m-%d-%H%M%S`
 
 #### Build now
-$MAVEN3_HOME/bin/mvn clean package
+$MAVEN3_HOME/bin/mvn clean integration-test
 
 ### P2-Repository 'deployment'
 # Go into each one of the folders looking for pom.xml files that packaging type is
