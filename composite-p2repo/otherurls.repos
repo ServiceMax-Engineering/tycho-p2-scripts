@@ -1,4 +1,5 @@
-#a couple o other repositories to be added as children of this composite repository
+#a couple of other repositories to be added as children of this composite repository
 http://www.intalio.org/public/p2repo/org/eclipse/eclipse/updates/3.6
 http://www.intalio.org/public/p2repo/org/eclipse/jetty/7.1.4.v20100610/repository
-http://www.intalio.org/public/emf
+http://www.intalio.org/public/p2repo/org/eclipse/emf/
+http://www.intalio.org/public/p2repo/org/jruby/
