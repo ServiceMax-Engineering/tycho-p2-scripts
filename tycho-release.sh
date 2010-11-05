@@ -176,7 +176,10 @@ do
        echo "artifact=$groupId:$artifactId" > $version_built_file
        echo "version=$completeVersion" >> $version_built_file
        echo "built=$timestamp_and_id" >> $version_built_file
-       ln -s $p2repoPath/$completeVersion $p2repoPath/$SYM_LINK_CURRENT_NAME
+       #must make sure we create the symlink in the right folder to have rsync find it later.
+       cd $p2repoPath
+       ln -s $completeVersion $SYM_LINK_CURRENT_NAME
+       cd $current_dir
     fi
   fi
 done
