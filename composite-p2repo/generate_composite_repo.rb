@@ -281,7 +281,7 @@ Find.find(basefolder) do |path|
   else
     if File.basename(path).downcase == "#{name.downcase}.composite.mkrepo"
       #compositeRepository.add_childrepo path
-      puts path
+      puts "Found obsolete and unused #{path}"
     end
   end
 end
