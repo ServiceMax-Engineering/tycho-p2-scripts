@@ -11,6 +11,18 @@ SCRIPTPATH=`dirname $SCRIPT`
 [ -z "$RELEASE_ENV" ] && RELEASE_ENV=$SCRIPTPATH/default_env
 [ -f "$RELEASE_ENV" ] && . $RELEASE_ENV
 
+if [ -d ".git" -a -z "$GIT_BRANCH" ]; then
+  GIT_BRANCH=master
+  export GIT_BRANCH
+fi
+
+if [ -d ".git" ]; then
+  git checkout $GIT_BRANCH
+  git pull origin $GIT_BRANCH
+elif [ -d ".svn" ]; then
+  svn up
+fi
+
 if [ -n "$SUB_DIRECTORY" ]; then
   cd "$SUB_DIRECTORY"
 fi
