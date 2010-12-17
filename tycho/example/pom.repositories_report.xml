@@ -1,0 +1,79 @@
+<repositories>
+    <repository>
+        <!-- Read in built_version.properties: unknown -->
+        <id>jetty-site</id>
+        <layout>p2</layout>
+        <url>http://www.intalio.org/public/p2repo/org/eclipse/jetty/7.1.4.v20100610/repository</url>
+        <built_version>
+           <artifact>unknown</artifact>
+           <version>unknown</version>
+           <built>unknown</built>
+        </built_version>
+    </repository>
+    <repository>
+        <!-- Read in built_version.properties: unknown -->
+        <id>cas-sharedapi-site</id>
+        <layout>p2</layout>
+        <url>http://release.intalio.com/p2repo/com/intalio/cloud/cas/cloud.cas.repository/current</url>
+        <built_version>
+           <artifact>unknown</artifact>
+           <version>unknown</version>
+           <built>unknown</built>
+        </built_version>
+    </repository>
+    <repository>
+        <!-- Read in built_version.properties: unknown -->
+        <id>equinox</id>
+        <layout>p2</layout>
+        <url>http://www.intalio.org/public/p2repo/org/eclipse/eclipse/updates/3.6</url>
+        <built_version>
+           <artifact>unknown</artifact>
+           <version>unknown</version>
+           <built>unknown</built>
+        </built_version>
+    </repository>
+    <repository>
+        <!-- Read in built_version.properties: unknown -->
+        <id>i-orbit-site</id>
+        <layout>p2</layout>
+        <url>http://release.intalio.com/p2repo/com/intalio/cloud/orbit/current</url>
+        <built_version>
+           <artifact>unknown</artifact>
+           <version>unknown</version>
+           <built>unknown</built>
+        </built_version>
+    </repository>
+    <repository>
+        <!-- Read in built_version.properties: 3.0.0.0042 -->
+        <id>xsharp-platform-site</id>
+        <layout>p2</layout>
+        <url>http://release.intalio.com/p2repo/com/intalio/cloud/platform/xsharp.platform.repository/current</url>
+        <built_version>
+           <artifact>com.intalio.cloud.platform:xsharp.platform.repository</artifact>
+           <version>3.0.0.0042</version>
+           <built>2010-10-16 14:03</built>
+        </built_version>
+    </repository>
+    <repository>
+        <!-- Read in built_version.properties: unknown -->
+        <id>i-orbit-binaries</id>
+        <layout>p2</layout>
+        <url>http://release.intalio.com/p2repo/com/intalio/cloud/orbit-binaries/current</url>
+        <built_version>
+           <artifact>unknown</artifact>
+           <version>unknown</version>
+           <built>unknown</built>
+        </built_version>
+    </repository>
+    <repository>
+        <!-- Read in built_version.properties: unknown -->
+        <id>xsharpapps-extras-site</id>
+        <layout>p2</layout>
+        <url>http://release.intalio.com/p2repo/com/intalio/cloud/platform/xsharpplugins/extras/xsharpplugins.extras.repository/current</url>
+        <built_version>
+           <artifact>unknown</artifact>
+           <version>unknown</version>
+           <built>unknown</built>
+        </built_version>
+    </repository>
+</repositories>

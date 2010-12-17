@@ -30,6 +30,7 @@ require "find"
 require "erb"
 require "pathname"
 require "fileutils"
+require 'set'
 
 class CompositeRepository
   
@@ -43,6 +44,9 @@ class CompositeRepository
     #contain the list of relative path to the linked versioned repos
     @children_repo = [ ]
     
+    #contains the parent folders of each repo already in the composite repo so we don't duplicate
+    @already_indexed_parents = Set.new
+    
     #contain the list of relative path to the linked versioned repos
     #according to the last released aggregate repository
     #we read it in the last released composite repo.
@@ -54,27 +58,36 @@ class CompositeRepository
     @date=Time.now.utc
     
     @versionned_output_dir=nil
+    compute_versioned_output
     
     add_external_childrepos otherurls
     
-    compute_versioned_output
   end
 
-  def add_childrepo( compositeMkrepoFile )
-    compositeRepoParentFolder=Pathname.new Pathname.new(File.dirname compositeMkrepoFile).expand_path
+  def add_childrepo( compositeMkrepoFile, version_glob="*" )
+    if File.directory? compositeMkrepoFile
+      compositeRepoParentFolder=Pathname.new compositeMkrepoFile.path
+    else
+      compositeRepoParentFolder=Pathname.new Pathname.new(File.dirname compositeMkrepoFile).expand_path
+    end
+    if @already_indexed_parents.include? compositeRepoParentFolder
+      raise "The repo #{compositeRepoParentFolder} is already added to the composite repository"
+    end
+    
     #make it a path relative to the @versionned_output_dir
     relative=compositeRepoParentFolder.relative_path_from(Pathname.new(@versionned_output_dir))
     if relative.nil?
-      raise "Could not compute the relative path of #{compositeMkrepoFile.to_s} from #{Pathname.new(@versionned_output_dir).to_s}"
+      raise "Could not compute the relative path of #{compositeRepoParentFolder.to_s} from #{Pathname.new(@versionned_output_dir).to_s}"
     end
-    last_version=compute_last_version compositeRepoParentFolder
+    last_version=compute_last_version(compositeRepoParentFolder,version_glob)
     if last_version.nil?
-      raise "Could not locate a version directory in #{compositeRepoParentFolder.to_s}"
+      raise "Could not locate a version directory in #{compositeRepoParentFolder.to_s}/#{version_glob}"
     end
     relative=File.join(relative.to_s,last_version)
     @children_repo << relative
+    @already_indexed_parents << compositeRepoParentFolder
   end
-  
+    
   def add_external_childrepos(otherurls_file)
     if otherurls_file.nil?
       return
@@ -85,7 +98,31 @@ class CompositeRepository
     File.open(otherurls_file, "r") do |infile|
       while (line = infile.gets)
         if line.strip.size != 0 && ((line =~ /^#/) == nil)
-          add_external_childrepo(eval("\"#{line.strip}\""))
+          #not an empty line and not a commented line.
+          if line =~ /^BASE=(.*)/
+            base=$1
+            puts "current base #{base}"
+            base = File.expand_path base
+            if ! File.exists?(base)
+              raise "The base directory #{base} does not exist"
+            end
+          elsif (line =~ /:\/\//) != nil
+            add_external_childrepo(eval("\"#{line.strip}\""))
+          else
+            #break platform/xsharp.platform.repository/3.1.0.*
+            #into platform/xsharp.platform.repository and the glob 3.1.0.*
+            line_a = line.split('/')
+            version_glob = line_a.pop.strip
+            path = line_a.join('/')
+            if (path =~ /^\//) == nil
+              path = File.join(base,path)
+            end
+            puts "got #{path} and #{version_glob}"
+            if ! File.exists?(path)
+              raise "The directory #{path} does not exist"
+            end
+            add_childrepo(File.new(path),version_glob)
+          end
         end
       end
     end
@@ -133,9 +170,10 @@ class CompositeRepository
 
   #returns the last version folder
   #parent_dir contains version folders such as 1.0.0.001, 1.0.0.002 etc
-  def compute_last_version(parent_dir)
-    puts "Looking for the last version in #{parent_dir}"
-    versions = Dir.glob("#{parent_dir}/*/artifacts.*") | Dir.glob("#{parent_dir}/*/dummy") | Dir.glob("#{parent_dir}/*/compositeArtifacts.*")
+  def compute_last_version(parent_dir, version_glob="*")
+    glob=File.join(parent_dir,version_glob)
+    puts "Looking for the last version in #{glob}"
+    versions = Dir.glob(File.join(glob,"artifacts.*")) | Dir.glob(File.join(glob,"dummy")) | Dir.glob(File.join(glob,"compositeArtifacts.*"))
     sortedversions= Array.new
     versions.uniq.sort.each do |path|
       if FileTest.file?(path) && !FileTest.symlink?(File.dirname(path)) && "latest" != File.basename(File.dirname(path))
@@ -242,7 +280,8 @@ Find.find(basefolder) do |path|
     end
   else
     if File.basename(path).downcase == "#{name.downcase}.composite.mkrepo"
-      compositeRepository.add_childrepo path
+      #compositeRepository.add_childrepo path
+      puts path
     end
   end
 end
@@ -283,7 +322,9 @@ elsif
   if File.symlink?(current_symlink) || File.exists?(current_symlink)
     File.delete current_symlink
   end
-  File.symlink(out_dir,current_symlink)
+  Dir.chdir "#{out_dir}/.."
+  File.symlink(out_dir,"current")
+  Dir.chdir "#{current_dir}"
 end
 
 # if the Buildfile exists in the working folder then update it with this version number.
