@@ -86,7 +86,7 @@ fi
 
 generate_composite_repo_path=$SCRIPTPATH/composite-p2repo/generate_composite_repo.rb
 #cmd="$generate_composite_repo_path --name all --basefolder $HOME/p2repo/com/intalio/cloud/ --output $HOME/p2repo/com/intalio/cloud/all --otherurls=otherurls_for_composite_repo.txt"
-cmd="$generate_composite_repo_path --name $composite_name --basefolder $composite_basefolder --output $composite_output --otherurls=$composite_otherurls$versionParam"
+cmd="$generate_composite_repo_path --name $composite_name --basefolder $composite_basefolder --output $composite_output --otherurls=$composite_otherurls $versionParam"
 echo "Executing $cmd"
 $cmd
 
