@@ -12,9 +12,17 @@ It assumes a unix environment. It requires bash and the XML:XPath perl module.
 This script generates a p2 composite repository: http://wiki.eclipse.org/Equinox/p2/Composite_Repositories_(new)
 It requires ruby.
 
-It traverses the file system looking for $repo-name.composite.mkrepo files.
-Whenever it finds one it looks at the versionned repository inside that folder, chooses the latest one
-and add it to the collection of children repositories.
+It reads the file passed as an argument: --otherurls
+Each line of this file is parsed in the order that they are written:
+* If the first character is '#' or if the line is blanked; the line is ignored.
+* If the line contains '://' then it is assumed that the line is an absolute URL to a p2-repository. The url is appended to the children repositories
+* If the line starts with BASE= it defines a new value for the current folder from which relative paths on the file system are resolved.
+For example: BASE=~/p2repo/org/intalio
+* If the line starts with a '/' or '~' it is assumed to be an absolute path on the file system.
+* The other types of lines are assumed to be relative paths and are computed relative to the BASE directory
+They can contain a glob expression for the last segment.
+
+For each line a single repository is appended. When the line contains a glob expression, the latest version of the folders name selected is used.
 
 An html page is generated to describe the contents of the composite repository.
 
