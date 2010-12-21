@@ -1,0 +1,4 @@
+Deb filename,Deb Package,Deb Version,OSGi IU id,OSGi IU version,Description
+intalio-cloud-test-3.1.0.005.deb,intalio-cloud-test,3.1.0.005,theid,3.1.0.005,another description
+intalio-cloud-testalso-3.1.0.030.deb,intalio-cloud-testalso,3.1.0.030,theidalso,3.1.0.030,some description
+intalio-cloud-testbe-3.0.0.178.deb,intalio-cloud-testbe,3.0.0.178,theidbe,3.0.0.178,some description for be

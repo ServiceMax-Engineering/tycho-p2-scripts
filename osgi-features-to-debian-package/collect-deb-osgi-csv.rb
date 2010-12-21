@@ -37,9 +37,9 @@ csv_files=Dir.glob(glob)
 csv_files.each do |path|
   File.open(path, 'r') do |properties_file|
     properties_file.read.each_line do |line|
-      if line =~ / /
+      if (headers == "" && line =~ / /)
         #puts "Skip headers #{line}"
-        headers=line
+        headers=line.strip
       elsif line.strip != ""
         #puts "Reads #{line.strip}"
        # toks=line.strip.split(",")
