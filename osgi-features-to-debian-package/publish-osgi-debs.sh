@@ -14,7 +14,6 @@
 # Author hmalphettes, atoulme
 # Sources published here: github.com/intalio/tycho-p2-scripts
 ##
-# Invokes buildr with the buildfile that 
 # Generates the deb packages out of the eclipse features.
 # Collects the generated deb files into a single folder.
 # Assumes that the features have been built by maven-tycho.
@@ -24,22 +23,12 @@ SCRIPT=$(readlink -f $0)
 # Absolute path this script is in.
 SCRIPTPATH=`dirname $SCRIPT` 
 
-BUILDR_FILE=$SCRIPTPATH/buildr-generate-deb-from-features.rb
-
 if [ -z "$CURRENT_DIR" ]; then
  CURRENT_DIR=`pwd`
 fi
 
 if [ -z "$EMPTY_DEB_FOLDER" ]; then
   EMPTY_DEBS_FOLDER="" #false by default don't remove the previous debs. override only
-fi
-
-# if this is a maven3-tycho build then go
-# ahead and invoke the generic deb scritp
-if [ -f "pom.xml" ]; then
-  #clean up the deb file to files for paranoia reasons
-  find $CURRENT_DIR -type f -name "*.deb" -exec rm -f {} \;
-  buildr --buildfile $BUILDR_FILE package
 fi
 
 if [ -z "$DEB_COLLECT_DIR" ]; then

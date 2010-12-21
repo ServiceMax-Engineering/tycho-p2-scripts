@@ -201,8 +201,8 @@ CONTROL
   end
   
   built_control=eval_file(control_file, control_content, label, version)
-
-  control_base=File.join(feature_project_folder,File.basename(control_file).chomp(".control"))
+  control_base_filename=File.basename(control_file).chomp(".control")
+  control_base=File.join(feature_project_folder,control_base_filename)
   iu_file=control_base+".ius"
   ius_content = <<-IUS
 # Installable Units for #{id} #{version}
@@ -212,6 +212,24 @@ CONTROL
 IUS
   built_ius=eval_file(iu_file, ius_content, label, version)
  
+  #leave an easy to read csv file where the 1st column is the deb package name, the 2nd column is the deb version,
+  #the 3rd column it the OSGi IU id the 4th column the OSGi IU version
+  package_read=control_base_filename
+  version_read=version
+  File.open(control_file, 'r') do |properties_file|
+    properties_file.read.each_line do |line|
+      if line =~ /^Package\: ([^ ]*)/
+        package_read=$1.strip
+      elsif line =~ /^Version\: ([^ ]*)/
+        version_read=$1.strip
+      end
+    end
+  end
+  File.open(File.join(target_folder,'#{id}-#{version}.deb-ius.csv'), 'w') do |f1|
+    f1.puts("Deb filename,Deb Package,Deb Version,OSGi IU id,OSGi IU version")
+    f1.puts("#{control_base_filename}-#{version}.deb,#{package_read},#{version_read},#{id},#{version}")
+  end
+  
   deb.version=version
   deb.control=built_control.to_s
   deb.include(built_ius, :path => FOLDER_CONF_OSGI)

@@ -133,6 +133,32 @@ timestamp_and_id=`date +%Y-%m-%d-%H%M%S`
 #### Build now
 $MAVEN3_HOME/bin/mvn clean integration-test
 
+### Debian packages build
+# Run it if indeed a location has been defined to deploy the deb packages.
+if [ -n "$DEB_COLLECT_DIR" ]; then
+  # Absolute path to this script.
+  SCRIPT=$(readlink -f $0)
+  # Absolute path this script is in.
+  SCRIPTPATH=`dirname $SCRIPT` 
+  path_to_deb_generation_script=$SCRIPTPATH/../osgi-features-to-debian-package/generate-and-collect-osgi-debs.sh
+  path_to_deb_publish_script=$SCRIPTPATH/../osgi-features-to-debian-package/publish-osgi-debs.sh
+  if [ ! -f "$path_to_deb_generation_script" ]; then
+    #try a second location.
+    path_to_deb_generation_script=$SCRIPTPATH/osgi-features-to-debian-package/generate-and-collect-osgi-debs.sh
+    path_to_deb_publish_script=$SCRIPTPATH/osgi-features-to-debian-package/publish-osgi-debs.sh
+  fi
+  if [ ! -f "$path_to_deb_generation_script" ]; then
+    echo "$path_to_deb_generation_script does not exist."
+    echo "Unable to find the shell script in charge of generating the debian packages"
+    exit 2;
+  fi
+  echo "Executing $path_to_deb_generation_script"
+  $path_to_deb_generation_script
+else
+  echo "No debian packages to build as the constant DEB_COLLECT_DIR is not defined."
+fi
+
+
 ### P2-Repository 'deployment'
 # Go into each one of the folders looking for pom.xml files that packaging type is
 # 'eclipse-repository'
@@ -184,34 +210,14 @@ do
   fi
 done
 
+#publish the debian packages:
+[ -f "$path_to_deb_publish_script" ] && $path_to_deb_publish_script
+
 ### Create a report of repositories used during this build.
 set +e
 $SCRIPTPATH/tycho/tycho-resolve-p2repo-versions.rb --pom $current_dir/pom.xml
 repo_report="pom.repositories_report.xml"
 set -e
-
-### Debian packages build
-# Run it if indeed a location has been defined to deploy the deb packages.
-if [ -n "$DEB_COLLECT_DIR" ]; then
-  # Absolute path to this script.
-  SCRIPT=$(readlink -f $0)
-  # Absolute path this script is in.
-  SCRIPTPATH=`dirname $SCRIPT` 
-  path_to_deb_generation_script=$SCRIPTPATH/../osgi-features-to-debian-package/generate-and-collect-features-deb.sh
-  if [ ! -f "$path_to_deb_generation_script" ]; then
-    #try a second location.
-    path_to_deb_generation_script=$SCRIPTPATH/osgi-features-to-debian-package/generate-and-collect-features-deb.sh
-  fi
-  if [ ! -f "$path_to_deb_generation_script" ]; then
-    echo "$path_to_deb_generation_script does not exist."
-    echo "Unable to find the shell script in charge of generating the debian packages"
-    exit 2;
-  fi
-  echo "Executing $path_to_deb_generation_script"
-  $path_to_deb_generation_script
-else
-  echo "No debian packages to build as the constant DEB_COLLECT_DIR is not defined."
-fi
 
 ### Tag the source controle
 set +e
