@@ -118,10 +118,12 @@ if [ -n "$DEB_COLLECT_DIR" ]; then
   SCRIPT=$(readlink -f $0)
   # Absolute path this script is in.
   SCRIPTPATH=`dirname $SCRIPT` 
-  path_to_deb_generation_script=$SCRIPTPATH/../osgi-features-to-debian-package/generate-and-collect-features-deb.sh
+  path_to_deb_generation_script=$SCRIPTPATH/../osgi-features-to-debian-package/generate-and-collect-osgi-debs.sh
+  path_to_deb_publish_script=$SCRIPTPATH/../osgi-features-to-debian-package/publish-osgi-debs.sh
   if [ ! -f "$path_to_deb_generation_script" ]; then
     #try a second location.
-    path_to_deb_generation_script=$SCRIPTPATH/osgi-features-to-debian-package/generate-and-collect-features-deb.sh
+    path_to_deb_generation_script=$SCRIPTPATH/osgi-features-to-debian-package/generate-and-collect-osgi-debs.sh
+    path_to_deb_publish_script=$SCRIPTPATH/osgi-features-to-debian-package/publish-osgi-debs.sh
   fi
   if [ ! -f "$path_to_deb_generation_script" ]; then
     echo "$path_to_deb_generation_script does not exist."
@@ -130,6 +132,7 @@ if [ -n "$DEB_COLLECT_DIR" ]; then
   fi
   echo "Executing $path_to_deb_generation_script"
   $path_to_deb_generation_script
+  $path_to_deb_publish_script
 else
   echo "No debian packages to build as the constant DEB_COLLECT_DIR is not defined."
 fi
