@@ -216,18 +216,21 @@ IUS
   #the 3rd column it the OSGi IU id the 4th column the OSGi IU version
   package_read=control_base_filename
   version_read=version
+  description_read=label
   File.open(control_file, 'r') do |properties_file|
     properties_file.read.each_line do |line|
       if line =~ /^Package\: ([^ ]*)/
         package_read=$1.strip
       elsif line =~ /^Version\: ([^ ]*)/
         version_read=$1.strip
+      elsif line =~ /^Description\: ([^ ]*)/
+        description_read=$1.strip
       end
     end
   end
   File.open(File.join(target_folder,'#{id}-#{version}.deb-ius.csv'), 'w') do |f1|
-    f1.puts("Deb filename,Deb Package,Deb Version,OSGi IU id,OSGi IU version")
-    f1.puts("#{control_base_filename}-#{version}.deb,#{package_read},#{version_read},#{id},#{version}")
+    f1.puts("Deb filename,Deb Package,Deb Version,OSGi IU id,OSGi IU version,Description")
+    f1.puts("#{control_base_filename}-#{version}.deb,#{package_read},#{version_read},#{id},#{version},#{description_read}")
   end
   
   deb.version=version
