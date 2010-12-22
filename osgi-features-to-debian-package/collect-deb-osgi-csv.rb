@@ -40,6 +40,8 @@ csv_files.each do |path|
       if (headers == "" && line =~ / /)
         #puts "Skip headers #{line}"
         headers=line.strip
+      elsif line.strip == headers
+        puts "skip a duplicated headers line"
       elsif line.strip != ""
         #puts "Reads #{line.strip}"
        # toks=line.strip.split(",")

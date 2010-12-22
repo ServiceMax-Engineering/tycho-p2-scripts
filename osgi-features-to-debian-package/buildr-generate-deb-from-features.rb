@@ -217,7 +217,7 @@ IUS
   package_read=control_base_filename
   version_read=version
   description_read=label
-  File.open(control_file, 'r') do |properties_file|
+  File.open(built_control, 'r') do |properties_file|
     properties_file.read.each_line do |line|
       if line =~ /^Package\: ([^ ]*)/
         package_read=$1.strip

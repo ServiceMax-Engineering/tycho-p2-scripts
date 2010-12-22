@@ -252,6 +252,8 @@ class CompositeRepository
           if (headers == "" && line =~ / /)
            # puts "Skip headers #{line}"
             headers=line.strip
+          elsif line.strip == headers
+            puts "skip a duplicated headers line"
           elsif line.strip != ""
             line = line.strip
             toks=line.split(",")
