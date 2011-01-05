@@ -223,14 +223,14 @@ IUS
         package_read=$1.strip
       elsif line =~ /^Version\: ([^ ]*)/
         version_read=$1.strip
-      elsif line =~ /^Description\: ([^ ]*)/
+      elsif line =~ /^Description\: (.*)/
         description_read=$1.strip
       end
     end
   end
   File.open(File.join(target_folder,'#{id}-#{version}.deb-ius.csv'), 'w') do |f1|
     f1.puts("Deb filename,Deb Package,Deb Version,OSGi IU id,OSGi IU version,Description")
-    f1.puts("#{control_base_filename}-#{version}.deb,#{package_read},#{version_read},#{id},#{version},#{description_read}")
+    f1.puts("#{control_base_filename}-#{version}.deb,#{package_read},#{version_read},#{id},#{version},\"#{description_read}\"")
   end
   
   deb.version=version
