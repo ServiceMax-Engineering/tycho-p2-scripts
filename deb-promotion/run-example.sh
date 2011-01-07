@@ -1,6 +1,8 @@
 #!/bin/sh
-export site_url=$HOME/p2repo/com/intalio/cloud/all/3.1.1.345
-export destination=$HOME/tmp_p2_try
-mkdir -p $HOME/tmp_p2_try
-export P2_DIRECTOR_HOME=$HOME/tools/p2director-20101010
-./mirror.sh
+./promote-debs.rb --input_csv_files ./example/cloud/all/1.0.0.019/repo.deb-ius.csv,./other_debs.csv \
+   --input_deb_repository ./example/apt-repo-osgi/dists/3.0/unstable/binary \
+   --output_deb_repository ./example/apt-repo-osgi/dists/3.0/stable/binary \
+   --input_gpl_deb_repository ./example/apt-repo-osgi-gpl/dists/3.0/unstable/binary \
+   --output_gpl_deb_repository ./example/apt-repo-osgi-gpl/dists/3.0/stable/binary \
+   --clean_output true \
+   --dry_run false
