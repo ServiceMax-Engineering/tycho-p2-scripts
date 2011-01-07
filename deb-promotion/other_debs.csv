@@ -1,0 +1,7 @@
+#other deb packages that are not listed in cloud-all but that needs to be part of the promoted deb repo.
+intalio-cloud-backup-2.*.deb
+intalio-cloud-funambolx64-8.*.deb
+intalio-cloud-multi-tenant-3.0.0.*.deb
+intalio-cloud-nuxeo-5.3.0.*.deb
+intalio-iaas-console-scripts-3.0.0.*.deb
+#intalio-cloud-platformconf-3.1.1.*.deb

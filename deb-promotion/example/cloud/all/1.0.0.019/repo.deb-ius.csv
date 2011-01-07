@@ -1,0 +1,24 @@
+Deb filename,Deb Package,Deb Version,OSGi IU id,OSGi IU version,Description
+intalio-cloud-applicationlog-3.1.1.212.deb,intalio-cloud-applicationlog,3.1.1.212,xsharpplugins.applicationlog.f.feature.group,3.1.1.212,Intalio|Cloud
+intalio-cloud-bpm-diagram-editor-1.0.0.076.deb,intalio-cloud-bpm-diagram-editor,1.0.0.076,cloud.diagram.editor.f.feature.group,1.0.0.076,Intalio|Cloud
+intalio-cloud-bpm-diagram-repository-1.0.0.076.deb,intalio-cloud-bpm-diagram-repository,1.0.0.076,cloud.diagram.repository.f.feature.group,1.0.0.076,Intalio|Cloud
+intalio-cloud-bpm-engine-1.0.0.070.deb,intalio-cloud-bpm-engine,1.0.0.070,cloud.bpm.engine.f.feature.group,1.0.0.070,Intalio|Cloud
+intalio-cloud-bpm-engine-persistence-1.0.0.070.deb,intalio-cloud-bpm-engine-persistence,1.0.0.070,cloud.bpm.engine.persistence.f.feature.group,1.0.0.070,Intalio|Cloud
+intalio-cloud-bpm-human-task-1.0.0.070.deb,intalio-cloud-bpm-human-task,1.0.0.070,cloud.bpm.humantask.f.feature.group,1.0.0.070,Intalio|Cloud
+intalio-cloud-cas-4.0.0.032.deb,intalio-cloud-cas,4.0.0.032,cloud.cas.f.feature.group,4.0.0.032,Single
+intalio-cloud-controller-3.1.1.212.deb,intalio-cloud-controller,3.1.1.212,cloud.iaas.console.f.feature.group,3.1.1.212,Intalio|Cloud
+intalio-cloud-crmhelp-4.0.0.0058.deb,intalio-cloud-crmhelp,4.0.0.0058,cloud.crmhelp.f.feature.group,4.0.0.0058,Intalio|Cloud
+intalio-cloud-mashup-3.1.1.212.deb,intalio-cloud-mashup,3.1.1.212,xsharpplugin.mashup.flex,3.1.1.212,Intalio|Cloud
+intalio-cloud-mashupstudio-1.0.0.033.deb,intalio-cloud-mashupstudio,1.0.0.033,cloud.mashupstudio.f.feature.group,1.0.0.033,Intalio|Cloud
+intalio-cloud-metering-3.1.1.212.deb,intalio-cloud-metering,3.1.1.212,cloud.iaas.metering.f.feature.group,3.1.1.212,Intalio|Cloud
+intalio-cloud-ntt-login-3.1.1.212.deb,intalio-cloud-ntt-login,3.1.1.212,xsharpplugins.ntt.login.f.feature.group,3.1.1.212,Intalio|Cloud
+intalio-cloud-ntt-madore-3.1.1.212.deb,intalio-cloud-ntt-madore,3.1.1.212,xsharpplugins.ntt.madore.f.feature.group,3.1.1.212,Intalio|Cloud
+intalio-cloud-ntt-smarp-3.1.1.212.deb,intalio-cloud-ntt-smarp,3.1.1.212,xsharpplugins.ntt.smarp.f.feature.group,3.1.1.212,Intalio|Cloud
+intalio-cloud-ntt-vanadis-3.1.1.212.deb,intalio-cloud-ntt-vanadis,3.1.1.212,xsharpplugins.ntt.vanadis.f.feature.group,3.1.1.212,Intalio|Cloud
+intalio-cloud-pipes-1.0.0.033.deb,intalio-cloud-pipes,1.0.0.033,cloud.pipes.f.feature.group,1.0.0.033,Intalio|Cloud
+intalio-cloud-platform-3.1.1.212.deb,intalio-cloud-platform,3.1.1.212,cloud.platform,3.1.1.212,Intalio|Cloud
+intalio-cloud-polyglot-ruby-4.0.0.016.deb,intalio-cloud-polyglot-ruby,4.0.0.016,cloud.polyglot.ruby.f.feature.group,4.0.0.016,Intalio|Cloud
+intalio-cloud-ruby-4.0.0.012.deb,intalio-cloud-ruby,4.0.0.012,cloud.polyglot.integration.f.feature.group,4.0.0.012,Intalio|Cloud
+intalio-xsharpplugin-nuxeo-3.1.1.212.deb,intalio-xsharpplugin-nuxeo,3.1.1.212,xsharpplugin.nuxeo,3.1.1.212,Intalio|Cloud
+intalio-xsharpplugin-provisioning-3.1.1.212.deb,intalio-xsharpplugin-provisioning,3.1.1.212,xsharpplugin.provisioning,3.1.1.212,Intalio|Cloud
+intalio-xsharpplugin-we-3.1.1.212.deb,intalio-xsharpplugin-we,3.1.1.212,xsharpplugin.we,3.1.1.212,Intalio|Cloud
