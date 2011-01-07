@@ -58,6 +58,7 @@ class DebPackageSelection
     
     copy_selected_debs
     
+    execute_apts
   end
   
   def read_csv_files()
@@ -152,6 +153,29 @@ class DebPackageSelection
         puts "Dry-run: selected #{file}"
       end
     end
+  end
+  
+  #looks for the apt.sh script in the 2 deb repositories
+  def execute_apts()
+    if @dry_run!="true"
+      execute_apt @output_deb_repository
+      execute_apt @output_gpl_deb_repository
+    end
+  end
+  def execute_apt(deb_folder)
+    curr_dir=Dir.pwd
+    Dir.chdir(deb_folder)
+    loop=0
+    while loop < 6 do
+      loop+=1
+      if File.exists? "apt.sh"
+        system "./apt.sh"
+        return
+      end
+      Dir.chdir("..")
+      #puts Dir.pwd
+    end
+    Dir.chdir(curr_dir)
   end
   
 end
