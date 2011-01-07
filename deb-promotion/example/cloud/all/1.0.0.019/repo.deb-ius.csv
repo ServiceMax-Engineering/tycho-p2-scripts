@@ -6,6 +6,7 @@ intalio-cloud-bpm-engine-1.0.0.070.deb,intalio-cloud-bpm-engine,1.0.0.070,cloud.
 intalio-cloud-bpm-engine-persistence-1.0.0.070.deb,intalio-cloud-bpm-engine-persistence,1.0.0.070,cloud.bpm.engine.persistence.f.feature.group,1.0.0.070,Intalio|Cloud
 intalio-cloud-bpm-human-task-1.0.0.070.deb,intalio-cloud-bpm-human-task,1.0.0.070,cloud.bpm.humantask.f.feature.group,1.0.0.070,Intalio|Cloud
 intalio-cloud-cas-4.0.0.032.deb,intalio-cloud-cas,4.0.0.032,cloud.cas.f.feature.group,4.0.0.032,Single
+intalio-cloud-client-ext-js-gpl-3.1.1.228.deb,intalio-cloud-client-ext-js-gpl,3.1.1.228,xsharpplugin.client.ext.f.feature.group,3.1.1.228,"Intalio|Cloud Client Based on Ext-JS GPL"
 intalio-cloud-controller-3.1.1.212.deb,intalio-cloud-controller,3.1.1.212,cloud.iaas.console.f.feature.group,3.1.1.212,Intalio|Cloud
 intalio-cloud-crmhelp-4.0.0.0058.deb,intalio-cloud-crmhelp,4.0.0.0058,cloud.crmhelp.f.feature.group,4.0.0.0058,Intalio|Cloud
 intalio-cloud-mashup-3.1.1.212.deb,intalio-cloud-mashup,3.1.1.212,xsharpplugin.mashup.flex,3.1.1.212,Intalio|Cloud

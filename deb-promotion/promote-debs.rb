@@ -29,9 +29,11 @@ class DebPackageSelection
   # @param input_csv_files array of the paths to the csv files that first column is the path to the deb files
   # the name of the deb files can be glob in order to select a different version number than the latest one.
   # @param
-  def initialize(input_csv_files,input_deb_repository,output_deb_repository,clean_output,dry_run)
+  def initialize(input_csv_files,input_deb_repository,input_gpl_deb_repository,output_deb_repository,output_gpl_deb_repository,clean_output,dry_run)
     @output_deb_repository = File.expand_path(output_deb_repository)
     @input_deb_repository = File.expand_path(input_deb_repository)
+    @output_gpl_deb_repository = File.expand_path(output_gpl_deb_repository)
+    @input_gpl_deb_repository = File.expand_path(input_gpl_deb_repository)
     @input_csv_files = input_csv_files
     @clean_output = clean_output
     @dry_run=dry_run
@@ -44,6 +46,12 @@ class DebPackageSelection
     end
     if !File.exists? @input_deb_repository
       raise "The folder 'output_deb_repository' #{@input_deb_repository} does not exist"
+    end
+    if !File.exists? @output_deb_repository
+      raise "The folder 'input_gpl_deb_repository' #{@output_gpl_deb_repository} does not exist"
+    end
+    if !File.exists? @input_deb_repository
+      raise "The folder 'output_gpl_deb_repository' #{@input_gpl_deb_repository} does not exist"
     end
     
     read_csv_files
@@ -76,7 +84,7 @@ class DebPackageSelection
                 raise "The base directory #{base} does not exist"
               end
             elsif (line =~ /:\/\//) != nil
-              select_deb_file(base,eval("\"#{line.strip}\""),csv_file)
+              select_deb_file(base,eval("\"#{line.strip}\""),@input_gpl_deb_repository,csv_file)
             else
               #break platform/xsharp.platform.repository/3.1.0.*
               #into platform/xsharp.platform.repository and the glob 3.1.0.*
@@ -91,7 +99,7 @@ class DebPackageSelection
               if ! File.exists?(path)
                 raise "The directory #{path} does not exist"
               end
-              selected=select_deb_file(path,version_glob,csv_file)
+              selected=select_deb_file(path,version_glob,@input_gpl_deb_repository,csv_file)
               @selected_deb_files[File.basename(selected)]=selected
             end
           end
@@ -103,7 +111,7 @@ class DebPackageSelection
   
   # deb_file_name_selector The glob for the deb file to select.
   #when multiple files are possible the latest version is the one selected.
-  def select_deb_file(path,deb_file_name_selector,csv_file)
+  def select_deb_file(path,deb_file_name_selector,alternative_path,csv_file)
     glob=File.join(path,deb_file_name_selector)
 #    puts "Looking for the last version in #{glob}"
     versions = Dir.glob(glob)
@@ -115,25 +123,31 @@ class DebPackageSelection
       end
     end
     if sortedversions.empty?
-      raise "Unable to find a file for #{glob} as listed in #{csv_file}"
+      if alternative_path != nil
+        return select_deb_file(alternative_path,deb_file_name_selector,nil,csv_file)
+      else
+        raise "Unable to find a file for #{glob} as listed in #{csv_file}"
+      end
     end
 #    puts "Got #{sortedversions.last}"
     return sortedversions.last
   end
   
   def copy_selected_debs()
-    if @dry_run=="true"
-      
-    end
-    
     if @dry_run!="true" && @clean_output == "true"
-      puts "Deleting all the files currently in the output directory."
-      Dir.foreach(@output_deb_repository) {|x| File.delete x unless File.directory? x }
+      puts "Deleting all the files currently in the output directory #{@output_deb_repository}."
+      Dir.foreach(@output_deb_repository) {|x| File.delete File.join(@output_deb_repository,x) unless File.directory? File.join(@output_deb_repository,x) }
+      puts "Deleting all the files currently in the output directory #{@output_gpl_deb_repository}."
+      Dir.foreach(@output_gpl_deb_repository) {|x| File.delete File.join(@output_gpl_deb_repository,x) unless File.directory? File.join(@output_gpl_deb_repository,x) }
     end
     
-    @selected_deb_files.values.sort.each do |file|
+    @selected_deb_files.each do |filename,file|
       if @dry_run!="true"
-        FileUtils.copy(file,@output_deb_repository)
+        if (filename =~ /-gpl-/) == nil
+          FileUtils.copy(file,@output_deb_repository)
+        else
+          FileUtils.copy(file,@output_gpl_deb_repository)
+        end
       else
         puts "Dry-run: selected #{file}"
       end
@@ -148,19 +162,23 @@ require "getopt/long"
 opt = Getopt::Long.getopts(
   ["--input_csv_files", "-c", Getopt::REQUIRED],
   ["--input_deb_repository", "-i", Getopt::REQUIRED],
+  ["--input_gpl_deb_repository", "", Getopt::OPTIONAL],
   ["--output_deb_repository", "-o", Getopt::REQUIRED],
+  ["--output_gpl_deb_repository", "-", Getopt::OPTIONAL],
   ["--clean_output", "-l", Getopt::OPTIONAL],
   ["--dry_run", "-t", Getopt::OPTIONAL]
 )
 
 #the folder in which we start looking for the children repositories
 input_csv_files = opt["input_csv_files"].split(",")
-#the name of the generated repository
+#
 input_deb_repository = opt["input_deb_repository"]
+input_gpl_deb_repository = opt["input_gpl_deb_repository"]
 #The folder where the deb repository with the promoted debs is generated.
 output_deb_repository = opt["output_deb_repository"]
+output_gpl_deb_repository = opt["output_gpl_deb_repository"]
 #false to not clean the previous debs that are in the repo.
 clean_output=opt["clean_output"] || "true"
 dry_run=opt["dry_run"] || "false"
 
-debpackage_selection=DebPackageSelection.new input_csv_files,input_deb_repository,output_deb_repository,clean_output,dry_run
+debpackage_selection=DebPackageSelection.new input_csv_files,input_deb_repository,input_gpl_deb_repository,output_deb_repository,output_gpl_deb_repository,clean_output,dry_run
