@@ -267,7 +267,10 @@ class CompositeRepository
   
   def write_composite_deb_ius_csv()
     File.open(File.join(@versionned_output_dir,"repo.deb-ius.csv"), 'w') do |f1|
+      #headers
       f1.puts("Deb filename,Deb Package,Deb Version,OSGi IU id,OSGi IU version,Description")
+      #cloud-all also generates a deb package
+      f1.puts("intalio-cloud-all-#{@version}.deb,intalio-cloud-all,#{@version},NA,NA,\"Intalio|Cloud composite repository\"")
       @deb_osgi_csv_line.values.sort.each do |csv_line|
         f1.puts(csv_line)
       end

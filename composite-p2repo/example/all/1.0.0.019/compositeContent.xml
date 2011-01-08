@@ -3,7 +3,7 @@
 <repository name="&quot;all-1.0.0.019&quot;"
     type="org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository" version="1.0.0">
   <properties size="1">
-    <property name="p2.timestamp" value="1292928039"/>
+    <property name="p2.timestamp" value="1294450743"/>
   </properties>
   <children size="7">
     <child location="http://www.intalio.org/public/p2repo/org/eclipse/eclipse/updates/3.6"/>
