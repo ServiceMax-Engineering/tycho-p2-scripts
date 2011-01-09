@@ -120,11 +120,14 @@ class DebPackageSelection
     versions.uniq.sort.each do |path|
       if FileTest.file?(path) && !FileTest.symlink?(File.dirname(path))
         aversion=path
+        if (path =~ /^intalio-cloud-all-3.1.1/) != nil
+          raise "Unexpected file selection cloud-all-3.1.1 instead of 3.1.0"
+        end
         sortedversions << aversion
       end
     end
     if sortedversions.empty?
-      if alternative_path != nil
+      if alternative_path != nil && (deb_file_name_selector =~ /-gpl-/) != nil
         return select_deb_file(alternative_path,deb_file_name_selector,nil,csv_file)
       else
         raise "Unable to find a file for #{glob} as listed in #{csv_file}"
