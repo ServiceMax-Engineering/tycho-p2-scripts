@@ -133,7 +133,7 @@ class DebPackageSelection
         raise "Unable to find a file for #{glob} as listed in #{csv_file}"
       end
     end
-#    puts "Got #{sortedversions.last}"
+    puts "Got #{sortedversions.last}"
     return sortedversions.last
   end
   
