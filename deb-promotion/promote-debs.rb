@@ -120,8 +120,8 @@ class DebPackageSelection
     versions.uniq.sort.each do |path|
       if FileTest.file?(path) && !FileTest.symlink?(File.dirname(path))
         aversion=path
-        if (path =~ /^intalio-cloud-all-3.1.1/) != nil
-          raise "Unexpected file selection cloud-all-3.1.1 instead of 3.1.0"
+        if (path =~ /intalio-cloud-all-3.1.1/) != nil
+          raise "Unexpected file selection cloud-all-3.1.1 instead of 3.1.0 glob: #{glob}"
         end
         sortedversions << aversion
       end
@@ -133,7 +133,7 @@ class DebPackageSelection
         raise "Unable to find a file for #{glob} as listed in #{csv_file}"
       end
     end
-    puts "Got #{sortedversions.last}"
+    puts "Got #{sortedversions.last} glob: #{glob}"
     return sortedversions.last
   end
   
