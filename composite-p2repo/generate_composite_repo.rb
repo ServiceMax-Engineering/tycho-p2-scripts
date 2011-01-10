@@ -287,7 +287,8 @@ opt = Getopt::Long.getopts(
   ["--name", "-n", Getopt::OPTIONAL],
   ["--test", "-t", Getopt::OPTIONAL],
   ["--version", "-v", Getopt::OPTIONAL],
-  ["--otherurls", "-u", Getopt::OPTIONAL]
+  ["--otherurls", "-u", Getopt::OPTIONAL],
+  ["--symlinkname", "-s", Getopt::OPTIONAL]
 )
 
 #the folder in which we start looking for the children repositories
@@ -302,6 +303,11 @@ if opt["output"]
   output=opt["output"]
 else
   #look for the all folder and use this as the directory.
+end
+if opt["symlinkname"]
+  symlink_name=opt["symlinkname"]
+else
+  symlink_name="current"
 end
 
 # a file where each line that does not start with a '#'
@@ -367,7 +373,7 @@ elsif
     File.delete current_symlink
   end
   Dir.chdir "#{out_dir}/.."
-  File.symlink(out_dir,"current")
+  File.symlink(out_dir,symlink_name)
   Dir.chdir "#{current_dir}"
 end
 

@@ -50,6 +50,8 @@ fi
 if [ -d ".git" -a -z "$GIT_BRANCH" ]; then
   GIT_BRANCH=master
   export GIT_BRANCH
+elif [ -z "$SYM_LINK_CURRENT_NAME" ]; then
+  SYM_LINK_CURRENT_NAME="current_$GIT_BRANCH"
 fi
 
 #Base folder on the file system where the p2-repositories are deployed.

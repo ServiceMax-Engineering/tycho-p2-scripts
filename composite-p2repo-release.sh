@@ -14,7 +14,14 @@ SCRIPTPATH=`dirname $SCRIPT`
 if [ -d ".git" -a -z "$GIT_BRANCH" ]; then
   GIT_BRANCH=master
   export GIT_BRANCH
+elif [ -z "$SYM_LINK_CURRENT_NAME" ]; then
+  SYM_LINK_CURRENT_NAME="current_$GIT_BRANCH"
 fi
+
+if [ -z "$SYM_LINK_CURRENT_NAME" ]; then
+  SYM_LINK_CURRENT_NAME="current"
+fi
+
 
 if [ -d ".git" ]; then
   git checkout $GIT_BRANCH
@@ -86,7 +93,7 @@ fi
 
 generate_composite_repo_path=$SCRIPTPATH/composite-p2repo/generate_composite_repo.rb
 #cmd="$generate_composite_repo_path --name all --basefolder $HOME/p2repo/com/intalio/cloud/ --output $HOME/p2repo/com/intalio/cloud/all --otherurls=otherurls_for_composite_repo.txt"
-cmd="$generate_composite_repo_path --name $composite_name --basefolder $composite_basefolder --output $composite_output --otherurls=$composite_otherurls $versionParam"
+cmd="$generate_composite_repo_path --name $composite_name --basefolder $composite_basefolder --output $composite_output --otherurls=$composite_otherurls $versionParam --symlinkname=$SYM_LINK_CURRENT_NAME"
 echo "Executing $cmd"
 $cmd
 
