@@ -368,7 +368,7 @@ elsif
   File.open(File.join(out_dir,"compositeArtifacts.xml"), 'w') {|f| f.puts(artifactsRes) }
   File.open(File.join(out_dir,"compositeContent.xml"), 'w') {|f| f.puts(metadataRes) }
   File.open(File.join(out_dir,"index.html"), 'w') {|f| f.puts(htmlRes) }
-  current_symlink=File.join(output,current_symlink)
+  current_symlink=File.join(output,symlink_name)
   if File.symlink?(current_symlink) || File.exists?(current_symlink)
     File.delete current_symlink
   end
