@@ -50,7 +50,7 @@ fi
 if [ -d ".git" -a -z "$GIT_BRANCH" ]; then
   GIT_BRANCH=master
   export GIT_BRANCH
-elif [ -z "$SYM_LINK_CURRENT_NAME" ]; then
+elif [ -z "$SYM_LINK_CURRENT_NAME" -a $GIT_BRANCH != "master" ]; then
   SYM_LINK_CURRENT_NAME="current_$GIT_BRANCH"
 fi
 
