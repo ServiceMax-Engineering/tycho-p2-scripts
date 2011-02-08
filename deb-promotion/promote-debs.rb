@@ -29,7 +29,7 @@ class DebPackageSelection
   # @param input_csv_files array of the paths to the csv files that first column is the path to the deb files
   # the name of the deb files can be glob in order to select a different version number than the latest one.
   # @param
-  def initialize(input_csv_files,input_deb_repository,input_gpl_deb_repository,output_deb_repository,output_gpl_deb_repository,clean_output,dry_run)
+  def initialize(input_csv_files,input_deb_repository,input_gpl_deb_repository,output_deb_repository,output_gpl_deb_repository,clean_output,dry_run,p2_mirror_conf,composite_repo_version)
     @output_deb_repository = File.expand_path(output_deb_repository)
     @input_deb_repository = File.expand_path(input_deb_repository)
     @output_gpl_deb_repository = File.expand_path(output_gpl_deb_repository)
@@ -37,27 +37,20 @@ class DebPackageSelection
     @input_csv_files = input_csv_files
     @clean_output = clean_output
     @dry_run=dry_run
+    @p2_mirror_conf=p2_mirror_conf
+    @composite_repo_version=composite_repo_version
     
     #the selected deb files indexed by the deb file name to avoid duplicates.
     @selected_deb_files = {}
     
-    if !File.exists? @output_deb_repository
-      raise "The folder 'input_deb_repository' #{@output_deb_repository} does not exist"
-    end
-    if !File.exists? @input_deb_repository
-      raise "The folder 'output_deb_repository' #{@input_deb_repository} does not exist"
-    end
-    if !File.exists? @output_deb_repository
-      raise "The folder 'input_gpl_deb_repository' #{@output_gpl_deb_repository} does not exist"
-    end
-    if !File.exists? @input_deb_repository
-      raise "The folder 'output_gpl_deb_repository' #{@input_gpl_deb_repository} does not exist"
-    end
-    
+  end
+  
+  def execute()
+    clean_previous_repo
+    execute_p2_mirror
+    generate_cloud_all_deb
     read_csv_files
-    
     copy_selected_debs
-    
     execute_apts
   end
   
@@ -93,15 +86,18 @@ class DebPackageSelection
               line_a = first_col.split('/')
               version_glob = line_a.pop.strip
               path = line_a.join('/')
-              if (path =~ /^\//) == nil
-                path = File.join(base,path)
+              #make sure that when the p2repo are concatenated, we don't mirror the intalio-cloud-all deb
+              if @p2_mirror_conf == nil || line =~ /^intalio-cloud-all-(.*)/
+                if (path =~ /^\//) == nil
+                  path = File.join(base,path)
+                end
+#                puts "got #{path} and #{version_glob}"
+                if ! File.exists?(path)
+                  raise "The directory #{path} does not exist"
+                end
+                selected=select_deb_file(path,version_glob,@input_gpl_deb_repository,csv_file)
+                @selected_deb_files[File.basename(selected)]=selected
               end
-#              puts "got #{path} and #{version_glob}"
-              if ! File.exists?(path)
-                raise "The directory #{path} does not exist"
-              end
-              selected=select_deb_file(path,version_glob,@input_gpl_deb_repository,csv_file)
-              @selected_deb_files[File.basename(selected)]=selected
             end
           end
         end
@@ -134,20 +130,38 @@ class DebPackageSelection
     return sortedversions.last
   end
   
-  def copy_selected_debs()
+  def clean_previous_repo
+    if !File.exists? @input_deb_repository
+      raise "The folder 'input_deb_repository' #{@input_deb_repository} does not exist"
+    end
+    if !File.exists? @input_gpl_deb_repository
+      raise "The folder 'input_gpl_deb_repository' #{@input_gpl_deb_repository} does not exist"
+    end
     if @dry_run!="true" && @clean_output == "true"
       puts "Deleting all the files currently in the output directory #{@output_deb_repository}."
-      Dir.foreach(@output_deb_repository) {|x| File.delete File.join(@output_deb_repository,x) unless File.directory? File.join(@output_deb_repository,x) }
+      #Dir.foreach(@output_deb_repository) {|x| File.delete File.join(@output_deb_repository,x) unless File.directory? File.join(@output_deb_repository,x) }
+      FileUtils.rm_rf @output_deb_repository
       puts "Deleting all the files currently in the output directory #{@output_gpl_deb_repository}."
-      Dir.foreach(@output_gpl_deb_repository) {|x| File.delete File.join(@output_gpl_deb_repository,x) unless File.directory? File.join(@output_gpl_deb_repository,x) }
+      FileUtils.rm_rf @output_gpl_deb_repository
+      #Dir.foreach(@output_gpl_deb_repository) {|x| File.delete File.join(@output_gpl_deb_repository,x) unless File.directory? File.join(@output_gpl_deb_repository,x) }
     end
+    if !File.exists? @output_deb_repository
+      FileUtils.mkdir_p "#{@output_deb_repository}"
+    end
+    if !File.exists? @output_gpl_deb_repository
+      FileUtils.mkdir_p "#{@output_gpl_deb_repository}/"
+    end
+  end
+  
+  def copy_selected_debs()
     
     @selected_deb_files.each do |filename,file|
       if @dry_run!="true"
         if (filename =~ /-gpl-/) == nil
-          FileUtils.copy(file,@output_deb_repository)
+          #this code will fail if the destination folder does not exist.
+          FileUtils.copy(file,File.join(@output_deb_repository,File.basename(file)))
         else
-          FileUtils.copy(file,@output_gpl_deb_repository)
+          FileUtils.copy(file,File.join(@output_gpl_deb_repository,File.basename(file)))
         end
       else
         puts "Dry-run: selected #{file}"
@@ -178,18 +192,136 @@ class DebPackageSelection
     Dir.chdir(curr_dir)
   end
   
+  #TODO: option to aggregate the cloud-all repository first
+  #During the aggregate use a tmp folder
+  #Archive the previous repository just in case (timestamp or fixed number of archives?)
+  #Find a way to customize the cloud-all deb?
+  def execute_p2_mirror()
+    #First the non-GPL repository
+    if @p2_mirror_conf == nil
+      puts "No p2 mirror taking place."
+      return
+    elsif @p2_mirror_conf == "default"
+      #use the default settings for the mirror configuration
+      p2_repo_destination="#{@output_deb_repository}/../p2repo"
+      p2_repo_gpl_destination="#{@output_gpl_deb_repository}/../p2repo"
+      source=""
+      @input_csv_files.uniq.each do |csv_file|
+        #Make sure that in fact we are in a p2 repository folder:
+        #it could be a csv file unrelated to a p2 repo.
+        parentOfcsv=File.dirname(csv_file)
+        if File.exists?(File.join(parentOfcsv,"plugins")) || File.exists?(File.join(parentOfcsv,"compositeArtifacts.xml")) || File.exists?(File.join(parentOfcsv,"compositeArtifacts.jar"))
+          source="#{source} -source file:#{File.expand_path(File.dirname(csv_file))}"
+        end
+      end
+      props="./p2_mirror.properties"
+      if !File.exists? props
+        raise "Could not find #{File.expand_path(props)}"
+      end
+      props_gpl="./p2_mirror_gpl.properties"
+      if !File.exists? props_gpl
+        raise "Could not find #{File.expand_path(props_gpl)}"
+      end
+    elsif File.exists @p2_mirror_conf
+      #TODO: read the configuration file.
+      p2_repo_destination="#{@output_deb_repository}/p2repo"
+    else
+      raise "The p2 mirror configuration file #{@p2_mirror_conf} does not exist."
+    end
+    #non GPL
+    execute_p2_mirror_both_apps(source,p2_repo_destination,props)
+    #now GPL
+    execute_p2_mirror_both_apps(source,p2_repo_gpl_destination,props_gpl)
+  end
+
+  def execute_p2_mirror_both_apps(source,destination,props)
+    FileUtils.rm_rf destination
+    
+    exit_code=execute_p2_mirror_one_app("org.eclipse.equinox.p2.artifact.repository.extended.mirrorApplication",source,destination,props)
+    if exit_code!=0
+      puts "Unable to mirror the application. Please consult the logs."
+      exit 3
+    end
+    execute_p2_mirror_one_app("org.eclipse.equinox.p2.metadata.repository.extended.mirrorApplication",source,destination,props)
+  end
+  
+  #returns the exit status of the p2 mirror app
+  def execute_p2_mirror_one_app(application,source,destination,props)
+    FileUtils.mkdir_p destination
+cmd="$P2_DIRECTOR_HOME/start.sh -destination #{destination} \
+ -application #{application} \
+ #{source} \
+ -props #{props} \
+ -consoleLog"
+    if @dry_run!="true"
+      puts "Executing #{cmd} 2>&1"
+      system "#{cmd} 2>&1"
+      puts "It returned #{$?.to_i}"
+      return $?.to_i
+    else
+      puts "Dry-run: #{cmd}"
+    end
+  end
+  
+  #Generate a cloud-all deb pacakge that contains the pointer to the mirrored p2 repos.
+  def generate_cloud_all_deb()
+    if (@dry_run!="true" && @p2_mirror_conf != nil && File.exists?("mirrored"))
+      #Setup the version number and all
+      curr_dir=Dir.pwd
+      Dir.chdir("mirrored")
+      
+      #Same code than in the composite-p2repo
+      puts "Updating the Buildfile #{File.expand_path('Buildfile_versioned')}."
+      File.open("Buildfile_versioned", "w") do |infile|
+        File.open("Buildfile", "r") do |rfile|
+          while (line = rfile.gets)
+            if line =~ /^VERSION_NUMBER=/
+              infile.puts "VERSION_NUMBER=\"#{@composite_repo_version}\""
+            else
+              infile.puts line
+            end
+          end
+        end
+      end
+      if File.exists? "target"
+        puts "Deleting the target repository before the deb package generation."
+        FileUtils.rm_rf "target"
+      end
+      #Invoke buildr
+      `buildr --buildfile Buildfile_versioned package`
+      #copy the deb generated into the target debian repositories
+      #it won't hurt to put it both in the gpl and non gpl repositories
+      #copy the deb generated into the target debian repositories
+      #it won't hurt to put it both in the gpl and non gpl repositories
+      #look for all the deb files inside the target directory and copy them:
+      debs = Dir.glob(File.join("target","*.deb"))
+      debs.each do |path|
+        if FileTest.file?(path)
+          puts "Copying #{path} to #{@output_deb_repository} and #{@output_gpl_deb_repository}"
+          FileUtils.cp(path,@output_deb_repository)
+          FileUtils.cp(path,@output_gpl_deb_repository)
+        end
+      end
+      #clean-up behind ourselves
+      FileUtils.rm "Buildfile_versioned" 
+      Dir.chdir(curr_dir)
+    end
+  end
+  
 end
 
 
 require "rubygems"
 require "getopt/long"
 opt = Getopt::Long.getopts(
+  ["--composite_repo_version", "-v", Getopt::REQUIRED],
   ["--input_csv_files", "-c", Getopt::REQUIRED],
   ["--input_deb_repository", "-i", Getopt::REQUIRED],
   ["--input_gpl_deb_repository", "", Getopt::OPTIONAL],
   ["--output_deb_repository", "-o", Getopt::REQUIRED],
-  ["--output_gpl_deb_repository", "-", Getopt::OPTIONAL],
+  ["--output_gpl_deb_repository", "-g", Getopt::OPTIONAL],
   ["--clean_output", "-l", Getopt::OPTIONAL],
+  ["--p2-mirror-conf", "-p", Getopt::OPTIONAL],
   ["--dry_run", "-t", Getopt::OPTIONAL]
 )
 
@@ -203,6 +335,17 @@ output_deb_repository = opt["output_deb_repository"]
 output_gpl_deb_repository = opt["output_gpl_deb_repository"]
 #false to not clean the previous debs that are in the repo.
 clean_output=opt["clean_output"] || "true"
+#optional points to the configuration file for the p2-mirror to aggregate the cloud-all repo.
+p2_mirror_conf=opt["p2-mirror-conf"]
+if p2_mirror_conf == "false"
+  p2_mirror_conf=nil
+end
 dry_run=opt["dry_run"] || "false"
+composite_repo_version=opt["composite_repo_version"]
 
-debpackage_selection=DebPackageSelection.new input_csv_files,input_deb_repository,input_gpl_deb_repository,output_deb_repository,output_gpl_deb_repository,clean_output,dry_run
+debpackage_selection=DebPackageSelection.new(input_csv_files,input_deb_repository,
+                                             input_gpl_deb_repository,output_deb_repository,
+                                             output_gpl_deb_repository,clean_output,
+                                             dry_run,p2_mirror_conf,composite_repo_version)
+debpackage_selection.execute()
+

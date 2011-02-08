@@ -9,8 +9,8 @@ if [ -z "$P2_DIRECTOR_HOME" ]; then
   exit 2
 fi
 
-application="org.eclipse.equinox.p2.artifact.repository.mirrorApplication"
-applicationMetaData="org.eclipse.equinox.p2.metadata.repository.mirrorApplication"
+application="org.eclipse.equinox.p2.artifact.repository.extended.mirrorApplication"
+applicationMetaData="org.eclipse.equinox.p2.metadata.repository.extended.mirrorApplication"
 if [ -z "$destination" ]; then
   destination=`pwd`
 fi
@@ -21,12 +21,14 @@ p2director_path=$P2_DIRECTOR_HOME
 eclipse_mirror_url=http://download.eclipse.org/
 $p2director_path/start.sh -destination $destination \
  -application $application \
+ -exclude *.source
  -source $site_url \
  -consoleLog
 
 eclipse_mirror_url=http://download.eclipse.org/
 $p2director_path/start.sh -destination $destination \
  -application $applicationMetaData \
+ -exclude *.source
  -source $site_url \
  -consoleLog
 
