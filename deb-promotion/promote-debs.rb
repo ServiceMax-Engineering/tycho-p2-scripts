@@ -29,7 +29,7 @@ class DebPackageSelection
   # @param input_csv_files array of the paths to the csv files that first column is the path to the deb files
   # the name of the deb files can be glob in order to select a different version number than the latest one.
   # @param
-  def initialize(input_csv_files,input_deb_repository,input_gpl_deb_repository,output_deb_repository,output_gpl_deb_repository,clean_output,dry_run,p2_mirror_conf,composite_repo_version)
+  def initialize(input_csv_files,input_deb_repository,input_gpl_deb_repository,output_deb_repository,output_gpl_deb_repository,clean_output,dry_run,p2_mirror_conf,p2_mirror_filters,composite_repo_version)
     @output_deb_repository = File.expand_path(output_deb_repository)
     @input_deb_repository = File.expand_path(input_deb_repository)
     @output_gpl_deb_repository = File.expand_path(output_gpl_deb_repository)
@@ -38,10 +38,17 @@ class DebPackageSelection
     @clean_output = clean_output
     @dry_run=dry_run
     @p2_mirror_conf=p2_mirror_conf
+    @p2_mirror_filters=p2_mirror_filters
     @composite_repo_version=composite_repo_version
     
     #the selected deb files indexed by the deb file name to avoid duplicates.
     @selected_deb_files = {}
+    #the deb file names indexed by the osgi artifact id when there is such thing.
+    #when we read the excluding filters for the p2-mirror
+    #we can find which corresponding deb should also be excluded.
+    @selected_deb_filebasenames_indexed_by_osgi_id = {}
+    @deb_excludes=[]
+    @p2_mirror_excludes=[]
     
   end
   
@@ -49,6 +56,7 @@ class DebPackageSelection
     clean_previous_repo
     execute_p2_mirror
     generate_cloud_all_deb
+    read_p2_mirror_filters
     read_csv_files
     copy_selected_debs
     execute_apts
@@ -70,6 +78,11 @@ class DebPackageSelection
             if (headers == "" && line =~ / /)
               #puts "Skip headers #{line}"
               headers=line.strip
+            elsif line =~ /^-exclude*=(.*)/
+              #an exclusion simple pattern
+              patterns=$1.split(" ")
+              patterns.collect! {|x| Regexp.new(p2_simple_pattern_to_regexp(x)) }
+              @deb_excludes=@deb_excludes+patterns
             elsif line =~ /^BASE=(.*)/
               base=$1
               puts "current base #{base}"
@@ -80,14 +93,22 @@ class DebPackageSelection
             elsif (line =~ /:\/\//) != nil
               select_deb_file(base,eval("\"#{line.strip}\""),@input_gpl_deb_repository,csv_file)
             else
+              #sample csv line:
+              #intalio-bpm-pipes-registry-1.0.0.071.deb,intalio-bpm-pipes-registry,1.0.0.071,bpm.pipes.registry.f.feature.group,1.0.0.071,"Intalio|Cloud Pipes Bpm registry"
+              #for the non osgi list, there might be a path.
               #break platform/xsharp.platform.repository/3.1.0.*
               #into platform/xsharp.platform.repository and the glob 3.1.0.*
-              first_col=line.split(',')[0]
+              columns=line.split(',')
+              first_col=columns[0]
+              osgi_id=columns[3] unless columns.size <= 4
               line_a = first_col.split('/')
               version_glob = line_a.pop.strip
               path = line_a.join('/')
-              #make sure that when the p2repo are concatenated, we don't mirror the intalio-cloud-all deb
-              if @p2_mirror_conf == nil || line =~ /^intalio-cloud-all-(.*)/
+              #make sure that when the p2repo are concatenated
+              #we don't mirror the intalio-cloud-all deb: we generate our own one here
+              if line =~ /^intalio-cloud-all-/ && @p2_mirror_conf != nil
+                puts "skip cloud-all"
+              else
                 if (path =~ /^\//) == nil
                   path = File.join(base,path)
                 end
@@ -96,7 +117,33 @@ class DebPackageSelection
                   raise "The directory #{path} does not exist"
                 end
                 selected=select_deb_file(path,version_glob,@input_gpl_deb_repository,csv_file)
-                @selected_deb_files[File.basename(selected)]=selected
+                #let's see if in fact this artifact is excluded.
+                included=true
+                #look at the ezxclude filters for debs
+                @deb_excludes.each do |exclude|
+                  if exclude =~ File.basename(selected)
+                    included = false
+                    puts "Excluded: Matched #{File.basename(selected)} with #{exclude.to_s}"
+                  end
+                end
+                #CL-178 !Hack! don't filter the gpl ext js otherwise we won't see it in the generated gpl repo.
+                #all this will be so much better once we generate a single repository at a time.
+                if included && osgi_id != nil && osgi_id != "xsharpplugin.client.ext" && osgi_id != "xsharpplugin.client.ext.f.feature.group"
+                  @selected_deb_filebasenames_indexed_by_osgi_id[osgi_id]=File.basename(selected)
+                  #let's make sure that this osgi artifact is not filtered out by the p2mirror
+                  puts "looking at #{osgi_id}"
+                  @p2_mirror_excludes.each do |exclude|
+                    #puts "matching on #{exclude.to_s}"
+                    #execute each one of the regexp. if any of them match then filter this out.
+                    if exclude =~ osgi_id
+                      included = false
+                      #puts "Matched #{osgi_id} with #{exclude.to_s}"
+                    end
+                  end
+                end
+                if included
+                  @selected_deb_files[File.basename(selected)]=selected
+                end
               end
             end
           end
@@ -104,6 +151,46 @@ class DebPackageSelection
       end
       
     end
+  end
+  
+  #Transforms a p2 simple pattern into a regexp
+  def p2_simple_pattern_to_regexp(simplePattern)
+    #escape it
+    esc = Regexp.escape simplePattern
+    #replace '\?' by '.?' and '\*' by '.*'
+    esc.gsub!("\\\?",".?")
+    esc.gsub!("\\\*",".*")
+    #puts "#{simplePattern} -> #{esc}"
+    return esc
+  end
+  
+  #the p2mirror filters some osgi artifacts.
+  #we need to read which ones so we can find out which deb packages
+  #should also be filtered out.
+  def read_p2_mirror_filters()
+#    if @p2_mirror_conf == nil
+#      return
+#    end
+    #for now select the properties files assuming that they start with
+    #p2_ mirror.. need to do better one day.
+    #in fact this is messy because we are geenrating multiple deb repos and p2repos at once
+    #we need to generate a single one at once instead.
+    #p2filters=Dir.glob("p2_mirror.properties")
+    @p2_mirror_filters.sort.each do |path|
+      #read line by line. if a line starts with -exclude then look closely.
+      File.open(path, "r") do |infile|
+        while (line = infile.gets)
+          if line =~ /^-exclude*=(.*)/
+            #extract the value
+            patterns=$1.split(" ")
+            patterns.collect! {|x| Regexp.new(p2_simple_pattern_to_regexp(x)) }
+            @p2_mirror_excludes=@p2_mirror_excludes+patterns
+          end
+        end
+      end
+    end
+    #transform each simple pattern into a regexp we can use later
+    puts "p2_mirror_excludes #{@p2_mirror_excludes}"
   end
   
   # deb_file_name_selector The glob for the deb file to select.
@@ -214,12 +301,17 @@ class DebPackageSelection
           source="#{source} -source file:#{File.expand_path(File.dirname(csv_file))}"
         end
       end
-      props="./p2_mirror.properties"
-      if !File.exists? props
-        raise "Could not find #{File.expand_path(props)}"
+      props=""
+      props_index=0
+      @p2_mirror_filters.each do |path|
+        if !File.exists? path
+          raise "Could not find #{File.expand_path(path)}"
+        end
+        props="#{props} -props#{props_index} #{path}"
+        props_index=props_index+1
       end
-      props_gpl="./p2_mirror_gpl.properties"
-      if !File.exists? props_gpl
+      props_gpl="-props ./p2_mirror_gpl.properties"
+      if !File.exists? "./p2_mirror_gpl.properties"
         raise "Could not find #{File.expand_path(props_gpl)}"
       end
     elsif File.exists @p2_mirror_conf
@@ -251,7 +343,7 @@ class DebPackageSelection
 cmd="$P2_DIRECTOR_HOME/start.sh -destination #{destination} \
  -application #{application} \
  #{source} \
- -props #{props} \
+ #{props} \
  -consoleLog"
     if @dry_run!="true"
       puts "Executing #{cmd} 2>&1"
@@ -321,7 +413,8 @@ opt = Getopt::Long.getopts(
   ["--output_deb_repository", "-o", Getopt::REQUIRED],
   ["--output_gpl_deb_repository", "-g", Getopt::OPTIONAL],
   ["--clean_output", "-l", Getopt::OPTIONAL],
-  ["--p2-mirror-conf", "-p", Getopt::OPTIONAL],
+  ["--p2_mirror_conf", "-p", Getopt::OPTIONAL],
+  ["--p2_mirror_filters", "-f", Getopt::OPTIONAL],
   ["--dry_run", "-t", Getopt::OPTIONAL]
 )
 
@@ -336,16 +429,17 @@ output_gpl_deb_repository = opt["output_gpl_deb_repository"]
 #false to not clean the previous debs that are in the repo.
 clean_output=opt["clean_output"] || "true"
 #optional points to the configuration file for the p2-mirror to aggregate the cloud-all repo.
-p2_mirror_conf=opt["p2-mirror-conf"]
+p2_mirror_conf=opt["p2_mirror_conf"]
 if p2_mirror_conf == "false"
   p2_mirror_conf=nil
 end
 dry_run=opt["dry_run"] || "false"
 composite_repo_version=opt["composite_repo_version"]
+p2_mirror_filters=opt["p2_mirror_filters"].split(",")
 
 debpackage_selection=DebPackageSelection.new(input_csv_files,input_deb_repository,
                                              input_gpl_deb_repository,output_deb_repository,
                                              output_gpl_deb_repository,clean_output,
-                                             dry_run,p2_mirror_conf,composite_repo_version)
+                                             dry_run,p2_mirror_conf,p2_mirror_filters,composite_repo_version)
 debpackage_selection.execute()
 
