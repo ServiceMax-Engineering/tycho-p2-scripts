@@ -78,7 +78,7 @@ class DebPackageSelection
             if (headers == "" && line =~ / /)
               #puts "Skip headers #{line}"
               headers=line.strip
-            elsif line =~ /^-exclude*=(.*)/
+            elsif line =~ /^-exclude.*=(.*)/
               #an exclusion simple pattern
               patterns=$1.split(" ")
               patterns.collect! {|x| Regexp.new(p2_simple_pattern_to_regexp(x)) }
@@ -180,7 +180,7 @@ class DebPackageSelection
       #read line by line. if a line starts with -exclude then look closely.
       File.open(path, "r") do |infile|
         while (line = infile.gets)
-          if line =~ /^-exclude*=(.*)/
+          if line =~ /^-exclude.*=(.*)/
             #extract the value
             patterns=$1.split(" ")
             patterns.collect! {|x| Regexp.new(p2_simple_pattern_to_regexp(x)) }
