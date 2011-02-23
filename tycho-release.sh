@@ -187,10 +187,15 @@ do
          groupId=`xpath -q -e "/project/parent/groupId/text()" $pom`
        fi
        p2repoPath=$BASE_FILE_PATH_P2_REPO/`echo $groupId | tr '.' '/'`/$artifactId
-       echo "Deploying $groupId:$artifactId:$completeVersion in $p2repoPath/$completeVersion"       
-       if [ -d $p2repoPath/$completeVersion ]; then
-         echo "Warn: Removing the existing repository $p2repoPath/$completeVersion"
-         rm -rf $p2repoPath/$completeVersion
+       p2repoPathComplete="$p2repoPath/$completeVersion"
+       if  [ -n "$P2_DEPLOYMENT_FOLDER_NAME" ]; then
+	 echo "Using P2_DEPLOYMENT_FOLDER_NAME=$P2_DEPLOYMENT_FOLDER_NAME for the final name of the folder where the repository is deployed."
+	 p2repoPathComplete="$p2repoPath/$P2_DEPLOYMENT_FOLDER_NAME"
+       fi
+       echo "Deploying $groupId:$artifactId:$completeVersion in $p2repoPathComplete"       
+       if [ -d $p2repoPathComplete ]; then
+         echo "Warn: Removing the existing repository $p2repoPathComplete"
+         rm -rf $p2repoPathComplete
        fi
        mkdir -p $p2repoPath
        mv "$module_dir/target/repository" "$module_dir/target/$completeVersion"
@@ -200,7 +205,7 @@ do
        fi
        #Generate the build signature file that will be read by other builds via tycho-resolve-p2repo-versions.rb
        #to identify the actual version of the repo used as a dependency.
-       version_built_file=$p2repoPath/$completeVersion/version_built.properties
+       version_built_file=$p2repoPathComplete/version_built.properties
        echo "artifact=$groupId:$artifactId" > $version_built_file
        echo "version=$completeVersion" >> $version_built_file
        echo "built=$timestamp_and_id" >> $version_built_file
