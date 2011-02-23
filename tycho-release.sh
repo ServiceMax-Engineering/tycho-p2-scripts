@@ -191,6 +191,8 @@ do
        if  [ -n "$P2_DEPLOYMENT_FOLDER_NAME" ]; then
 	 echo "Using P2_DEPLOYMENT_FOLDER_NAME=$P2_DEPLOYMENT_FOLDER_NAME for the final name of the folder where the repository is deployed."
 	 p2repoPathComplete="$p2repoPath/$P2_DEPLOYMENT_FOLDER_NAME"
+       else
+         P2_DEPLOYMENT_FOLDER_NAME=$completeVersion
        fi
        echo "Deploying $groupId:$artifactId:$completeVersion in $p2repoPathComplete"       
        if [ -d $p2repoPathComplete ]; then
@@ -198,8 +200,8 @@ do
          rm -rf $p2repoPathComplete
        fi
        mkdir -p $p2repoPath
-       mv "$module_dir/target/repository" "$module_dir/target/$completeVersion"
-       mv "$module_dir/target/$completeVersion" $p2repoPath
+       mv "$module_dir/target/repository" "$module_dir/target/$P2_DEPLOYMENT_FOLDER_NAME"
+       mv "$module_dir/target/$P2_DEPLOYMENT_FOLDER_NAME" $p2repoPath
        if [ -h "$p2repoPath/$SYM_LINK_CURRENT_NAME" ]; then
          rm "$p2repoPath/$SYM_LINK_CURRENT_NAME"
        fi
