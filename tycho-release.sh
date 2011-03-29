@@ -75,16 +75,20 @@ if [ -n "$SUB_DIRECTORY" ]; then
   cd $SUB_DIRECTORY
 fi
 
+if [ -z "$ROOT_POM"]; then
+  ROOT_POM="pom.xml"
+fi
+
 ### Compute the build number.
 #tags the sources for a release build.
 reg="<version>(.*)-SNAPSHOT<\/version>"
-line=`awk '{if ($1 ~ /'$reg'/){print $1}}' < pom.xml | head -1`
+line=`awk '{if ($1 ~ /'$reg'/){print $1}}' < $ROOT_POM | head -1`
 version=`echo "$line" | awk 'match($0, "<version>(.*)-SNAPSHOT</version>", a) { print a[1] }'`
 
 reg2="<!--forceContextQualifier>(.*)<\/forceContextQualifier-->"
-buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < pom.xml | head -1`
+buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < $ROOT_POM | head -1`
 if [ -z "$buildNumberLine" ]; then
-  echo "Could not find the build-number to use in pom.xml; The line $reg2 must be defined"
+  echo "Could not find the build-number to use in $ROOT_POM; The line $reg2 must be defined"
   exit 2;
 fi
 currentBuildNumber=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
@@ -94,7 +98,7 @@ prop=`echo "$currentBuildNumber" | awk 'match($0, "'$reg_prop'", a) { print a[1]
 if [ -n "$prop" ]; then
   echo "Force the buildNumber to match the value of the property $prop"
   reg_named_prop="<$prop>(.*)<\/$prop>"
-  line_prop=`awk '{if ($1 ~ /'$reg_named_prop'/){print $1}}' < pom.xml | head -1`
+  line_prop=`awk '{if ($1 ~ /'$reg_named_prop'/){print $1}}' < $ROOT_POM | head -1`
   completeVersion=`echo "$line_prop" | awk 'match($0, "'$reg_named_prop'", a) { print a[1] }'`
   # reconstruct the version and buildNumber.
   # make the assumption that the completeVersion matches a 4 seg numbers.
@@ -127,13 +131,13 @@ export buildNumber
 echo "Build Version $completeVersion"
 
 #update the numbers for the release
-sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQualifier>$buildNumber<\/forceContextQualifier>/" pom.xml
+sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQualifier>$buildNumber<\/forceContextQualifier>/" $ROOT_POM
 
 #we write this one in the build file
 timestamp_and_id=`date +%Y-%m-%d-%H%M%S`
 
 #### Build now
-$MAVEN3_HOME/bin/mvn clean integration-test
+$MAVEN3_HOME/bin/mvn -f $ROOT_POM clean verify 
 
 ### Debian packages build
 # Run it if indeed a location has been defined to deploy the deb packages.
@@ -189,8 +193,9 @@ do
        p2repoPath=$BASE_FILE_PATH_P2_REPO/`echo $groupId | tr '.' '/'`/$artifactId
        p2repoPathComplete="$p2repoPath/$completeVersion"
        if  [ -n "$P2_DEPLOYMENT_FOLDER_NAME" ]; then
-	 echo "Using P2_DEPLOYMENT_FOLDER_NAME=$P2_DEPLOYMENT_FOLDER_NAME for the final name of the folder where the repository is deployed."
-	 p2repoPathComplete="$p2repoPath/$P2_DEPLOYMENT_FOLDER_NAME"
+         echo "Using P2_DEPLOYMENT_FOLDER_NAME=$P2_DEPLOYMENT_FOLDER_NAME for the final name of the folder where the repository is deployed."
+#         SKIP_TAG_AND_DEB_DEPLOYMENT_MSG="Cutting the build short as this is an experimental build for a branch"
+         p2repoPathComplete="$p2repoPath/$P2_DEPLOYMENT_FOLDER_NAME"
        else
          P2_DEPLOYMENT_FOLDER_NAME=$completeVersion
        fi
@@ -219,6 +224,11 @@ do
   fi
 done
 
+if  [ -n "$SKIP_TAG_AND_DEB_DEPLOYMENT_MSG" ]; then
+  echo "$SKIP_TAG_AND_DEB_DEPLOYMENT_MSG"
+  exit 0
+fi
+
 #publish the debian packages:
 [ -f "$path_to_deb_publish_script" ] && $path_to_deb_publish_script
 
@@ -236,9 +246,9 @@ tag=$completeVersion
 if [ -n "$GIT_BRANCH" ]; then
   if [ -f "$repo_report" ]; then
     git add $repo_report
-    git commit pom.xml $repo_report -m "Release $completeVersion"
+    git commit $ROOT_POM $repo_report -m "Release $completeVersion"
   else
-    git commit pom.xml -m "Release $completeVersion"
+    git commit $ROOT_POM -m "Release $completeVersion"
   fi
  #in case it exists already delete the tag
  #we are not extremely strict about leaving a tag in there for ever and never touched it.
@@ -250,9 +260,9 @@ if [ -n "$GIT_BRANCH" ]; then
 elif [ -d ".svn" ]; then
   if [ -f "$repo_report" ]; then
     svn add $repo_report
-    svn commit pom.xml $repo_report -m "Release $completeVersion"
+    svn commit $ROOT_POM $repo_report -m "Release $completeVersion"
   else
-    svn commit pom.xml -m "Release $completeVersion"
+    svn commit $ROOT_POM -m "Release $completeVersion"
   fi
   echo "Committed the pom.ml"
   #grab the trunk from which the checkout is done:
@@ -270,14 +280,14 @@ if [ -n "$prop" ]; then
   #a forced build number, let's restore it the way it was
   buildNumber='${'$prop'}'
 fi
-sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$buildNumber<\/forceContextQualifier-->/" pom.xml
+sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$buildNumber<\/forceContextQualifier-->/" $ROOT_POM
 if [ -n "$GIT_BRANCH" ]; then
-  git commit pom.xml -m "Restore pom.xml for development"
+  git commit $ROOT_POM -m "Restore $ROOT_POM for development"
   #in case someone has been working and pushing things during the build:
   git pull origin $GIT_BRANCH
   git push origin $GIT_BRANCH
 elif [ -d ".svn" ]; then
   #in case someone has been working and pushing things during the build:
   svn up
-  svn commit pom.xml -m "Restore pom.xml for development"
+  svn commit $ROOT_POM -m "Restore $ROOT_POM for development"
 fi
