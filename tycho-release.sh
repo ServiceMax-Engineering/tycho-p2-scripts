@@ -73,7 +73,7 @@ fi
 
 # Create the local Maven repository.
 if [ -z "$LOCAL_REPOSITORY" ]; then
-  LOCAL_REPOSITORY="../.repository"
+  LOCAL_REPOSITORY=".repository"
 fi
 
 if [ -n "$SUB_DIRECTORY" ]; then
