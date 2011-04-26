@@ -71,6 +71,11 @@ elif [ -d ".svn" ]; then
   svn up
 fi
 
+# Create the local Maven repository.
+if [ -z "$LOCAL_REPOSITORY" ]; then
+  LOCAL_REPOSITORY="../.repository"
+fi
+
 if [ -n "$SUB_DIRECTORY" ]; then
   cd $SUB_DIRECTORY
 fi
@@ -133,7 +138,7 @@ sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQ
 timestamp_and_id=`date +%Y-%m-%d-%H%M%S`
 
 #### Build now
-$MAVEN3_HOME/bin/mvn clean integration-test
+$MAVEN3_HOME/bin/mvn clean integration-test -Dmaven.repo.local=$LOCAL_REPOSITORY
 
 ### Debian packages build
 # Run it if indeed a location has been defined to deploy the deb packages.
