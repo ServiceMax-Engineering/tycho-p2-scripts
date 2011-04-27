@@ -126,7 +126,7 @@ XPath.each(pom_xml,"//properties") { |properties_elem|
 }
 # return true if the string was mutated false otherwise
 def resolve_property_single_pass(value)
-  m = /\$\{(.*)\}/.match value
+  m = /\$\{([^\/]*)\}/.match value
   if m != nil
     prop_ref=m[1]
     prop_value=PROPERTIES[prop_ref]
