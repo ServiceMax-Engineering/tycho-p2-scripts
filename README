@@ -4,6 +4,16 @@ or generating composite repositories.
 
 These scripts are dual licensed EPL-1.0 and Apache-2.0
 
+== Requirements ==
+Minimum: bash and the XML:XPath perl module; ruby.
+Debian package generation: requires a debian OS and apache-buildr with the deb plugin. TODO: document that if there is interest.
+
+== Setup ==
+The environment constants must defined:
+#points to the unzipped extended p2 director http://www.intalio.org/public/maven2/org/eclipse/rt/EclipseRTp2HeadlessDirector/3.7.0.v20110221/EclipseRTP2DirectorExtended-3.7.0.v20110221.tar.gz
+P2_DIRECTOR_HOME=~/tools/p2director-3.7.0.v20110221
+MAVEN3_HOME=~/tools/maven-3.0.3
+
 == tycho-release.sh ==
 This script can be used to tag a maven-tycho build and to deploy the generated p2 repositories.
 It assumes a unix environment. It requires bash and the XML:XPath perl module.
@@ -28,3 +38,6 @@ An html page is generated to describe the contents of the composite repository.
 
 The project's comes with a sample directory structure to experiment with.
 
+== Promotion Script ==
+Selects a composite repository and invoke p2-mirror to generate an aggregated standalone repository.
+Support filters to remove some artifacts that should not be mirrored.

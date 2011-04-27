@@ -71,6 +71,11 @@ elif [ -d ".svn" ]; then
   svn up
 fi
 
+# Create the local Maven repository.
+if [ -z "$LOCAL_REPOSITORY" ]; then
+  LOCAL_REPOSITORY=".repository"
+fi
+
 if [ -n "$SUB_DIRECTORY" ]; then
   cd $SUB_DIRECTORY
 fi
@@ -137,7 +142,7 @@ sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQ
 timestamp_and_id=`date +%Y-%m-%d-%H%M%S`
 
 #### Build now
-$MAVEN3_HOME/bin/mvn -f $ROOT_POM clean verify 
+$MAVEN3_HOME/bin/mvn -f $ROOT_POM clean verify -Dmaven.repo.local=$LOCAL_REPOSITORY 
 
 ### Debian packages build
 # Run it if indeed a location has been defined to deploy the deb packages.
@@ -194,7 +199,7 @@ do
        p2repoPathComplete="$p2repoPath/$completeVersion"
        if  [ -n "$P2_DEPLOYMENT_FOLDER_NAME" ]; then
          echo "Using P2_DEPLOYMENT_FOLDER_NAME=$P2_DEPLOYMENT_FOLDER_NAME for the final name of the folder where the repository is deployed."
-#         SKIP_TAG_AND_DEB_DEPLOYMENT_MSG="Cutting the build short as this is an experimental build for a branch"
+#         SKIP_TAG_AND_DEB_DEPLOYMENT_MSG="Cutting the build short as this is an experimental build for a branch: $P2_DEPLOYMENT_FOLDER_NAME was defined"
          p2repoPathComplete="$p2repoPath/$P2_DEPLOYMENT_FOLDER_NAME"
        else
          P2_DEPLOYMENT_FOLDER_NAME=$completeVersion
