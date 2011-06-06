@@ -46,7 +46,6 @@ if [ -f "pom.xml" ]; then
   echo "Executing $generate_deb_ius_path"
   $generate_deb_ius_path
 
-
 fi
 
 

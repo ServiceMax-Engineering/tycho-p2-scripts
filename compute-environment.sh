@@ -1,0 +1,281 @@
+#!/bin/sh -e
+# ========================================================================
+# Copyright (c) 2006-2010 Intalio Inc
+# ------------------------------------------------------------------------
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# and Apache License v2.0 which accompanies this distribution.
+# The Eclipse Public License is available at 
+# http://www.eclipse.org/legal/epl-v10.html
+# The Apache License v2.0 is available at
+# http://www.opensource.org/licenses/apache2.0.php
+# You may elect to redistribute this code under either of these licenses. 
+# ========================================================================
+# Author hmalphettes
+#
+# Computes the environment and writes it down into a temporary shell script that will be
+# committed into the source repository as part of the build..
+# Every subsequent script will load it.
+#
+#load the environment constants
+# Absolute path to this script.
+
+SCRIPT=$(readlink -f $0)
+# Absolute path this script is in.
+SCRIPTPATH=`dirname $SCRIPT`
+[ -z "$RELEASE_ENV" ] && RELEASE_ENV=$SCRIPTPATH/default_env
+[ -f "$RELEASE_ENV" ] && . $RELEASE_ENV
+
+WORKSPACE_FOLDER=`pwd`
+
+echo "Executing compute-environment.sh in the folder "`pwd`
+#make sure we are at the root of the folder where the chckout actually happened.
+if [ ! -d ".git" -a ! -d ".svn" ]; then
+  echo "FATAL: could not find .git or .svn in the Current Directory `pwd`"
+  echo "The script must execute in the folder where the checkout of the sources occurred."
+  exit 2;
+fi
+
+if [ -z "$MAVEN3_HOME" ]; then
+  MAVEN3_HOME=~/tools/apache-maven-3.0-beta-1
+fi
+
+if [ -d ".git" ]; then
+  [ -z "$GIT_BRANCH" ] && GIT_BRANCH=master
+  export GIT_BRANCH
+  export BRANCH="$GIT_BRANCH"
+elif [ -d ".svn" ]; then
+    #By default assume the svn classic layout: parent folder is the name of the branch.
+    [ -z "$SVN_BRANCH" ] && SVN_BRANCH=$(basename `pwd`)
+    export SVN_BRANCH
+    export BRANCH="$SVN_BRANCH"
+else
+    export BRANCH="trunk"
+fi
+
+if [ -z "$SYM_LINK_CURRENT_NAME"]; then
+  SYM_LINK_CURRENT_NAME="current"
+fi
+
+#Base folder on the file system where the p2-repositories are deployed.
+if [ -z "$BASE_FILE_PATH_P2_REPO" ]; then
+  #Assume we are on the release machine logged in as the release user.
+  BASE_FILE_PATH_P2_REPO=$HOME/p2repo
+fi
+
+if [ -z "$SYM_LINK_CURRENT_NAME" ]; then
+  SYM_LINK_CURRENT_NAME="current"
+fi
+
+if [ -z "$NO_SOURCE_CONTROL_UPDATES" ]; then
+  if [ -d ".git" ]; then
+    git checkout $GIT_BRANCH
+    git pull origin $GIT_BRANCH
+  elif [ -d ".svn" ]; then
+    svn up
+  fi
+fi
+
+# Create the local Maven repository.
+if [ -z "$LOCAL_REPOSITORY" ]; then
+  LOCAL_REPOSITORY=".repository"
+fi
+
+if [ -n "$SUB_DIRECTORY" ]; then
+  cd $SUB_DIRECTORY
+fi
+WORKSPACE_MODULE_FOLDER=`pwd`
+
+
+if [ -z "$ROOT_POM" ]; then
+  ROOT_POM="pom.xml"
+fi
+
+#we write this one in the build file
+timestamp_and_id=`date +%Y-%m-%d-%H%M%S`
+timestamp_and_id_forqualifier=`date +%Y%m%d%H%M`
+if [ -f "$ROOT_POM" ]; then
+echo "ROOT_POM $ROOT_POM"
+
+  ### Compute the build number.
+  #tags the sources for a release build.
+  reg="<version>(.*)-SNAPSHOT<\/version>"
+  line=`awk '{if ($1 ~ /'$reg'/){print $1}}' < $ROOT_POM | head -1`
+  version=`echo "$line" | awk 'match($0, "<version>(.*)-SNAPSHOT</version>", a) { print a[1] }'`
+  
+  if [ -n "$forceContextQualifier" ]; then
+    buildNumber=$forceContextQualifier
+    completeVersion="$version.$buildNumber"
+  elif [ -n "$useTimestamptForContextQualifier" ]; then
+    buildNumber=$timestamp_and_id_forqualifier
+    completeVersion="$version.$buildNumber"
+  else
+    reg2="<!--forceContextQualifier>(.*)<\/forceContextQualifier-->"
+    buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < $ROOT_POM | head -1`
+    echo "buildNumberLine $buildNumberLine"
+    if [ -z "$buildNumberLine" ]; then
+      echo "Could not find the build-number to use in $ROOT_POM; The line $reg2 must be defined"
+      exit 2;
+    fi
+    currentBuildNumber=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
+
+    reg_prop=".{(.*)}"
+    forcedBuildVersion=`echo "$currentBuildNumber" | awk 'match($0, "'$reg_prop'", a) { print a[1] }'`
+    if [ -n "$forcedBuildVersion" ]; then
+      echo "Force the buildNumber to match the value of the property $forcedBuildVersion"
+      reg_named_prop="<$forcedBuildVersion>(.*)<\/$forcedBuildVersion>"
+      line_prop=`awk '{if ($1 ~ /'$reg_named_prop'/){print $1}}' < $ROOT_POM | head -1`
+      completeVersion=`echo "$line_prop" | awk 'match($0, "'$reg_named_prop'", a) { print a[1] }'`
+      # reconstruct the version and buildNumber.
+      # make the assumption that the completeVersion matches a 4 seg numbers.
+      #if it does not then make the assumption that this buildNumber is just the forced context qualifier and use 
+      #the pom.xml's version for the rest of the version.
+      var=$(echo $completeVersion | awk -F"." '{print $1,$2,$3,$4}')   
+      set -- $var
+      if [ -n "$1" -a -n "$2" -a -n "$3" -a -n "$4" ]; then
+        version=$1.$2.$3
+        buildNumber=$4
+      else
+        buildNumber=$completeVersion
+        completeVersion="$version.$buildNumber"
+      fi
+      echo "$version   $buildNumber"
+    else
+      echo "Increment the buildNumber $currentBuildNumber"
+      strlength=`expr length $currentBuildNumber`
+      #increment the context qualifier
+      buildNumber=`expr $currentBuildNumber + 1`
+      #pad with zeros so the build number is as many characters long as before
+      printf_format="%0"$strlength"d\n"
+      buildNumber=`printf "$printf_format" "$buildNumber"`
+      completeVersion="$version.$buildNumber"
+    fi
+  fi
+else
+  if [ -f "Buildfile_n" ]; then
+    #found the new Buildfile
+    echo "Found the Builfile updated by the previous part of the build"
+    rm Buildfile
+    mv Buildfile_n Buildfile
+  fi
+  if [ ! -f "Buildfile"]; then
+    echo "Build failed: Could not find the pom.xml file and the Buildfile"
+    exit 14
+  fi
+  ROOT_POM=""
+
+  ### Compute the build number.
+  #tags the sources for a release build.
+  reg2="VERSION_NUMBER=\\\"(.*)-SNAPSHOT\\\""
+  buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < Buildfile | head -1`
+  if [ -n "$buildNumberLine" ]; then
+    echo "Release mode: auto-increment $buildNumberLine"
+    completeVersion=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
+
+    # reconstruct the version and buildNumber.
+    # make the assumption that the completeVersion matches a 4 seg numbers.
+    var=$(echo $completeVersion | awk -F"." '{print $1,$2,$3,$4}')   
+    set -- $var
+    version=$1.$2.$3
+    buildNumber=$4
+    echo "$version   $buildNumber"
+    echo "Increment the buildNumber $buildNumber"
+    strlength=`expr length $buildNumber`
+    #increment the context qualifier
+    buildNumber=`expr $buildNumber + 1`
+    #pad with zeros so the build number is as many characters long as before
+    printf_format="%0"$strlength"d\n"
+    buildNumber=`printf "$printf_format" "$buildNumber"`
+    completeVersion="$version.$buildNumber"
+
+    #prepare the next dev build number line
+    buildNumberLine="VERSION_NUMBER=\"$completeVersion-SNAPSHOT\""
+    restore_buildNumberLine="true"
+  else
+    reg2="VERSION_NUMBER=\\\"(.*)\\\""
+    buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < Buildfile | head -1`
+    echo "Release mode: forced version $buildNumberLine"
+    completeVersion=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
+    if [ -z "$" ]; then
+      echo "Unable to find the $reg2 line in the Buildfile"
+      exit 2
+    fi
+    buildr_forced_build_number=$buildNumberLine
+  fi
+
+fi
+
+export completeVersion
+export version
+export buildNumber
+echo "Build Version $completeVersion"
+
+quote='"'
+echo "# Computed build environment on $timestamp_and_id
+export SCRIPTPATH=$quote$SCRIPTPATH$quote
+export RELEASE_ENV=$quote$RELEASE_ENV$quote
+
+export MAVEN3_HOME=$quote$MAVEN3_HOME$quote
+#The maven local repository
+export LOCAL_REPOSITORY=$quote$LOCAL_REPOSITORY$quote
+#The branch name:
+export BRANCH=$quote$BRANCH$quote
+#The git branch
+export GIT_BRANCH=$quote$GIT_BRANCH$quote
+#The directory inside which the project is located. (or empty)
+export SUB_DIRECTORY=$quote$SUB_DIRECTORY$quote
+export DEB_COLLECT_DIR=$quote$DEB_COLLECT_DIR$quote
+
+#path to the folder inside which the build was started
+export WORKSPACE_FOLDER=$quote$WORKSPACE_FOLDER$quote
+#path to the folder inside which the module to build is checked out.
+export WORKSPACE_MODULE_FOLDER=$quote$WORKSPACE_MODULE_FOLDER$quote
+
+#When empty this build is a buildr build
+export ROOT_POM=$quote$ROOT_POM$quote
+
+#when not empty it is used as the base folder where the artifacts are placed on the filesystem
+export BASE_FILE_PATH_P2_REPO=$quote$BASE_FILE_PATH_P2_REPO$quote
+#when not empty it turns off the tagging and deb deployment.
+export SKIP_TAG_AND_DEB_DEPLOYMENT_MSG=$quote$SKIP_TAG_AND_DEB_DEPLOYMENT_MSG$quote
+#Skip all source control updates, tagging and commits when not empty
+export NO_SOURCE_CONTROL_UPDATES=$quote$NO_SOURCE_CONTROL_UPDATES$quote
+#Skip all source controle tags and commits when not empty
+export NO_SOURCE_CONTROL_TAG_COMMIT=$quote$NO_SOURCE_CONTROL_TAG_COMMIT$quote
+
+#Name of the symbolic link created on the file system to point at the latest built repository
+export SYM_LINK_CURRENT_NAME=$quote$SYM_LINK_CURRENT_NAME$quote
+#When not empty force the name of the folder where the repository is deployed
+export P2_DEPLOYMENT_FOLDER_NAME=$quote$P2_DEPLOYMENT_FOLDER_NAME$quote
+
+#When not empty disables the debian package generation
+export DISABLE_DEB_GENERATION=$quote$DISABLE_DEB_GENERATION$quote
+
+export timestamp_and_id=$quote$timestamp_and_id$quote
+export timestamp_and_id_forqualifier=$quote$timestamp_and_id_forqualifier$quote
+
+#when not empty the timestamp is used as the qualifier
+export useTimestamptForContextQualifier=$quote$useTimestamptForContextQualifier$quote
+export version=$quote$version$quote
+export buildNumber=$quote$buildNumber$quote
+export completeVersion=$quote$completeVersion$quote
+
+export forceContextQualifier=$quote$forceContextQualifier$quote
+export buildr_forced_build_number=$quote$buildr_forced_build_number$quote
+export restore_buildNumberLine=$quote$restore_buildNumberLine$quote
+export commit_Buildfile=$quote$commit_Buildfile$quote
+export buildNumberLine=$quote$buildNumberLine$quote
+
+#When not null will be used to override the location of the deployed repo.
+export groupId=$quote$groupId$quote
+
+#JENKINS/HUDSON
+export BUILD_NUMBER=$quote$BUILD_NUMBER$quote
+export BUILD_URL=$quote$BUILD_URL$quote
+export JOB_URL=$quote$JOB_URL$quote
+export NODE_NAME=$quote$NODE_NAME$quote
+export NODE_LABELS=$quote$NODE_LABELS$quote
+
+" > computed-build-environment
+
+

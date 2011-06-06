@@ -265,6 +265,20 @@ class CompositeRepository
     end
   end
   
+  #look for the debs folder inside the repo_folder.
+  #copy the content deb files into the composite folder's 'debs' folder.
+  def collect_deb_associated_packages(repo_folder, composite_repo_folder)
+    headers=""
+    glob=File.join(repo_folder, 'debs',"*.deb")
+    deb_files=Dir.glob(glob)
+    if !deb_files.empty?
+      dest_folder = File.join(composite_repo_folder, 'debs')
+      FileUtils.mkdir_p dest_folder
+      FileUtils.cp deb_files dest_folder
+    end
+  end
+
+  
   def write_composite_deb_ius_csv()
     File.open(File.join(@versionned_output_dir,"repo.deb-ius.csv"), 'w') do |f1|
       #headers
@@ -397,7 +411,7 @@ if File.exists? "Buildfile"
     puts "Deleting the target repository before the deb package generation."
     FileUtils.rm_rf "target"
   end
-  
+
   #let the buildrdeb.sh script do the renaming after it has updated from the git repo
   #File.delete "Buildfile"
   #File.rename("Buildfile_n","Buildfile")

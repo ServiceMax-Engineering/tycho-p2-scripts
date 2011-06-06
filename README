@@ -41,3 +41,12 @@ The project's comes with a sample directory structure to experiment with.
 == Promotion Script ==
 Selects a composite repository and invoke p2-mirror to generate an aggregated standalone repository.
 Support filters to remove some artifacts that should not be mirrored.
+
+
+== Branch support: still to do:
+Generate the deb packages before the deployment of the p2 repositories
+Deploy the p2repos and the deb files at the same time.
+Make an apt.sh script on the fly and execute right away for each apt-repo.
+Work on the composite repo.
+
+
