@@ -41,6 +41,7 @@ if [ -z "$MAVEN3_HOME" ]; then
 fi
 
 if [ -d ".git" ]; then
+  git branch
   if [ -z "$GIT_BRANCH" ]; then
     #trust the hudson job to have checked out the proper branch:
     GIT_BRANCH=`git branch | sed '/^\* /!d' | head -1 | sed 's/^\* //'`
