@@ -30,7 +30,7 @@ WORKSPACE_FOLDER=`pwd`
 
 echo "Executing compute-environment.sh in the folder "`pwd`
 #make sure we are at the root of the folder where the chckout actually happened.
-if [ ! -d ".git" -a ! -d ".svn" ]; then
+if [ ! -d ".git" -a ! -d ".svn" -a -z "$NO_SOURCE_CONTROL_UPDATES"]; then
   echo "FATAL: could not find .git or .svn in the Current Directory `pwd`"
   echo "The script must execute in the folder where the checkout of the sources occurred."
   exit 2;
@@ -158,7 +158,7 @@ else
     rm Buildfile
     mv Buildfile_n Buildfile
   fi
-  if [ ! -f "Buildfile"]; then
+  if [ ! -f "Buildfile" ]; then
     echo "Build failed: Could not find the pom.xml file and the Buildfile"
     exit 14
   fi
@@ -203,6 +203,9 @@ else
     buildr_forced_build_number=$buildNumberLine
   fi
 
+
+  
+
 fi
 
 export completeVersion
@@ -224,7 +227,8 @@ export BRANCH=$quote$BRANCH$quote
 export GIT_BRANCH=$quote$GIT_BRANCH$quote
 #The directory inside which the project is located. (or empty)
 export SUB_DIRECTORY=$quote$SUB_DIRECTORY$quote
-export DEB_COLLECT_DIR=$quote$DEB_COLLECT_DIR$quote
+#Path to the folder that is served as the root path of the web server for the p2 and apt repos.
+export HTTPD_ROOT_PATH=$quote$HTTPD_ROOT_PATH$quote
 
 #path to the folder inside which the build was started
 export WORKSPACE_FOLDER=$quote$WORKSPACE_FOLDER$quote

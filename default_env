@@ -4,10 +4,8 @@ if [ -f "release_env" ]; then
 elif [ -f "../release_env" ]; then
   . "../release_env"
 else
-  if [ -z "$DEB_COLLECT_DIR" ]; then
-    export DEB_COLLECT_DIR="$HOME/p2repo/com/intalio/apt-repo-osgi/dists/3.0/unstable/binary/"
-  fi
-  if [ -z "$DEB_GPL_COLLECT_DIR" ]; then
-    export DEB_GPL_COLLECT_DIR="$HOME/p2repo/com/intalio/apt-repo-osgi-gpl/dists/3.0/unstable/binary/"
+  if [ -z "$HTTPD_ROOT_PATH" ]; then
+    #The path on the filesystem to the root of the folder served by the web server
+    export HTTPD_ROOT_PATH="$HOME/p2repo"
   fi
 fi

@@ -326,7 +326,8 @@ function copy_p2_repositories() {
 }
 
 if [ -z "$ROOT_POM" ]; then
-  "A buildr build: no p2 repository to deploy. Maybe a composite repository was built?"
+  "A buildr build: no p2 repository to deploy. Let's look for a composite repository that was built"
+  
 else
   create_ius_and_debs_array
   find_built_p2_repositories
