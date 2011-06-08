@@ -41,7 +41,17 @@ if [ -z "$MAVEN3_HOME" ]; then
 fi
 
 if [ -d ".git" ]; then
-  [ -z "$GIT_BRANCH" ] && GIT_BRANCH=master
+  git branch
+  if [ -z "$GIT_BRANCH" ]; then
+    #trust the hudson job to have checked out the proper branch:
+    GIT_BRANCH=`git branch | sed '/^\* /!d' | head -1 | sed 's/^\* //'`
+    if [ -z "$GIT_BRANCH" ]; then
+      echo "ERROR: Not able to read the current branch: no branch checked out and no GIT_BRANCH constant defined here "`pwd`
+      echo "git branch"
+      echo `git branch`
+      exit 127
+    fi
+  fi
   export GIT_BRANCH
   export BRANCH="$GIT_BRANCH"
 elif [ -d ".svn" ]; then
