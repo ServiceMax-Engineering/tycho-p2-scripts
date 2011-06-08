@@ -99,6 +99,7 @@ class CompositeRepository
     if otherurls_file.nil?
       return
     end
+    puts otherurls_file
     if ! File.exists?(otherurls_file)
       raise "The file #{otherurls_file} does not exist."
     end
@@ -106,11 +107,13 @@ class CompositeRepository
       while (line = infile.gets)
         if line.strip.size != 0 && ((line =~ /^#/) == nil)
           #not an empty line and not a commented line.
-          if line =~ /^GROUP=(.*)/
-            group=$1
-            puts "group #{group}"
-            
-          if line =~ /^BASE=(.*)/
+          if line =~ /^GROUP_ID=(.*)/
+            puts "skip #{line}"
+            #continue
+          elsif line =~ /^VERSION_NUMBER=(.*)/
+            puts "skip #{line}"
+            #continue
+          elsif line =~ /^BASE=(.*)/
             base=$1
             puts "current base #{base}"
             base = File.expand_path base
@@ -340,24 +343,6 @@ otherurls=opt["otherurls"]
 test=opt["test"] || "false"
 
 compositeRepository=CompositeRepository.new output, version, basefolder, name, otherurls, test
-
-#collect the child repos.
-Find.find(basefolder) do |path|
-  if FileTest.directory?(path)
-    if File.basename(path)[0] == ?. and File.basename(path) != '.'
-      Find.prune
-    elsif File.basename(path) == 'plugins' or File.basename(path) == 'features' or File.basename(path) == 'binaries' or File.basename(path) == name
-      Find.prune
-    else
-      next
-    end
-  else
-    if File.basename(path).downcase == "#{name.downcase}.composite.mkrepo"
-      #compositeRepository.add_childrepo path
-      puts "Found obsolete and unused #{path}"
-    end
-  end
-end
 
 if not compositeRepository.is_changed
   puts "WARNING: None of the children repositories have changed since the last release."

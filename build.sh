@@ -59,23 +59,71 @@ function generate_debs() {
     echo "Executing $path_to_deb_generation_script"
     $path_to_deb_generation_script
   else
-    echo "No debian packages to build as the constant DEB_COLLECT_DIR is not defined."
+    echo "No debian packages to build as the constant DISABLE_DEB_GENERATION is defined."
   fi
 }
+
+#Returns the grpId computed from a build file or something that follows the same format
+function getGroupIdForCompositeRepo() {
+  #Computes the groupId. We are trying tp remain independent from buildr. Hence the following strategy:
+  #Either a line starts with GROUP_ID= and extract the package like group id which is transformed
+  #into a relative path.
+  #Either reads the project's group. for example: project.group = "com.intalio.cloud" from the buildr's file
+  #Assume a single project and assume that the first line where a 'project.group' is defined
+  #is the interesting bit of information.
+  Buildfile=$1
+  if [ ! -f "$Buildfile" ]; then
+    echo "Expecting the argument $Buildfile to be a file that exists."
+    exit 127
+  fi
+  groupIdLine=`sed '/^GROUP_ID.*=/!d' $Buildfile | head -1`
+  if [ -n "$groupIdLine" ]; then
+    grpId=`echo "$groupIdLine" | sed -nr 's/^GROUP_ID.*=(.*)/\1/p' | sed 's/^[ \t]*//' | sed 's/"//g'`
+    echo $grpId
+  else
+    groupIdLine=`sed '/^[ \t]*project\.group[ \t]*=/!d' $Buildfile | head -1`
+    #echo $groupIdLine
+    if [ -n "$groupIdLine" ]; then
+      grpId=`echo "$groupIdLine" | sed -nr 's/^[ \t]*project\.group[ \t]*=(.*)/\1/p;s/^[ \t]*//;s/[ \t]*$//' | sed 's/"//g'`
+      echo $grpId
+    fi
+  fi
+  if [ -z "$grpId" ]; then
+    echo "Could not compute the grpId in $1"
+    exit 127
+  fi
+}
+
 
 if [ -n "$ROOT_POM" ]; then
   #update the numbers for the release
   sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQualifier>$buildNumber<\/forceContextQualifier>/" $ROOT_POM
   #### Build now
   $MAVEN3_HOME/bin/mvn -f $ROOT_POM clean verify -Dmaven.repo.local=$LOCAL_REPOSITORY
+  generate_debs
 elif [ -f Buildfile ]; then
   #update the numbers for the release
   sed -i "s/$buildNumberLine/VERSION_NUMBER=\"$completeVersion\"/" Buildfile
+
+  #look for a composite repo to build first.
+  composite_repo=`ls *.repos | head -1`
+  if [ -n "$composite_repo" ]; then
+    grpId=`getGroupIdForCompositeRepo Buildfile | tail -1`
+    composite_basefolder=$HTTPD_ROOT_PATH
+    composite_output=$HTTPD_ROOT_PATH/`echo $grpId | tr '.' '/'`
+    generate_composite_repo_path=$SCRIPTPATH/composite-p2repo/generate_composite_repo.rb
+    [ -n "$composite_otherurls" ] && composite_otherurls_param="--otherurls=$composite_otherurls"
+    composite_name="$grpId"
+    #cmd="$generate_composite_repo_path --name all --basefolder $HOME/p2repo/com/intalio/cloud/ --output $HOME/p2repo/com/intalio/cloud/all --otherurls=otherurls_for_composite_repo.txt"
+    cmd="$generate_composite_repo_path --name $composite_name --basefolder $composite_basefolder --output $composite_output $composite_otherurls_param --version $completeVersion --symlinkname=$SYM_LINK_CURRENT_NAME"
+    echo "Executing $cmd"
+    $cmd
+  fi
+
   buildr package
 else
   echo "No pom.xml and no Buildfile: nothing to build?"
 fi
 
-generate_debs
 
 

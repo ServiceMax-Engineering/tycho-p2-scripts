@@ -38,3 +38,34 @@ echo "Arr2 items and indexes:"
 for index in ${!arr2[*]}; do
     printf "%4d: %s\n" $index ${arr2[$index]}
 done
+
+
+function computeGroupIdForCompositeRepo() {
+  #Computes the groupId. We are trying tp remain independent from buildr. Hence the following strategy:
+  #Either a line starts with GROUP_ID= and extract the package like group id which is transformed
+  #into a relative path.
+  #Either reads the project's group. for example: project.group = "com.intalio.cloud" from the buildr's file
+  #Assume a single project and assume that the first line where a 'project.group' is defined
+  #is the interesting bit of information.
+  Buildfile=$1
+  if [ ! -f "$Buildfile" ];
+    echo "Expecting the argument $Buildfile to be a file that exists."
+    exit 127
+  fi
+  groupIdLine=`sed '/^GROUP_ID.*=/!d' $Buildfile | head -1`
+  if [ -n "$groupIdLine" ]; then
+    grpId=`echo "$groupIdLine" | sed -nr 's/^GROUP_ID.*=(.*)/\1/p' | sed 's/^[ \t]*//' | sed 's/"//g'`
+    echo $grpId
+  else
+    groupIdLine=`sed '/^[ \t]*project\.group[ \t]*=/!d' $Buildfile | head -1`
+    echo $groupIdLine
+    if [ -n "$groupIdLine" ]; then
+      grpId=`echo "$groupIdLine" | sed -nr 's/^[ \t]*project\.group[ \t]*=(.*)/\1/p;s/^[ \t]*//;s/[ \t]*$//' | sed 's/"//g'`
+      echo $grpId
+    fi
+  fi
+  if [ -z "$grpId" ]; then
+    echo "Could not compute the grpId in $1"
+  fi
+}
+
