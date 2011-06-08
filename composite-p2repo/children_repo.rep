@@ -1,4 +1,4 @@
-BASE=/home/release/p2repo/com/intalio/cloud/
+BASE=$HOME/p2repo/com/intalio/cloud/
 be/cloud.be.repo/*
 cas/cloud.cas.repository/*
 platform/xsharp.platform.repository/3.1.0.*

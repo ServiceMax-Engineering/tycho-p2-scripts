@@ -92,6 +92,7 @@ class CompositeRepository
     @children_repo << relative
     @already_indexed_parents << compositeRepoParentFolder
     collect_deb_associated_packages(File.join(compositeRepoParentFolder.to_s,last_version))
+    copy_deb_associated_files(File.join(compositeRepoParentFolder.to_s,last_version))
   end
     
   def add_external_childrepos(otherurls_file)
@@ -105,6 +106,10 @@ class CompositeRepository
       while (line = infile.gets)
         if line.strip.size != 0 && ((line =~ /^#/) == nil)
           #not an empty line and not a commented line.
+          if line =~ /^GROUP=(.*)/
+            group=$1
+            puts "group #{group}"
+            
           if line =~ /^BASE=(.*)/
             base=$1
             puts "current base #{base}"
@@ -267,14 +272,18 @@ class CompositeRepository
   
   #look for the debs folder inside the repo_folder.
   #copy the content deb files into the composite folder's 'debs' folder.
-  def collect_deb_associated_packages(repo_folder, composite_repo_folder)
-    headers=""
-    glob=File.join(repo_folder, 'debs',"*.deb")
-    deb_files=Dir.glob(glob)
-    if !deb_files.empty?
-      dest_folder = File.join(composite_repo_folder, 'debs')
+  def copy_deb_associated_files(repo_folder)
+    glob=File.join(repo_folder, "debs", "*.deb")
+    deb_files = Dir.glob(glob)
+    puts "Looking for #{glob} gave #{deb_files}"
+    if deb_files and !deb_files.empty?
+      dest_folder = File.join(@versionned_output_dir, 'debs')
       FileUtils.mkdir_p dest_folder
-      FileUtils.cp deb_files dest_folder
+      FileUtils.cp(deb_files, dest_folder)
+#      deb_files.each do |path|
+        #puts "Copying for #{path} in #{dest_folder} #{FileTest.file?(path)}"
+#        FileUtils.cp(path, dest_folder)
+#      end
     end
   end
 

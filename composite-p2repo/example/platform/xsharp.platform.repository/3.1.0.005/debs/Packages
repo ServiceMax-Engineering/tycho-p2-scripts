@@ -1,0 +1,210 @@
+Package: intalio-cloud-systemlog
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform
+Filename: master/3.1.1.550/debs/intalio-cloud-systemlog-3.1.1.550.deb
+Size: 862
+MD5sum: d0eba6c363461794a742ccf86cffe422
+SHA1: 5b7a1384753d1e91feca18074ab0979f774d33de
+SHA256: ae9be40e6e84a2c9ba11137ecdc02ea47206324c0d44b54319c40ee01ef9714f
+Description: Intalio|Cloud Platform Systemlog
+
+Package: intalio-cloud-metering
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform
+Filename: master/3.1.1.550/debs/intalio-cloud-metering-3.1.1.550.deb
+Size: 858
+MD5sum: d16251aec1939693d69fcf4bba50fa37
+SHA1: 9921aaa71ea492cca019778673b4f953d5cbdcd4
+SHA256: a62d7c8d5383c84fd952792be6422994df523e66c1a51f506b375c450b0704b6
+Description: Intalio|Cloud Platform IaaS Metering
+
+Package: intalio-cloud-ntt-vanadis
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform
+Filename: master/3.1.1.550/debs/intalio-cloud-ntt-vanadis-3.1.1.550.deb
+Size: 874
+MD5sum: be54bd84b4b358ad26d2e752eaa401df
+SHA1: 49abb156b90f4bc49845eb67eeefc8626a3a66af
+SHA256: bc9a8bd62a12145f451eaf8e10e8584b0a6d5e6ade2b6741ea79cd5824d8614a
+Description: Intalio|Cloud Platform NTT Vanadis Integration
+
+Package: intalio-xsharpplugin-lucene
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform
+Filename: master/3.1.1.550/debs/intalio-xsharpplugin-lucene-3.1.1.550.deb
+Size: 868
+MD5sum: 7331780b3aed83059de984f5f7158362
+SHA1: 0a4d12988aff8dbd512fe7bdb11b76738111fa89
+SHA256: 4d4716714621c925eaa1edad8bd435b34eeb413899a6fd7188c47b488d8510fc
+Description: Intalio|Cloud XSharp Plugin Lucene Integration
+
+Package: intalio-cloud-controller
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform
+Filename: master/3.1.1.550/debs/intalio-cloud-controller-3.1.1.550.deb
+Size: 858
+MD5sum: 932548b298a1f9770b3fa4eec69e5ea0
+SHA1: 1399704c499a4f32a921749cb3d9e3d4fbe0be71
+SHA256: bed1a1a548cab0c8ed4498f38812449206076db62d148884124ff8ccfd3a1b3a
+Description: Intalio|Cloud Platform IaaS Console
+
+Package: intalio-cloud-platform
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: postgresql-9.0,ttf-mscorefonts-installer,ttf-sazanami-gothic,ttf-sazanami-mincho
+Filename: master/3.1.1.550/debs/intalio-cloud-platform-3.1.1.550.deb
+Size: 878
+MD5sum: 8098e2a61f039456e8962664c1c88f23
+SHA1: 99be4f8647ff81f39b896e542b1344ba9413aa06
+SHA256: 67a3c8bb4b87be4ee5a0da24f9f7de7480a46589da2d1f6e571ebbc99d8b90e2
+Description: Intalio|Cloud Platform
+
+Package: intalio-cloud-softphone
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform
+Filename: master/3.1.1.550/debs/intalio-cloud-softphone-3.1.1.550.deb
+Size: 860
+MD5sum: 5eff5df5ef9543547e13957de5cfaea5
+SHA1: 3bcd3947e5f9d5bfdd09ca5dcd3f0ea765057644
+SHA256: b80b730422f61e558a679556f641590a0a49ce98a5823cde3b361aabba9c0f89
+Description: Intalio|Cloud Platform Softphone
+
+Package: intalio-cloud-ntt-madore
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform
+Filename: master/3.1.1.550/debs/intalio-cloud-ntt-madore-3.1.1.550.deb
+Size: 868
+MD5sum: 1965a2424ea354be6bbc0515606752b8
+SHA1: 0fa1de1dfbb6ae7f50808af1a9c20eace1ad339e
+SHA256: 6a6f983bad144712966366607bd6699d47d138a91b3fb275b872a08faf5622f5
+Description: Intalio|Cloud Platform NTT Madore
+
+Package: intalio-xsharpplugin-provisioning
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform,intalio-cloud-provisioning
+Filename: master/3.1.1.550/debs/intalio-xsharpplugin-provisioning-3.1.1.550.deb
+Size: 878
+MD5sum: 0c74598f24a327e6eb1f275d3bac79c3
+SHA1: 1f6a21ec9a470d72de3e8305c0e234aaf6b4867b
+SHA256: 5e08ce98536e537ea1dc5fd48da68d48ef5ef0bd3c5b01bdd9e2fbabaf800bb9
+Description: Intalio|Cloud Provisioning XSharp Integration
+
+Package: intalio-xsharpplugin-nuxeo
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform
+Filename: master/3.1.1.550/debs/intalio-xsharpplugin-nuxeo-3.1.1.550.deb
+Size: 866
+MD5sum: dd295c83d78e0b8c9bffde0285e0fdb0
+SHA1: b0fad926bee37da9836e87b1ce284b69f53c0932
+SHA256: ed9725d88e8a56135bd8f956e4454ae22e397918ac3f81a4c2442cd11f781dcc
+Description: Intalio|Cloud XSharp Plugin Nuxeo Integration
+
+Package: intalio-cloud-mashup
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform
+Filename: master/3.1.1.550/debs/intalio-cloud-mashup-3.1.1.550.deb
+Size: 850
+MD5sum: 0404a9eab81241334aa79ca73aba1894
+SHA1: 7a0e10078102927ec25e08e347c7b18a4f9cc02d
+SHA256: b56ff7ce51ad72ded60da91a59abbb55341dc021197945fbf7aa2ba205f375ee
+Description: Intalio|Cloud Flex Mashup
+
+Package: intalio-cloud-ntt-login
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform
+Filename: master/3.1.1.550/debs/intalio-cloud-ntt-login-3.1.1.550.deb
+Size: 1844
+MD5sum: a350ebbb12ac6b1344728993fc67a46c
+SHA1: 4e59222eab7d8e046907a4482925445677882723
+SHA256: 32dda653b99cba9e71a7fd319f94152b1820e2bf378003e7ec7095d886214bdb
+Description: Intalio|Cloud Platform NTT LOGIN
+
+Package: intalio-xsharpplugin-we
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform,intalio-cloud-we
+Filename: master/3.1.1.550/debs/intalio-xsharpplugin-we-3.1.1.550.deb
+Size: 862
+MD5sum: ee2e06923d3322404a3096c32e390ae8
+SHA1: e7758935c8e0dd77009921f30b654dc437a71470
+SHA256: 0350e8d7ba666eff66f4f72417a4252edc3ef2d08d165d8af291b026f5cb727e
+Description: Intalio|Cloud WE X# Integration
+
+Package: intalio-cloud-ntt-smarp
+Priority: optional
+Section: Intalio-Cloud
+Installed-Size: 5024
+Maintainer: Intalio <info@intalio.com>
+Architecture: all
+Version: 3.1.1.550
+Depends: intalio-cloud-platform
+Filename: master/3.1.1.550/debs/intalio-cloud-ntt-smarp-3.1.1.550.deb
+Size: 868
+MD5sum: aa195fc58fa84ac119835fde51704fa5
+SHA1: cfef9cb46f424261b226766af517ce032249ed59
+SHA256: 6b8f19356783f6d561ea872d0e3b2953f1cb1095817896841e2e091aaafd2abd
+Description: Intalio|Cloud Platform NTT SMARP
+
