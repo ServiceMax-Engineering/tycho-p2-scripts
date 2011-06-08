@@ -30,7 +30,7 @@ WORKSPACE_FOLDER=`pwd`
 
 echo "Executing compute-environment.sh in the folder "`pwd`
 #make sure we are at the root of the folder where the chckout actually happened.
-if [ ! -d ".git" -a ! -d ".svn" -a -z "$NO_SOURCE_CONTROL_UPDATES"]; then
+if [ ! -d ".git" -a ! -d ".svn" -a -z "$NO_SOURCE_CONTROL_UPDATES" ]; then
   echo "FATAL: could not find .git or .svn in the Current Directory `pwd`"
   echo "The script must execute in the folder where the checkout of the sources occurred."
   exit 2;
