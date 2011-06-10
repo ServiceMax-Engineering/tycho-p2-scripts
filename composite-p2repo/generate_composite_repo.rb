@@ -206,7 +206,11 @@ class CompositeRepository
   
   def compute_versioned_output()
     compute_version
-    @versionned_output_dir = "#{@outputPath}/#{@version}"
+    if @outputPath == "target/repository"
+      @versionned_output_dir = @outputPath
+    else
+      @versionned_output_dir = "#{@outputPath}/#{@version}"
+    end
     puts "Got #{@versionned_output_dir}"
     if @test != "true"
       if File.exist? @versionned_output_dir
@@ -358,7 +362,7 @@ end
 current_dir=File.expand_path(File.dirname(__FILE__))
 #Generate the Artifact Repository
 template=ERB.new File.new(File.join(current_dir,"composite.xml.rhtml")).read, nil, "%"
-artifactsRes=template.result(compositeRepository.get_binding)
+artifactsRes=template.result(compositeRepository.c)
 
 #Generate the Metadata Repository
 compositeRepository.set_ArtifactOrMetaData "Metadata"
