@@ -177,6 +177,12 @@ echo "ROOT_POM $ROOT_POM"
       if [ -n "$1" -a -n "$2" -a -n "$3" -a -n "$4" ]; then
         version=$1.$2.$3
         buildNumber=$4
+        strlength=`expr length $buildNumber`
+        #format the context qualifier
+        buildNumber=`expr $buildNumber`
+        #pad with zeros so the build number is as many characters long as before
+        printf_format="%0"$strlength"d\n"
+        buildNumber=`printf "$printf_format" "$buildNumber"`
       else
         buildNumber=$completeVersion
         completeVersion="$version.$buildNumber"
