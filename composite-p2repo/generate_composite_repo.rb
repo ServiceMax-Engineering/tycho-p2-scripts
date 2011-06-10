@@ -362,7 +362,7 @@ end
 current_dir=File.expand_path(File.dirname(__FILE__))
 #Generate the Artifact Repository
 template=ERB.new File.new(File.join(current_dir,"composite.xml.rhtml")).read, nil, "%"
-artifactsRes=template.result(compositeRepository.c)
+artifactsRes=template.result(compositeRepository.get_binding)
 
 #Generate the Metadata Repository
 compositeRepository.set_ArtifactOrMetaData "Metadata"
