@@ -37,8 +37,8 @@ chmod +x "$env_file"
 
 cd $WORKSPACE_MODULE_FOLDER
 
-#$SCRIPTPATH/build.sh
-#$SCRIPTPATH/deploy.sh
-#$SCRIPTPATH/sourcecontrol-tag.sh
+$SCRIPTPATH/build.sh
+$SCRIPTPATH/deploy.sh
+$SCRIPTPATH/sourcecontrol-tag.sh
 
 
