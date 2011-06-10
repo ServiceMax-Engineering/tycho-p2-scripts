@@ -71,6 +71,7 @@ if [ -n "$ROOT_POM" ]; then
   [ ! -f "Buildfile" ] && no_buidfile="true"
   generate_debs
   #cleanup so we don't get confused later during the tagging
+  echo "About to delete the Buildfile if $no_buildfile"
   [ -f "Buildfile" -a -n "$no_buidfile" ] && rm Buildfile
 elif [ -f Buildfile ]; then
   #update the numbers for the release
