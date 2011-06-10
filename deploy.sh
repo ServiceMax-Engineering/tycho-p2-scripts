@@ -309,8 +309,8 @@ function copy_p2_repositories() {
   [ -z "$find_built_p2_repositories_was_called" ] && find_built_p2_repositories
   [ -z "$populate_built_p2_repositories_with_debs_was_called" ] && populate_built_p2_repositories_with_debs
 
-  already_one_repository_folder=""
-  for built_repository in $built_p2_repositories; do
+  export already_one_repository_folder=""
+  for built_repository in ${built_p2_repositories[*]}; do
     p2repoPathComplete=`compute_p2_repository_deployment_folder $built_repository | tail -n 1`
     p2repoPath=${p2repoPathComplete%/*}
     echo "p2repoPathComplete $p2repoPathComplete"
