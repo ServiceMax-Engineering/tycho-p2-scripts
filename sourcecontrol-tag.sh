@@ -41,7 +41,7 @@ fi
 ### Tag the source controle
 set +e
 
-tag=$completeVersion
+[ -n "$BRANCH" ] && tag="${BRANCH}_${completeVersion}" || tag=$completeVersion
 [ -n "$SUB_DIRECTORY" ] && tag="$SUB_DIRECTORY-$completeVersion"
 
 repo_report="pom.repositories_report.xml"
