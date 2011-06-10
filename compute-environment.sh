@@ -223,8 +223,6 @@ else
       echo "Invalid VERSION_NUMBER $completeVersion. Expecting 4 tokens; for example: 1.2.3.004-SNAPSHOT."
       exit 14
     fi
-    echo "$version   $buildNumber"
-    echo "Increment the buildNumber $buildNumber"
     strlength=`expr length $buildNumber`
     #format the context qualifier
     buildNumber=`expr $buildNumber`
@@ -233,17 +231,6 @@ else
     buildNumber=`printf "$printf_format" "$buildNumber"`
     completeVersion="$version.$buildNumber"
 
-    #format the context qualifier
-    nextBuildNumber=`expr $buildNumber + 1`
-    #pad with zeros so the build number is as many characters long as before
-    printf_format="%0"$strlength"d\n"
-    nextBuildNumber=`printf "$printf_format" "$nextBuildNumber"`
-    nextCompleteVersion="$version.$nextBuildNumber"
-
-    #prepare the next dev build number line
-    buildNumberLine="VERSION_NUMBER=\"$completeVersion-SNAPSHOT\""
-    nextBuildNumberLine="VERSION_NUMBER=\"$nextCompleteVersion-SNAPSHOT\""
-    restore_buildNumberLine="true"
   else
     reg2="VERSION_NUMBER=\\\"(.*)\\\""
     buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < Buildfile | head -1`
@@ -259,6 +246,17 @@ else
     fi
     buildr_forced_build_number=$buildNumberLine
   fi
+  #format the context qualifier
+  nextBuildNumber=`expr $buildNumber + 1`
+  #pad with zeros so the build number is as many characters long as before
+  printf_format="%0"$strlength"d\n"
+  nextBuildNumber=`printf "$printf_format" "$nextBuildNumber"`
+  nextCompleteVersion="$version.$nextBuildNumber"
+
+  #prepare the next dev build number line
+  buildNumberLine="VERSION_NUMBER=\"$completeVersion-SNAPSHOT\""
+  nextBuildNumberLine="VERSION_NUMBER=\"$nextCompleteVersion-SNAPSHOT\""
+  restore_buildNumberLine="true"
 
   export grpIdForCompositeRepo=`getGroupIdForCompositeRepo Buildfile | tail -1`
   
