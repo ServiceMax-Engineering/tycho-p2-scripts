@@ -68,7 +68,10 @@ if [ -n "$ROOT_POM" ]; then
   sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQualifier>$buildNumber<\/forceContextQualifier>/" $ROOT_POM
   #### Build now
   $MAVEN3_HOME/bin/mvn -f $ROOT_POM clean verify -Dmaven.repo.local=$LOCAL_REPOSITORY
+  [ ! -f "Buildfile" ] && no_buidfile="true"
   generate_debs
+  #cleanup so we don't get confused later during the tagging
+  [ -f "Buildfile" -a "$no_buidfile" ] && rm Buildfile
 elif [ -f Buildfile ]; then
   #update the numbers for the release
   sed -i "s/$buildNumberLine/VERSION_NUMBER=\"$completeVersion\"/" Buildfile
@@ -89,8 +92,9 @@ elif [ -f Buildfile ]; then
     #[ -n "$composite_otherurls" ] && composite_otherurls_param="--otherurls=$composite_otherurls"
     composite_otherurls_param="--otherurls=$composite_repo"
     composite_name="$grpId"
+    [ -n "$HTTPD_ROOT_PATH_BASE_FOLDER_NAME" ] && absolutepathPrefixParam="--absolutepathPrefix $HTTPD_ROOT_PATH_BASE_FOLDER_NAME"
     #cmd="$generate_composite_repo_path --name all --basefolder $HOME/p2repo/com/intalio/cloud/ --output $HOME/p2repo/com/intalio/cloud/all --otherurls=otherurls_for_composite_repo.txt"
-    cmd="$generate_composite_repo_path --name $composite_name --basefolder $composite_basefolder --output $composite_output $composite_otherurls_param --version $completeVersion --symlinkname=$SYM_LINK_CURRENT_NAME"
+    cmd="$generate_composite_repo_path --name $composite_name --basefolder $composite_basefolder $absolutepathPrefixParam --output $composite_output $composite_otherurls_param --version $completeVersion --symlinkname=$SYM_LINK_CURRENT_NAME"
     echo "Executing $cmd"
     $cmd
   fi
