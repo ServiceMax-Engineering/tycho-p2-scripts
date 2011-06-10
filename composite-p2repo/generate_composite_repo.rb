@@ -93,7 +93,6 @@ class CompositeRepository
     end
     relative=File.join(relative.to_s,last_version)
     absolute="#{@absolutepathPrefix}/#{compositeRepoParentFolder.relative_path_from(Pathname.new(@basefolder))}/#{last_version}"
-    puts "absolute #{absolute}"
     @children_repo_relative << relative
     @children_repo_absolute << absolute
     @already_indexed_parents << compositeRepoParentFolder
@@ -296,10 +295,6 @@ class CompositeRepository
       dest_folder = File.join(@versionned_output_dir, 'debs')
       FileUtils.mkdir_p dest_folder
       FileUtils.cp(deb_files, dest_folder)
-#      deb_files.each do |path|
-        #puts "Copying for #{path} in #{dest_folder} #{FileTest.file?(path)}"
-#        FileUtils.cp(path, dest_folder)
-#      end
     end
   end
 
