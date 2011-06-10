@@ -71,7 +71,7 @@ if [ -n "$ROOT_POM" ]; then
   [ ! -f "Buildfile" ] && no_buidfile="true"
   generate_debs
   #cleanup so we don't get confused later during the tagging
-  [ -f "Buildfile" -a "$no_buidfile" ] && rm Buildfile
+  [ -f "Buildfile" -a -n "$no_buidfile" ] && rm Buildfile
 elif [ -f Buildfile ]; then
   #update the numbers for the release
   sed -i "s/$buildNumberLine/VERSION_NUMBER=\"$completeVersion\"/" Buildfile
