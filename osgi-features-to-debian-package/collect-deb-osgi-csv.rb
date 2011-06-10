@@ -59,12 +59,14 @@ built_repos=Dir.glob("**/target/*/artifacts.jar")
 puts "built_repos #{built_repos}"
 built_repos.each do |path|
   repo_folder=File.dirname(path)
+  puts "Hello: #{repo_folder}"
   File.open(File.join(repo_folder,"repo.deb-ius.csv"), 'w') do |f1|
     f1.puts("Deb filename,Deb Package,Deb Version,OSGi IU id,OSGi IU version,Description")
     deb_files.each do |csv_line|
       f1.puts(csv_line)
     end
   end
+  puts "Done with: #{repo_folder}"
 end
 
 
