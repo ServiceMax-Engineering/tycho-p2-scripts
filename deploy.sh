@@ -160,6 +160,8 @@ function compute_p2_repository_deployment_folder() {
       if [ -n "$already_one_repository_folder" ]; then
         echo "More than one 'repository' folder. Using the artifactId for $artifactId" 1>&2
         repository_suffix=$artifactId
+      else
+        already_one_repository_folder="true"
       fi
     fi
   fi
@@ -312,7 +314,6 @@ function copy_p2_repositories() {
     p2repoPath=${p2repoPathComplete%/*}
     echo "p2repoPathComplete $p2repoPathComplete"
     echo "$built_repository deployed in $p2repoPathComplete"
-    already_one_repository_folder="true"
     if [ -n "$BASE_FILE_PATH_P2_REPO" ]; then
       if [ -d "$p2repoPathComplete" ]; then
         echo "Warn: Removing the existing repository $p2repoPathComplete"
