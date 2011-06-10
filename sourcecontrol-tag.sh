@@ -110,7 +110,7 @@ if [ -f Buildfile -a -n "$nextCompleteVersion"  ]; then
 fi
 if [ -n "$GIT_BRANCH" ]; then
   if [ -n "$ROOT_POM" ]; then
-    commit_b="$(git status | grep $ROOT_POM | grep modified)"
+    commit_b=`git diff $ROOT_POM`
     if [ -n "$commit_b" ]; then
       echo "About to git commit $ROOT_POM -m 'Restore $ROOT_POM for development'"
       git commit $ROOT_POM -m "Restore $ROOT_POM for development"
@@ -119,7 +119,7 @@ if [ -n "$GIT_BRANCH" ]; then
       echo "Nothing to commit at the moment"
     fi
   else
-    commit_b=`git status | grep Buildfile | grep modified`
+    commit_b=`git diff Buildfile`
     if [ -n "$commit_b" ]; then
       git commit Buildfile -m "Restore Buildfile for development"
     fi
