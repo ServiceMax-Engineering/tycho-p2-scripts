@@ -335,8 +335,10 @@ function copy_p2_repositories() {
       cd ..
       packages_rel_dir=$(basename `pwd`)/$packages_rel_dir
       cd ..
-      echo "apt-ftparchive packages $packages_rel_dir > $packages_rel_dir/Packages"
-      apt-ftparchive packages $packages_rel_dir > $packages_rel_dir/Packages
+      if [ -d "$packages_rel_dir" ]; then
+        echo "apt-ftparchive packages $packages_rel_dir > $packages_rel_dir/Packages in "`pwd`
+        apt-ftparchive packages $packages_rel_dir > $packages_rel_dir/Packages
+      fi
       cd $WORKSPACE_MODULE_FOLDER
     else
       echo "Warn: the constant BASE_FILE_PATH_P2_REPO is not defined so no deploym,ent is actually taking place."
