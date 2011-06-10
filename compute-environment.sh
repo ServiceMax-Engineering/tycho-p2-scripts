@@ -208,12 +208,9 @@ else
 
   ### Compute the build number.
   #tags the sources for a release build.
-  reg2="VERSION_NUMBER=\\\"(.*)-SNAPSHOT\\\""
-  #buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < Buildfile | head -1`
   buildNumberLine=`sed '/^VERSION_NUMBER=\".*-SNAPSHOT\"/!d' Buildfile`
   if [ -n "$buildNumberLine" ]; then
     echo "Release mode: auto-increment $buildNumberLine"
-    #completeVersion=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
     completeVersion=`echo $buildNumberLine | sed 's/ /\//g' | sed 's/^VERSION_NUMBER=\"//g' | sed 's/-SNAPSHOT\"//g'`
 
     # reconstruct the version and buildNumber.
@@ -256,6 +253,10 @@ else
     if [ -z "$" ]; then
       echo "Unable to find the $reg2 line in the Buildfile"
       exit 2
+    fi
+    if [ -n "$1" -a -n "$2" -a -n "$3" -a -n "$4" ]; then
+      version=$1.$2.$3
+      buildNumber=$4
     fi
     buildr_forced_build_number=$buildNumberLine
   fi
