@@ -125,13 +125,6 @@ elif [ -f Buildfile ]; then
 
   buildr package
 
-  if [ -n "$composite_repo" ]; then
-    for debfile in `ls target/*.deb 2>/dev/null`; do
-      mkdir -p target/repository/debs
-      cp debfile target/repository/debs
-    done
-  fi
-
 else
   echo "No pom.xml and no Buildfile: nothing to build?"
 fi
