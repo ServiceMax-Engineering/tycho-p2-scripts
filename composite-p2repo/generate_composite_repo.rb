@@ -399,25 +399,3 @@ elsif
   end
 end
 
-# if the Buildfile exists in the working folder then update it with this version number.
-#so that when buildrdeb-release.sh is called
-# it will tag and commit with this version number.
-if File.exists? "Buildfile"
-  puts "Updating the Buildfile #{File.expand_path('Buildfile')}."
-  File.open("Buildfile_n", "w") do |infile|
-    File.open("Buildfile", "r") do |rfile|
-      while (line = rfile.gets)
-        if line =~ /^VERSION_NUMBER=/
-          infile.puts "VERSION_NUMBER=\"#{compositeRepository.get_version}\""
-        else
-          infile.puts line
-        end
-      end
-    end
-  end
-
-  #let the buildrdeb.sh script do the renaming after it has updated from the git repo
-  #File.delete "Buildfile"
-  #File.rename("Buildfile_n","Buildfile")
-end
-
