@@ -110,7 +110,10 @@ elif [ -f Buildfile ]; then
   if [ -n "$composite_repo" ]; then
     grpId=`getGroupIdForCompositeRepo Buildfile | tail -1`
     composite_basefolder=$HTTPD_ROOT_PATH
-    composite_output=$HTTPD_ROOT_PATH/`echo $grpId | tr '.' '/'`
+    #this would be the final output: #composite_output=$HTTPD_ROOT_PATH/`echo $grpId | tr '.' '/'`
+    #let's use a classic target folder:
+    composite_output=target/repository
+    mkdir -p $composite_output
     generate_composite_repo_path=$SCRIPTPATH/composite-p2repo/generate_composite_repo.rb
     [ -n "$composite_otherurls" ] && composite_otherurls_param="--otherurls=$composite_otherurls"
     composite_name="$grpId"

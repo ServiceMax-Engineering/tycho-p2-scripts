@@ -30,7 +30,7 @@ WORKSPACE_FOLDER=`pwd`
 
 echo "Executing compute-environment.sh in the folder "`pwd`
 #make sure we are at the root of the folder where the chckout actually happened.
-if [ ! -d ".git" -a ! -d ".svn" -a -z "$NO_SOURCE_CONTROL_UPDATES"]; then
+if [ ! -d ".git" -a ! -d ".svn" -a -z "$NO_SOURCE_CONTROL_UPDATES" ]; then
   echo "FATAL: could not find .git or .svn in the Current Directory `pwd`"
   echo "The script must execute in the folder where the checkout of the sources occurred."
   exit 2;
@@ -177,17 +177,26 @@ else
   ### Compute the build number.
   #tags the sources for a release build.
   reg2="VERSION_NUMBER=\\\"(.*)-SNAPSHOT\\\""
-  buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < Buildfile | head -1`
+  #buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < Buildfile | head -1`
+  buildNumberLine=`sed '/^VERSION_NUMBER=\".*-SNAPSHOT\"/!d' Buildfile`
   if [ -n "$buildNumberLine" ]; then
     echo "Release mode: auto-increment $buildNumberLine"
-    completeVersion=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
+echo "here reg2 $reg2 "
+    #completeVersion=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
+    completeVersion=`echo $buildNumberLine | sed 's/ /\//g' | sed 's/^VERSION_NUMBER=\"//g' | sed 's/-SNAPSHOT\"//g'`
+echo "after reg2 $completeVersion"
 
     # reconstruct the version and buildNumber.
     # make the assumption that the completeVersion matches a 4 seg numbers.
-    var=$(echo $completeVersion | awk -F"." '{print $1,$2,$3,$4}')   
+    var=$(echo $completeVersion | awk -F"." '{print $1,$2,$3,$4}')
     set -- $var
+    if [ -n "$1" -a -n "$2" -a -n "$3" -a -n "$4" ]; then
     version=$1.$2.$3
     buildNumber=$4
+    else
+      echo "Invalid VERSION_NUMBER $completeVersion. Expecting 4 tokens; for example: 1.2.3.004-SNAPSHOT."
+      exit 14
+    fi
     echo "$version   $buildNumber"
     echo "Increment the buildNumber $buildNumber"
     strlength=`expr length $buildNumber`
