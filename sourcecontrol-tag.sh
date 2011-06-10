@@ -115,6 +115,8 @@ if [ -n "$GIT_BRANCH" ]; then
       echo "About to git commit $ROOT_POM -m 'Restore $ROOT_POM for development'"
       git commit $ROOT_POM -m "Restore $ROOT_POM for development"
       echo "Great success"
+    else
+      echo "Nothing to commit at the moment"
     fi
   else
     commit_b=`git status | grep Buildfile | grep modified`
