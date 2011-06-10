@@ -348,8 +348,8 @@ function copy_p2_repositories() {
       echo "Warn: the constant BASE_FILE_PATH_P2_REPO is not defined so no deploym,ent is actually taking place."
     fi
   done
-  if [ -z "$already_one_repository_folder" ]; then
-    echo "No repositories to deploy $built_p2_repositories[0]"
+  if [ -z "${existing_repos[0]}" ]; then
+    echo "No repositories to deploy ${built_p2_repositories[0]}"
   fi
 }
 
