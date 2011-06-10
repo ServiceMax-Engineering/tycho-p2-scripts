@@ -155,16 +155,6 @@ function compute_p2_repository_deployment_folder() {
       groupId=`xpath -q -e "/project/parent/groupId/text()" $pom`
     fi
     local repository_suffix=`xpath -q -e "/project/properties/repositorySuffix/text()" $pom`
-    if [ -z "$repository_suffix" ]; then
-      #let's make sure we don't have already a repository folder:
-      if [ -n "$already_one_repository_folder" ]; then
-        echo "More than one 'repository' folder. Using the artifactId for $artifactId" 1>&2
-        repository_suffix=$artifactId
-      else
-        echo "First repository folder for $artifactId"
-        already_one_repository_folder="true"
-      fi
-    fi
   fi
   if [ -z "$BRANCH" ]; then
     echo "Warning unknown BRANCH. Using 'unknown_branch' by default" 1>&2
@@ -176,6 +166,7 @@ function compute_p2_repository_deployment_folder() {
   fi
   local p2repoPath=$BASE_FILE_PATH_P2_REPO/`echo $groupId | tr '.' '/'`$repository_suffix/$BRANCH
   local p2repoPathComplete="$p2repoPath/$completeVersion"
+
   if  [ -n "$P2_DEPLOYMENT_FOLDER_NAME" ]; then
     echo "Using P2_DEPLOYMENT_FOLDER_NAME=$P2_DEPLOYMENT_FOLDER_NAME for the final name of the folder where the repository is deployed." 1>&2
     p2repoPathComplete="$p2repoPath/$P2_DEPLOYMENT_FOLDER_NAME"
@@ -198,7 +189,6 @@ function compute_p2_repositories_deployment_folders() {
   compute_p2_repositories_deployment_folders_was_called=true
   [ -z "$find_built_p2_repositories_was_called" ] && find_built_p2_repositories
   p2_repositories_deployment_folders=()
-  already_one_repository_folder=""
   for built_p2_repository in $built_p2_repositories; do
     destination=`compute_p2_repository_deployment_folder | tail -n 1`
     echo "destination=$destination"
@@ -309,12 +299,23 @@ function copy_p2_repositories() {
   [ -z "$find_built_p2_repositories_was_called" ] && find_built_p2_repositories
   [ -z "$populate_built_p2_repositories_with_debs_was_called" ] && populate_built_p2_repositories_with_debs
 
-  already_one_repository_folder=""
-  for built_repository in $built_p2_repositories; do
+  existing_repos=()
+  for built_repository in ${built_p2_repositories[*]}; do
     p2repoPathComplete=`compute_p2_repository_deployment_folder $built_repository | tail -n 1`
     p2repoPath=${p2repoPathComplete%/*}
     echo "p2repoPathComplete $p2repoPathComplete"
     echo "$built_repository deployed in $p2repoPathComplete"
+    #let's make sure we don't have already a repository folder:
+    for existing_repo in ${existing_repos[*]}; do
+      if [ "$existing_repo" = "$p2repoPathComplete" ];
+        echo "FATAL: There are at least 2 repositories generated in this project in the folder $existing_repo."
+        echo "It is required that all but one of the pom.xml where a repository is produced define:"
+        echo " <properties><repositorySuffix>a_unique_suffix</repositorySuffix></properties>"
+        exit 128
+      fi
+    done 
+
+    existing_repos[${#existing_repos[*]}]=$p2repoPathComplete
     if [ -n "$BASE_FILE_PATH_P2_REPO" ]; then
       if [ -d "$p2repoPathComplete" ]; then
         echo "Warn: Removing the existing repository $p2repoPathComplete"
