@@ -116,10 +116,11 @@ if [ -n "$GIT_BRANCH" ]; then
       git commit $ROOT_POM -m "Restore $ROOT_POM for development"
       echo "Great success"
     fi
-  fi
-  commit_b=`git status | grep Buildfile | grep modified`
-  if [ -n "$commit_b" ]; then
-    git commit Buildfile -m "Restore Buildfile for development"
+  else
+    commit_b=`git status | grep Buildfile | grep modified`
+    if [ -n "$commit_b" ]; then
+      git commit Buildfile -m "Restore Buildfile for development"
+    fi
   fi
   #in case someone has been working and pushing things during the build:
   echo "About to git pull origin $GIT_BRANCH"
