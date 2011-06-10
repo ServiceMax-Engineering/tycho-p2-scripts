@@ -161,6 +161,7 @@ function compute_p2_repository_deployment_folder() {
         echo "More than one 'repository' folder. Using the artifactId for $artifactId" 1>&2
         repository_suffix=$artifactId
       else
+        echo "First repository folder for $artifactId"
         already_one_repository_folder="true"
       fi
     fi
