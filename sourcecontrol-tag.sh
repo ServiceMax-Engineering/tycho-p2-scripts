@@ -63,8 +63,8 @@ if [ -n "$GIT_BRANCH" ]; then
   #we are not extremely strict about leaving a tag in there for ever and never touched it.
   tag_exist=`git tag -l | grep $tag`
   if [ -n "$tag_exist" ]; then
-    git tag -d $tag
     git push origin :refs/tags/$tag
+    git tag -d $tag
   fi
   git tag $tag
   # don't push this pom in the master branch: we only care for it in the tag !
@@ -98,7 +98,7 @@ if [ -n "$buildr_forced_build_number" ]; then
   #a forced build number, let's restore it the way it was
   buildNumber='${'$buildr_forced_build_number'}'
 fi
-[ -n $ROOT_POM ] && sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$buildNumber<\/forceContextQualifier-->/" $ROOT_POM
+[ -n "$ROOT_POM" ] && sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$buildNumber<\/forceContextQualifier-->/" $ROOT_POM
 if [ -n "$GIT_BRANCH" ]; then
   if [ -n "$ROOT_POM" ]; then
     git commit $ROOT_POM -m "Restore $ROOT_POM for development"
