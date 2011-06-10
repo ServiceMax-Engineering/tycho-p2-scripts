@@ -107,11 +107,16 @@ fi
 [ -f Buildfile ] && sed -i "s/^VERSION_NUMBER.*/VERSION_NUMBER=\"$nextCompleteVersion-SNAPSHOT\"/" Buildfile
 if [ -n "$GIT_BRANCH" ]; then
   if [ -n "$ROOT_POM" ]; then
-    git commit $ROOT_POM -m "Restore $ROOT_POM for development"
-    #in case someone has been working and pushing things during the build:
-    git pull origin $GIT_BRANCH
-    git push origin $GIT_BRANCH
+    commit_b=`git status | grep $ROOT_POM | grep modified`
+    [ -n "$commit_b" ] && git commit $ROOT_POM -m "Restore $ROOT_POM for development"
   fi
+  commit_b=`git status | grep Buildfile | grep modified`
+  if [ -n "$commit_b" ]; then
+    git commit Buildfile -m "Release $completeVersion"
+  fi
+  #in case someone has been working and pushing things during the build:
+  git pull origin $GIT_BRANCH
+  git push origin $GIT_BRANCH
 elif [ -d ".svn" ]; then
   #in case someone has been working and pushing things during the build:
   svn up
