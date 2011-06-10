@@ -101,6 +101,38 @@ if [ -z "$ROOT_POM" ]; then
   ROOT_POM="pom.xml"
 fi
 
+#Returns the grpId computed from a build file or something that follows the same format
+function getGroupIdForCompositeRepo() {
+  #Computes the groupId. We are trying tp remain independent from buildr. Hence the following strategy:
+  #Either a line starts with GROUP_ID= and extract the package like group id which is transformed
+  #into a relative path.
+  #Either reads the project's group. for example: project.group = "com.intalio.cloud" from the buildr's file
+  #Assume a single project and assume that the first line where a 'project.group' is defined
+  #is the interesting bit of information.
+  Buildfile=$1
+  if [ ! -f "$Buildfile" ]; then
+    echo "Expecting the argument $Buildfile to be a file that exists."
+    exit 127
+  fi
+  groupIdLine=`sed '/^GROUP_ID.*=/!d' $Buildfile | head -1`
+  if [ -n "$groupIdLine" ]; then
+    grpId=`echo "$groupIdLine" | sed -nr 's/^GROUP_ID.*=(.*)/\1/p' | sed 's/^[ \t]*//' | sed 's/"//g'`
+    echo $grpId
+  else
+    groupIdLine=`sed '/^[ \t]*project\.group[ \t]*=/!d' $Buildfile | head -1`
+    #echo $groupIdLine
+    if [ -n "$groupIdLine" ]; then
+      grpId=`echo "$groupIdLine" | sed -nr 's/^[ \t]*project\.group[ \t]*=(.*)/\1/p;s/^[ \t]*//;s/[ \t]*$//' | sed 's/"//g'`
+      echo $grpId
+    fi
+  fi
+  if [ -z "$grpId" ]; then
+    echo "Could not compute the grpId in $1"
+    exit 127
+  fi
+}
+
+
 #we write this one in the build file
 timestamp_and_id=`date +%Y-%m-%d-%H%M%S`
 timestamp_and_id_forqualifier=`date +%Y%m%d%H%M`
@@ -222,7 +254,7 @@ echo "after reg2 $completeVersion"
     buildr_forced_build_number=$buildNumberLine
   fi
 
-
+  export grpIdForCompositeRepo=`getGroupIdForCompositeRepo Buildfile | tail -1`
   
 
 fi
@@ -288,6 +320,8 @@ export buildr_forced_build_number=$quote$buildr_forced_build_number$quote
 export restore_buildNumberLine=$quote$restore_buildNumberLine$quote
 export commit_Buildfile=$quote$commit_Buildfile$quote
 export buildNumberLine=$quote$buildNumberLine$quote
+
+export grpIdForCompositeRepo=$quote$grpIdForCompositeRepo$quote
 
 #When not null will be used to override the location of the deployed repo.
 export groupId=$quote$groupId$quote
