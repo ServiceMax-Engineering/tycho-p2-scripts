@@ -197,8 +197,7 @@ else
   if [ -f "Buildfile_n" ]; then
     #found the new Buildfile
     echo "Found the Builfile updated by the previous part of the build"
-    rm Buildfile
-    mv Buildfile_n Buildfile
+    rm Buildfile_n
   fi
   if [ ! -f "Buildfile" ]; then
     echo "Build failed: Could not find the pom.xml file and the Buildfile"
