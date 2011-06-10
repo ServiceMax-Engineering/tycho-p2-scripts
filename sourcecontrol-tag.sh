@@ -56,7 +56,11 @@ if [ -n "$GIT_BRANCH" ]; then
   else
      # when releasing the composite repository we need to commit the file
      commit_b=`git status | grep Buildfile | grep modified`
-     [ -n "$commit_b" ] && git commit Buildfile -m "Release $completeVersion"
+     if [ -n "$commit_b" ]; then
+       echo "About to git commit Buildfile -m"
+       git commit Buildfile -m "Release $completeVersion"
+       echo "Success: git commit Buildfile -m"
+     fi
   fi
   #in case it exists already delete the tag
   #we are not extremely strict about leaving a tag in there for ever and never touched it.
@@ -68,7 +72,9 @@ if [ -n "$GIT_BRANCH" ]; then
   git tag $tag
   # don't push this pom in the master branch: we only care for it in the tag !
   # git push origin $GIT_BRANCH
+  echo "about to git tag git push origin refs/tags/$tag"
   git push origin refs/tags/$tag
+  echo "Success"
 elif [ -d ".svn" ]; then
   if [ -n "$ROOT_POM" ]; then
     if [ -f "$repo_report" ]; then
