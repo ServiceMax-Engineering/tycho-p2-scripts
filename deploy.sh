@@ -106,27 +106,31 @@ function get_deb_file() {
 function find_built_p2_repositories() {
   find_built_p2_repositories_was_called="true"
   built_p2_repositories=()
-  reg3="<packaging>eclipse-repository<\/packaging>"
-  reg4="<packaging>eclipse-update-site<\/packaging>"
-  for pom in `find $WORKSPACE_MODULE_FOLDER -name pom.xml -type f`; do
-    module_dir=`echo "$pom" | awk 'match($0, "(.*)/pom.xml", a) { print a[1] }'`
-    #echo "module_dir $module_dir"
-    #Look for the target/repository folder:
-    #if [ -d "$module_dir/target/repository" ]; then
-    if [ -d "$module_dir" ]; then
-      packagingRepo=`awk '{if ($1 ~ /'$reg3'/){print $1}}' < $pom | head -1`
-      repository_or_site='repository'
-      if [ -z "$packagingRepo" ]; then
-        packagingRepo=`awk '{if ($1 ~ /'$reg4'/){print $1}}' < $pom | head -1`
-        repository_or_site='site'
+  if [ -f "Buildfile" -a -f "target/repository" ]; then
+    built_p2_repositories[${#built_p2_repositories[*]}]="target/repository"
+  else
+    reg3="<packaging>eclipse-repository<\/packaging>"
+    reg4="<packaging>eclipse-update-site<\/packaging>"
+    for pom in `find $WORKSPACE_MODULE_FOLDER -name pom.xml -type f`; do
+      module_dir=`echo "$pom" | awk 'match($0, "(.*)/pom.xml", a) { print a[1] }'`
+      #echo "module_dir $module_dir"
+      #Look for the target/repository folder:
+      #if [ -d "$module_dir/target/repository" ]; then
+      if [ -d "$module_dir" ]; then
+        packagingRepo=`awk '{if ($1 ~ /'$reg3'/){print $1}}' < $pom | head -1`
+        repository_or_site='repository'
+        if [ -z "$packagingRepo" ]; then
+          packagingRepo=`awk '{if ($1 ~ /'$reg4'/){print $1}}' < $pom | head -1`
+          repository_or_site='site'
+        fi
+        if [ -n "$packagingRepo" ]; then
+          # OK we have a repo project.
+          built_repository="$module_dir/target/$repository_or_site"
+          built_p2_repositories[${#built_p2_repositories[*]}]="$built_repository"
+        fi
       fi
-      if [ -n "$packagingRepo" ]; then
-        # OK we have a repo project.
-        built_repository="$module_dir/target/$repository_or_site"
-        built_p2_repositories[${#built_p2_repositories[*]}]="$built_repository"
-      fi
-    fi
-  done
+    done
+  fi
 }
 
 #Compute the deployment location of one p2 repo
@@ -274,6 +278,7 @@ function populate_built_p2_repository_with_debs() {
 #Copies the deb file into a sub-folder 'debs' inside the built repository.
 function populate_built_p2_repositories_with_debs() {
   populate_built_p2_repositories_with_debs_was_called="true"
+  [ -z "$ROOT_POM" ] && return
   [ -z "$create_ius_and_debs_array_was_called" ] && create_ius_and_debs_array
   [ -z "$find_built_p2_repositories_was_called" ] && find_built_p2_repositories
 
@@ -326,8 +331,11 @@ function copy_p2_repositories() {
 }
 
 if [ -z "$ROOT_POM" ]; then
-  "A buildr build: no p2 repository to deploy. Let's look for a composite repository that was built"
-  
+  "A buildr build: no p2 repository built by tycho to deploy. Let's look for a composite repository that was built"
+  if [ -f "Buildfile" -a -f "target/repository" ]; then
+    find_built_p2_repositories
+    copy_p2_repositories
+  fi
 else
   create_ius_and_debs_array
   find_built_p2_repositories
