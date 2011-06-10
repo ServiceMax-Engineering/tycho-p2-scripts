@@ -319,7 +319,7 @@ function copy_p2_repositories() {
         rm -rf $p2repoPathComplete
       fi
       mkdir -p $p2repoPathComplete
-      echo "cp -r $built_repository/* $p2repoPathComplete"
+      echo "Deploying $built_repository/* in $p2repoPathComplete"
       cp -r $built_repository/* $p2repoPathComplete
       if [ -h "$p2repoPath/$SYM_LINK_CURRENT_NAME" ]; then
         rm "$p2repoPath/$SYM_LINK_CURRENT_NAME"
