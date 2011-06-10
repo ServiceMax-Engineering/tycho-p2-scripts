@@ -115,7 +115,9 @@ if [ -n "$GIT_BRANCH" ]; then
     git commit Buildfile -m "Restore Buildfile for development"
   fi
   #in case someone has been working and pushing things during the build:
+  echo "About to git pull origin $GIT_BRANCH"
   git pull origin $GIT_BRANCH
+  echo "git pull succeeded"
   echo "About to git push origin $GIT_BRANCH"
   git push origin $GIT_BRANCH
   echo "git push succeeded"
