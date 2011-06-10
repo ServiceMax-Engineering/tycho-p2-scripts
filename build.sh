@@ -68,7 +68,10 @@ if [ -n "$ROOT_POM" ]; then
   sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQualifier>$buildNumber<\/forceContextQualifier>/" $ROOT_POM
   #### Build now
   $MAVEN3_HOME/bin/mvn -f $ROOT_POM clean verify -Dmaven.repo.local=$LOCAL_REPOSITORY
+  [ ! -f "Buildfile" ] && no_buidfile="true"
   generate_debs
+  #cleanup so we don't get confused later during the tagging
+  [ -f "Buildfile" -a "$no_buidfile" ] && rm Buildfile
 elif [ -f Buildfile ]; then
   #update the numbers for the release
   sed -i "s/$buildNumberLine/VERSION_NUMBER=\"$completeVersion\"/" Buildfile
