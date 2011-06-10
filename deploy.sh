@@ -107,6 +107,7 @@ function find_built_p2_repositories() {
   find_built_p2_repositories_was_called="true"
   built_p2_repositories=()
   if [ -f "Buildfile" -a -d "target/repository" ]; then
+    echo "GOt the composite repo "`pwd`"target/repository"
     built_p2_repositories[${#built_p2_repositories[*]}]=`pwd`"target/repository"
   else
     reg3="<packaging>eclipse-repository<\/packaging>"
