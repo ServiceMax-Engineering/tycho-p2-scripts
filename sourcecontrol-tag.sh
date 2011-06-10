@@ -108,7 +108,11 @@ fi
 if [ -n "$GIT_BRANCH" ]; then
   if [ -n "$ROOT_POM" ]; then
     commit_b=`git status | grep $ROOT_POM | grep modified`
-    [ -n "$commit_b" ] && git commit $ROOT_POM -m "Restore $ROOT_POM for development"
+    if [ -n "$commit_b" ]; then
+      echo "About to git commit $ROOT_POM -m 'Restore $ROOT_POM for development'"
+      git commit $ROOT_POM -m "Restore $ROOT_POM for development"
+      echo "Great success"
+    fi
   fi
   commit_b=`git status | grep Buildfile | grep modified`
   if [ -n "$commit_b" ]; then
