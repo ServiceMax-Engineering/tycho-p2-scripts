@@ -283,6 +283,7 @@ function populate_built_p2_repositories_with_debs() {
       mkdir -p target/repository/debs
       cp debfile target/repository/debs
     done
+    [ -d "target/repository/debs" ] && apt_index target/repository/debs
   else
     [ -z "$create_ius_and_debs_array_was_called" ] && create_ius_and_debs_array
     [ -z "$find_built_p2_repositories_was_called" ] && find_built_p2_repositories
@@ -338,7 +339,7 @@ function copy_p2_repositories() {
 
 if [ -z "$ROOT_POM" ]; then
   echo "A buildr build: no p2 repository built by tycho to deploy. Let's look for a composite repository that was built"
-  if [ -f "Buildfile" -a -f "target/repository" ]; then
+  if [ -f "Buildfile" -a -d "target/repository" ]; then
     find_built_p2_repositories
     populate_built_p2_repositories_with_debs
     copy_p2_repositories
