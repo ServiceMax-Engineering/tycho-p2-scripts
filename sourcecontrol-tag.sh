@@ -55,9 +55,8 @@ if [ -n "$GIT_BRANCH" ]; then
     fi
   else
      # when releasing the composite repository we need to commit the file
-     [ -n "$restore_buildNumberLine" -o -n "$commit_Buildfile" ] && git commit Buildfile -m "Release $completeVersion"
-     #in case it exists already delete the tag
-     #we are not extremely strict about leaving a tag in there for ever and never touched it.
+     commit_b=`git status | grep Buildfile | grep modified`
+     [ -n "$commit_b" ] && git commit Buildfile -m "Release $completeVersion"
   fi
   #in case it exists already delete the tag
   #we are not extremely strict about leaving a tag in there for ever and never touched it.
