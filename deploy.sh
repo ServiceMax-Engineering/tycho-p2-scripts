@@ -283,6 +283,7 @@ function populate_built_p2_repositories_with_debs() {
       mkdir -p target/repository/debs
       cp debfile target/repository/debs
     done
+    [ -d "target/repository/debs" ] && apt_index target/repository/debs
   else
     [ -z "$create_ius_and_debs_array_was_called" ] && create_ius_and_debs_array
     [ -z "$find_built_p2_repositories_was_called" ] && find_built_p2_repositories
