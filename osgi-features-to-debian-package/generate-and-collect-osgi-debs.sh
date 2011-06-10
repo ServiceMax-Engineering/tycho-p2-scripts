@@ -47,7 +47,7 @@ if [ -f "pom.xml" ]; then
   $generate_deb_ius_path
 
   echo "Exit code of $generate_deb_ius_path: $?"
-
 fi
+exit 0
 
 
