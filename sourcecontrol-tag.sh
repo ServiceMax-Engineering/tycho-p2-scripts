@@ -98,13 +98,16 @@ fi
 
 set -e
 
-#restore the commented out forceContextQualifier
-if [ -n "$buildr_forced_build_number" ]; then
-  #a forced build number, let's restore it the way it was
-  buildNumber='${'$buildr_forced_build_number'}'
+if [ -n "$ROOT_POM" -a -n "$nextBuildNumber" ]; then
+   echo "Update forceContextQualifier with $nextBuildNumber"
+   sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$nextBuildNumber<\/forceContextQualifier-->/" $ROOT_POM
+   echo "forceContextQualifier updated"
 fi
-[ -n "$ROOT_POM" -a -n "$nextBuildNumber" ] && sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$nextBuildNumber<\/forceContextQualifier-->/" $ROOT_POM
-[ -f Buildfile -a -n "$nextCompleteVersion"  ] && sed -i "s/^VERSION_NUMBER.*/VERSION_NUMBER=\"$nextCompleteVersion-SNAPSHOT\"/" Buildfile
+if [ -f Buildfile -a -n "$nextCompleteVersion"  ]; then
+  echo "Update Buildfile with $nextCompleteVersion"
+  sed -i "s/^VERSION_NUMBER.*/VERSION_NUMBER=\"$nextCompleteVersion-SNAPSHOT\"/" Buildfile
+  echo "Buildfile updated"
+fi
 if [ -n "$GIT_BRANCH" ]; then
   if [ -n "$ROOT_POM" ]; then
     commit_b=`git status | grep $ROOT_POM | grep modified`
