@@ -110,7 +110,7 @@ if [ -f Buildfile -a -n "$nextCompleteVersion"  ]; then
 fi
 if [ -n "$GIT_BRANCH" ]; then
   if [ -n "$ROOT_POM" ]; then
-    commit_b=`git status | grep $ROOT_POM | grep modified`
+    commit_b=$(git status | grep $ROOT_POM | grep modified)`
     if [ -n "$commit_b" ]; then
       echo "About to git commit $ROOT_POM -m 'Restore $ROOT_POM for development'"
       git commit $ROOT_POM -m "Restore $ROOT_POM for development"
