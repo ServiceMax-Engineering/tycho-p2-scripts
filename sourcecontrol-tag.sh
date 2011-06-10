@@ -116,7 +116,9 @@ if [ -n "$GIT_BRANCH" ]; then
   fi
   #in case someone has been working and pushing things during the build:
   git pull origin $GIT_BRANCH
+  echo "About to git push origin $GIT_BRANCH"
   git push origin $GIT_BRANCH
+  echo "git push succeeded"
 elif [ -d ".svn" ]; then
   #in case someone has been working and pushing things during the build:
   svn up
