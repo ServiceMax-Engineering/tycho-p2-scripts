@@ -191,12 +191,19 @@ echo "ROOT_POM $ROOT_POM"
     else
       echo "Increment the buildNumber $currentBuildNumber"
       strlength=`expr length $currentBuildNumber`
-      #increment the context qualifier
-      buildNumber=`expr $currentBuildNumber + 1`
+      buildNumber=`expr $currentBuildNumber`
       #pad with zeros so the build number is as many characters long as before
       printf_format="%0"$strlength"d\n"
       buildNumber=`printf "$printf_format" "$buildNumber"`
       completeVersion="$version.$buildNumber"
+
+      #prepare the next dev build number line
+      #format the context qualifier
+      nextBuildNumber=`expr $buildNumber + 1`
+      #pad with zeros so the build number is as many characters long as before
+      printf_format="%0"$strlength"d\n"
+      nextBuildNumber=`printf "$printf_format" "$nextBuildNumber"`
+      nextCompleteVersion="$version.$nextBuildNumber"
     fi
   fi
 else
