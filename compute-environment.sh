@@ -303,6 +303,8 @@ export SUB_DIRECTORY=$quote$SUB_DIRECTORY$quote
 #Path to the folder that is served as the root path of the web server for the p2 and apt repos.
 export HTTPD_ROOT_PATH=$quote$HTTPD_ROOT_PATH$quote
 
+export HTTPD_ROOT_PATH_BASE_FOLDER_NAME=$quote$HTTPD_ROOT_PATH_BASE_FOLDER_NAME$quote
+
 #path to the folder inside which the build was started
 export WORKSPACE_FOLDER=$quote$WORKSPACE_FOLDER$quote
 #path to the folder inside which the module to build is checked out.
