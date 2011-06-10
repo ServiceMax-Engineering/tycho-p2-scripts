@@ -107,7 +107,7 @@ function find_built_p2_repositories() {
   find_built_p2_repositories_was_called="true"
   built_p2_repositories=()
   if [ -f "Buildfile" -a -f "target/repository" ]; then
-    built_p2_repositories[${#built_p2_repositories[*]}]="target/repository"
+    built_p2_repositories[${#built_p2_repositories[*]}]=`pwd`"target/repository"
   else
     reg3="<packaging>eclipse-repository<\/packaging>"
     reg4="<packaging>eclipse-update-site<\/packaging>"
@@ -278,13 +278,19 @@ function populate_built_p2_repository_with_debs() {
 #Copies the deb file into a sub-folder 'debs' inside the built repository.
 function populate_built_p2_repositories_with_debs() {
   populate_built_p2_repositories_with_debs_was_called="true"
-  [ -z "$ROOT_POM" ] && return
-  [ -z "$create_ius_and_debs_array_was_called" ] && create_ius_and_debs_array
-  [ -z "$find_built_p2_repositories_was_called" ] && find_built_p2_repositories
+  if [ -z "$ROOT_POM" ]; then
+    for debfile in `ls target/*.deb 2>/dev/null`; do
+      mkdir -p target/repository/debs
+      cp debfile target/repository/debs
+    done
+  else
+    [ -z "$create_ius_and_debs_array_was_called" ] && create_ius_and_debs_array
+    [ -z "$find_built_p2_repositories_was_called" ] && find_built_p2_repositories
 
-  for built_repository in $built_p2_repositories; do
-    populate_built_p2_repository_with_debs $built_repository
-  done
+    for built_repository in $built_p2_repositories; do
+      populate_built_p2_repository_with_debs $built_repository
+    done
+  fi
 }
 
 #Copy the p2 repositories to their destination folders
@@ -334,6 +340,7 @@ if [ -z "$ROOT_POM" ]; then
   echo "A buildr build: no p2 repository built by tycho to deploy. Let's look for a composite repository that was built"
   if [ -f "Buildfile" -a -f "target/repository" ]; then
     find_built_p2_repositories
+    populate_built_p2_repositories_with_debs
     copy_p2_repositories
   fi
 else
