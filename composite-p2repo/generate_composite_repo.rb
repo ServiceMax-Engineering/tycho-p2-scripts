@@ -34,9 +34,10 @@ require 'set'
 
 class CompositeRepository
   
-  def initialize(output, version, basefolder, name, otherurls, test)
+  def initialize(output, version, basefolder, absolutepathPrefix, name, otherurls, test)
     @outputPath = Pathname.new(output).expand_path
     @basefolder = Pathname.new(basefolder).expand_path
+    @absolutepathPrefix = absolutepathPrefix
     @name = name
     @version = version
     @test = test
@@ -91,7 +92,7 @@ class CompositeRepository
       raise "Could not locate a version directory in #{compositeRepoParentFolder.to_s}/#{version_glob}"
     end
     relative=File.join(relative.to_s,last_version)
-    absolute="/#{compositeRepoParentFolder.relative_path_from(Pathname.new(@basefolder))}/#{last_version}"
+    absolute="#{@absolutepathPrefix}/#{compositeRepoParentFolder.relative_path_from(Pathname.new(@basefolder))}/#{last_version}"
     puts "absolute #{absolute}"
     @children_repo_relative << relative
     @children_repo_absolute << absolute
@@ -321,6 +322,7 @@ require "rubygems"
 require "getopt/long"
 opt = Getopt::Long.getopts(
   ["--basefolder", "-b", Getopt::REQUIRED],
+  ["--absolutepathPrefix", "-a", Getopt::OPTIONAL],
   ["--output", "-o", Getopt::REQUIRED],
   ["--name", "-n", Getopt::OPTIONAL],
   ["--test", "-t", Getopt::OPTIONAL],
@@ -335,6 +337,7 @@ basefolder = opt["basefolder"] || "."
 name = opt["name"] || "all"
 #forced version for the generated composite repository
 version = opt["version"]
+absolutepathPrefix = opt["absolutepathPrefix"] || ""
 #The fodler where the composite repository is generated.
 #such that $output/$theversion/compositeArtifacts.xml will exist.
 if opt["output"]
@@ -354,7 +357,7 @@ otherurls=opt["otherurls"]
 
 test=opt["test"] || "false"
 
-compositeRepository=CompositeRepository.new output, version, basefolder, name, otherurls, test
+compositeRepository=CompositeRepository.new output, version, basefolder, absolutepathPrefix, name, otherurls, test
 
 if not compositeRepository.is_changed
   puts "WARNING: None of the children repositories have changed since the last release."
