@@ -63,38 +63,6 @@ function generate_debs() {
   fi
 }
 
-#Returns the grpId computed from a build file or something that follows the same format
-function getGroupIdForCompositeRepo() {
-  #Computes the groupId. We are trying tp remain independent from buildr. Hence the following strategy:
-  #Either a line starts with GROUP_ID= and extract the package like group id which is transformed
-  #into a relative path.
-  #Either reads the project's group. for example: project.group = "com.intalio.cloud" from the buildr's file
-  #Assume a single project and assume that the first line where a 'project.group' is defined
-  #is the interesting bit of information.
-  Buildfile=$1
-  if [ ! -f "$Buildfile" ]; then
-    echo "Expecting the argument $Buildfile to be a file that exists."
-    exit 127
-  fi
-  groupIdLine=`sed '/^GROUP_ID.*=/!d' $Buildfile | head -1`
-  if [ -n "$groupIdLine" ]; then
-    grpId=`echo "$groupIdLine" | sed -nr 's/^GROUP_ID.*=(.*)/\1/p' | sed 's/^[ \t]*//' | sed 's/"//g'`
-    echo $grpId
-  else
-    groupIdLine=`sed '/^[ \t]*project\.group[ \t]*=/!d' $Buildfile | head -1`
-    #echo $groupIdLine
-    if [ -n "$groupIdLine" ]; then
-      grpId=`echo "$groupIdLine" | sed -nr 's/^[ \t]*project\.group[ \t]*=(.*)/\1/p;s/^[ \t]*//;s/[ \t]*$//' | sed 's/"//g'`
-      echo $grpId
-    fi
-  fi
-  if [ -z "$grpId" ]; then
-    echo "Could not compute the grpId in $1"
-    exit 127
-  fi
-}
-
-
 if [ -n "$ROOT_POM" ]; then
   #update the numbers for the release
   sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQualifier>$buildNumber<\/forceContextQualifier>/" $ROOT_POM
@@ -108,7 +76,10 @@ elif [ -f Buildfile ]; then
   #look for a composite repo to build first.
   composite_repo=`ls *.repos | head -1`
   if [ -n "$composite_repo" ]; then
-    grpId=`getGroupIdForCompositeRepo Buildfile | tail -1`
+    grpId=$grpIdForCompositeRepo
+    if [ -z "$grpId" ]; then
+      echo "Unable to read the groupId in the Buildfile"
+    fi
     composite_basefolder=$HTTPD_ROOT_PATH
     #this would be the final output: #composite_output=$HTTPD_ROOT_PATH/`echo $grpId | tr '.' '/'`
     #let's use a classic target folder:

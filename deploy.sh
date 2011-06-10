@@ -107,7 +107,6 @@ function find_built_p2_repositories() {
   find_built_p2_repositories_was_called="true"
   built_p2_repositories=()
   if [ -f "Buildfile" -a -d "target/repository" ]; then
-    echo "GOt the composite repo "`pwd`"/target/repository"
     built_p2_repositories[${#built_p2_repositories[*]}]=`pwd`"/target/repository"
   else
     reg3="<packaging>eclipse-repository<\/packaging>"
@@ -139,24 +138,29 @@ function compute_p2_repository_deployment_folder() {
   local module_dir=${1%/*/*}
   local pom=$module_dir/pom.xml
   if [ ! -f $pom ]; then
-    echo "$1 must be a directory that contains a pom.xml file" 1>&2
-    exit 12
-  fi
-  # Let's read its group id and artifact id and make that into the base folder
-  # Where the p2 repository is deployed
-  artifactId=`xpath -q -e "/project/artifactId/text()" $pom`
-  if [ -z "$groupId" ]; then
-    groupId=`xpath -q -e "/project/groupId/text()" $pom`
-  fi
-  if [ -z "$groupId" ]; then
-    groupId=`xpath -q -e "/project/parent/groupId/text()" $pom`
-  fi
-  local repository_suffix=`xpath -q -e "/project/properties/repositorySuffix/text()" $pom`
-  if [ -z "repository_suffix" ]; then
-    #let's make sure we don't have already a repository folder:
-    if [ -n "$already_one_repository_folder" ]; then
-      echo "More than one 'repository' folder. Using the artifactId for $artifactId" 1>&2
-      repository_suffix=$artifactId
+    if [ -z "$ROOT_POM " -a -f "$module_dir/Buildfile" ]; then
+      groupId="$grpIdForCompositeRepo"
+    else
+      echo "$1 must be a directory that contains a pom.xml file" 1>&2
+      exit 12
+    fi
+  else
+    # Let's read its group id and artifact id and make that into the base folder
+    # Where the p2 repository is deployed
+    artifactId=`xpath -q -e "/project/artifactId/text()" $pom`
+    if [ -z "$groupId" ]; then
+      groupId=`xpath -q -e "/project/groupId/text()" $pom`
+    fi
+    if [ -z "$groupId" ]; then
+      groupId=`xpath -q -e "/project/parent/groupId/text()" $pom`
+    fi
+    local repository_suffix=`xpath -q -e "/project/properties/repositorySuffix/text()" $pom`
+    if [ -z "repository_suffix" ]; then
+      #let's make sure we don't have already a repository folder:
+      if [ -n "$already_one_repository_folder" ]; then
+        echo "More than one 'repository' folder. Using the artifactId for $artifactId" 1>&2
+        repository_suffix=$artifactId
+      fi
     fi
   fi
   if [ -z "$BRANCH" ]; then
