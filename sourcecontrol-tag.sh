@@ -61,7 +61,11 @@ if [ -n "$GIT_BRANCH" ]; then
   fi
   #in case it exists already delete the tag
   #we are not extremely strict about leaving a tag in there for ever and never touched it.
-  git push origin :refs/tags/$tag
+  tag_exist=`git tag -l | grep $tag`
+  if [ -n "$tag_exist" ]; then
+    git tag -d $tag
+    git push origin :refs/tags/$tag
+  fi
   git tag $tag
   # don't push this pom in the master branch: we only care for it in the tag !
   # git push origin $GIT_BRANCH
