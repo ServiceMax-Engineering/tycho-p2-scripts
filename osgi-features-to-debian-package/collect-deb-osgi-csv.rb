@@ -34,6 +34,7 @@ headers=""
 deb_files=[]
 glob=File.join("**/target/*.deb-ius.csv")
 csv_files=Dir.glob(glob)
+puts "csv_files #{csv_files}"
 csv_files.each do |path|
   File.open(path, 'r') do |properties_file|
     properties_file.read.each_line do |line|
@@ -55,6 +56,7 @@ end
 # TODO: optional file that filters in and out the deb packages actually related to a specific repository.
 # useful if multiple repositories are created by the same build
 built_repos=Dir.glob("**/target/*/artifacts.jar")
+puts "built_repos #{built_repos}"
 built_repos.each do |path|
   repo_folder=File.dirname(path)
   File.open(File.join(repo_folder,"repo.deb-ius.csv"), 'w') do |f1|
