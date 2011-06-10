@@ -230,15 +230,23 @@ else
     echo "$version   $buildNumber"
     echo "Increment the buildNumber $buildNumber"
     strlength=`expr length $buildNumber`
-    #increment the context qualifier
-    buildNumber=`expr $buildNumber + 1`
+    #format the context qualifier
+    buildNumber=`expr $buildNumber`
     #pad with zeros so the build number is as many characters long as before
     printf_format="%0"$strlength"d\n"
     buildNumber=`printf "$printf_format" "$buildNumber"`
     completeVersion="$version.$buildNumber"
 
+    #format the context qualifier
+    nextBuildNumber=`expr $buildNumber + 1`
+    #pad with zeros so the build number is as many characters long as before
+    printf_format="%0"$strlength"d\n"
+    nextBuildNumber=`printf "$printf_format" "$nextBuildNumber"`
+    nextCompleteVersion="$version.$nextBuildNumber"
+
     #prepare the next dev build number line
     buildNumberLine="VERSION_NUMBER=\"$completeVersion-SNAPSHOT\""
+    nextBuildNumberLine="VERSION_NUMBER=\"$nextCompleteVersion-SNAPSHOT\""
     restore_buildNumberLine="true"
   else
     reg2="VERSION_NUMBER=\\\"(.*)\\\""
@@ -263,7 +271,8 @@ export buildNumber
 echo "Build Version $completeVersion"
 
 esc_buildNumberLine=`echo "$buildNumberLine" | sed -e 's/[\"]/\\\"/g'`
-esc_esc_buildr_forced_build_number=`echo "$buildr_forced_build_number" | sed -e 's/[\"]/\\\"/g'`
+esc_nextBuildNumberLine=`echo "$nextBuildNumberLine" | sed -e 's/[\"]/\\\"/g'`
+esc_buildr_forced_build_number=`echo "$buildr_forced_build_number" | sed -e 's/[\"]/\\\"/g'`
 
 quote='"'
 squote="'"
@@ -316,9 +325,12 @@ export useTimestamptForContextQualifier=$quote$useTimestamptForContextQualifier$
 export version=$quote$version$quote
 export buildNumber=$quote$buildNumber$quote
 export completeVersion=$quote$completeVersion$quote
+export nextBuildNumber=$quote$nextBuildNumber$quote
+export nextCompleteVersion=$quote$nextCompleteVersion$quote
 
 export forceContextQualifier=$quote$forceContextQualifier$quote
 export buildr_forced_build_number=$quote$esc_buildr_forced_build_number$quote
+export nextBuildNumberLine=$quote$esc_nextBuildNumberLine$quote
 export restore_buildNumberLine=$quote$restore_buildNumberLine$quote
 export commit_Buildfile=$quote$commit_Buildfile$quote
 export buildNumberLine=$quote$esc_buildNumberLine$quote
