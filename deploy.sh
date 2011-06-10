@@ -305,7 +305,7 @@ function copy_p2_repositories() {
     p2repoPath=${p2repoPathComplete%/*}
     echo "p2repoPathComplete $p2repoPathComplete"
     echo "$built_repository deployed in $p2repoPathComplete"
-
+    already_one_repository_folder="true"
     if [ -n "$BASE_FILE_PATH_P2_REPO" ]; then
       if [ -d "$p2repoPathComplete" ]; then
         echo "Warn: Removing the existing repository $p2repoPathComplete"
@@ -335,6 +335,9 @@ function copy_p2_repositories() {
       echo "Warn: the constant BASE_FILE_PATH_P2_REPO is not defined so no deploym,ent is actually taking place."
     fi
   done
+  if [ -z "$already_one_repository_folder" ]; then
+    echo "No repositories to deploy $built_p2_repositories[0]"
+  fi
 }
 
 if [ -z "$ROOT_POM" ]; then
