@@ -262,6 +262,9 @@ export version
 export buildNumber
 echo "Build Version $completeVersion"
 
+esc_buildNumberLine=`echo "$buildNumberLine" | sed -e 's/[\"]/\\\"/g'`
+esc_esc_buildr_forced_build_number=`echo "$buildr_forced_build_number" | sed -e 's/[\"]/\\\"/g'`
+
 quote='"'
 squote="'"
 echo "# Computed build environment on $timestamp_and_id
@@ -315,10 +318,10 @@ export buildNumber=$quote$buildNumber$quote
 export completeVersion=$quote$completeVersion$quote
 
 export forceContextQualifier=$quote$forceContextQualifier$quote
-export buildr_forced_build_number=$squote"$buildr_forced_build_number"$squote
-export restore_buildNumberLine=$squote"$restore_buildNumberLine"$squote
+export buildr_forced_build_number=$quote$esc_buildr_forced_build_number$quote
+export restore_buildNumberLine=$quote$restore_buildNumberLine$quote
 export commit_Buildfile=$quote$commit_Buildfile$quote
-export buildNumberLine=$quote"$buildNumberLine"$quote
+export buildNumberLine=$quote$esc_buildNumberLine$quote
 
 export grpIdForCompositeRepo=$quote$grpIdForCompositeRepo$quote
 
