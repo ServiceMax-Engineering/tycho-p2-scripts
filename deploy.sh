@@ -155,7 +155,7 @@ function compute_p2_repository_deployment_folder() {
       groupId=`xpath -q -e "/project/parent/groupId/text()" $pom`
     fi
     local repository_suffix=`xpath -q -e "/project/properties/repositorySuffix/text()" $pom`
-    if [ -z "repository_suffix" ]; then
+    if [ -z "$repository_suffix" ]; then
       #let's make sure we don't have already a repository folder:
       if [ -n "$already_one_repository_folder" ]; then
         echo "More than one 'repository' folder. Using the artifactId for $artifactId" 1>&2
