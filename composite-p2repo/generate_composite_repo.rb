@@ -206,7 +206,8 @@ class CompositeRepository
   
   def compute_versioned_output()
     compute_version
-    if @outputPath == "target/repository"
+    puts "Output path #{@outputPath}"
+    if (@outputPath =~ /target\/repository$/) != nil
       @versionned_output_dir = @outputPath
     else
       @versionned_output_dir = "#{@outputPath}/#{@version}"
@@ -386,13 +387,15 @@ elsif
   File.open(File.join(out_dir,"compositeArtifacts.xml"), 'w') {|f| f.puts(artifactsRes) }
   File.open(File.join(out_dir,"compositeContent.xml"), 'w') {|f| f.puts(metadataRes) }
   File.open(File.join(out_dir,"index.html"), 'w') {|f| f.puts(htmlRes) }
-  current_symlink=File.join(output,symlink_name)
-  if File.symlink?(current_symlink) || File.exists?(current_symlink)
-    File.delete current_symlink
+  if (output =~ /target\/repository$/) == nil
+    current_symlink=File.join(output,symlink_name)
+    if File.symlink?(current_symlink) || File.exists?(current_symlink)
+      File.delete current_symlink
+    end
+    Dir.chdir "#{out_dir}/.."
+    File.symlink(out_dir,symlink_name)
+    Dir.chdir "#{current_dir}"
   end
-  Dir.chdir "#{out_dir}/.."
-  File.symlink(out_dir,symlink_name)
-  Dir.chdir "#{current_dir}"
 end
 
 # if the Buildfile exists in the working folder then update it with this version number.
@@ -410,10 +413,6 @@ if File.exists? "Buildfile"
         end
       end
     end
-  end
-  if File.exists? "target"
-    puts "Deleting the target repository before the deb package generation."
-    FileUtils.rm_rf "target"
   end
 
   #let the buildrdeb.sh script do the renaming after it has updated from the git repo
