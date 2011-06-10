@@ -217,10 +217,12 @@ function apt_index() {
     echo "The directory $target_dir does not exist."
     exit 12
   fi
-  local curr_dir=`pwd`
-  cd $target_dir
-  apt-ftparchive packages $packages_rel_dir > $packages_rel_dir/Packages
-  cd $curr_dir
+  if [ -d "$target_dir/$packages_rel_dir" ]; then
+    local curr_dir=`pwd`
+    cd $target_dir
+    apt-ftparchive packages $packages_rel_dir > $packages_rel_dir/Packages
+    cd $curr_dir
+  fi
 }
 
 
