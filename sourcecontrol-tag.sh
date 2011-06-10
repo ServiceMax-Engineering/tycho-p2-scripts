@@ -103,8 +103,8 @@ if [ -n "$buildr_forced_build_number" ]; then
   #a forced build number, let's restore it the way it was
   buildNumber='${'$buildr_forced_build_number'}'
 fi
-[ -n "$ROOT_POM" ] && sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$nextBuildNumber<\/forceContextQualifier-->/" $ROOT_POM
-[ -f Buildfile ] && sed -i "s/^VERSION_NUMBER.*/VERSION_NUMBER=\"$nextCompleteVersion-SNAPSHOT\"/" Buildfile
+[ -n "$ROOT_POM" -a -n "$nextBuildNumber" ] && sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$nextBuildNumber<\/forceContextQualifier-->/" $ROOT_POM
+[ -f Buildfile -a -n "$nextCompleteVersion"  ] && sed -i "s/^VERSION_NUMBER.*/VERSION_NUMBER=\"$nextCompleteVersion-SNAPSHOT\"/" Buildfile
 if [ -n "$GIT_BRANCH" ]; then
   if [ -n "$ROOT_POM" ]; then
     commit_b=`git status | grep $ROOT_POM | grep modified`

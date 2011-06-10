@@ -19,14 +19,14 @@
 # Load the computed build environment
 # Then invoke maven or build
 
-env_file=`pwd`
-env_file="$env_file/computed-build-environment"
 #if [ ! -f "$env_file" ]; then
   SCRIPT=$(readlink -f $0)
   # Absolute path this script is in.
   SCRIPTPATH=`dirname $SCRIPT`
   $SCRIPTPATH/compute-environment.sh
 #fi
+env_file=`pwd`
+env_file="$env_file/computed-build-environment"
 if [ ! -f "$env_file" ]; then
   currentdir = `pwd`
   echo "Could not find the file $currentdir/computed-build-environment was compute-environment.sh correctly executed?"
