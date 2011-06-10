@@ -107,19 +107,15 @@ fi
 if [ -n "$GIT_BRANCH" ]; then
   if [ -n "$ROOT_POM" ]; then
     git commit $ROOT_POM -m "Restore $ROOT_POM for development"
-  else
-    git commit Buildfile -m "Restore Buildfile for development"
+    #in case someone has been working and pushing things during the build:
+    git pull origin $GIT_BRANCH
+    git push origin $GIT_BRANCH
   fi
-  #in case someone has been working and pushing things during the build:
-  git pull origin $GIT_BRANCH
-  git push origin $GIT_BRANCH
 elif [ -d ".svn" ]; then
   #in case someone has been working and pushing things during the build:
   svn up
   if [ -n "$ROOT_POM" ]; then
     svn commit $ROOT_POM -m "Restore $ROOT_POM for development"
-  else
-    svn commit Buildfile -m "Restore Buildfile for development"
   fi
 fi
 
