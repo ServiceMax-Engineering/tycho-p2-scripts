@@ -86,7 +86,8 @@ elif [ -f Buildfile ]; then
     composite_output=target/repository
     mkdir -p $composite_output
     generate_composite_repo_path=$SCRIPTPATH/composite-p2repo/generate_composite_repo.rb
-    [ -n "$composite_otherurls" ] && composite_otherurls_param="--otherurls=$composite_otherurls"
+    #[ -n "$composite_otherurls" ] && composite_otherurls_param="--otherurls=$composite_otherurls"
+    composite_otherurls_param="--otherurls=$composite_repo"
     composite_name="$grpId"
     #cmd="$generate_composite_repo_path --name all --basefolder $HOME/p2repo/com/intalio/cloud/ --output $HOME/p2repo/com/intalio/cloud/all --otherurls=otherurls_for_composite_repo.txt"
     cmd="$generate_composite_repo_path --name $composite_name --basefolder $composite_basefolder --output $composite_output $composite_otherurls_param --version $completeVersion --symlinkname=$SYM_LINK_CURRENT_NAME"
