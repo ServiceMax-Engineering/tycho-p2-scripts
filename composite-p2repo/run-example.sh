@@ -1,5 +1,5 @@
 #!/bin/sh
-./generate_composite_repo.rb --basefolder ./example \
+./generate_composite_repo.rb --basefolder . \
    --output ./example/all \
    --name all \
    --test false \

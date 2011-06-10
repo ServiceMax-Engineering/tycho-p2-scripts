@@ -4,7 +4,7 @@
   <body>
     <h2>Composite Repository <%= @name %>-<%= @version %> built on <%= @date %></h2>
     <ul>
-      <%@children_repo.each do |child_repo| %><li><a href="<%= child_repo %>"><%= child_repo %></a></li>
+      <%@children_repo_absolute.each do |child_repo| %><li><a href="<%= child_repo %>"><%= child_repo %></a></li>
       <% end %>
     </ul>
     <p>Link to the list of debian packages related to this repository and the description of each one of them:

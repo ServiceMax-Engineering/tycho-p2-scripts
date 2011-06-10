@@ -42,7 +42,9 @@ class CompositeRepository
     @test = test
 
     #contain the list of relative path to the linked versioned repos
-    @children_repo = [ ]
+    @children_repo_relative = [ ]
+    #contain the list of absolute paths to the linked versioned repos. in fact relative to the base folder.
+    @children_repo_absolute = [ ]
     
     #contains the parent folders of each repo already in the composite repo so we don't duplicate
     @already_indexed_parents = Set.new
@@ -89,7 +91,10 @@ class CompositeRepository
       raise "Could not locate a version directory in #{compositeRepoParentFolder.to_s}/#{version_glob}"
     end
     relative=File.join(relative.to_s,last_version)
-    @children_repo << relative
+    absolute="/#{compositeRepoParentFolder.relative_path_from(Pathname.new(@basefolder))}"
+    puts "absolute #{absolute}"
+    @children_repo_relative << relative
+    @children_repo_absolute << absolute
     @already_indexed_parents << compositeRepoParentFolder
     collect_deb_associated_packages(File.join(compositeRepoParentFolder.to_s,last_version))
     copy_deb_associated_files(File.join(compositeRepoParentFolder.to_s,last_version))
@@ -143,7 +148,8 @@ class CompositeRepository
   end
 
   def add_external_childrepo(url)
-    @children_repo << url
+    @children_repo_absolute << url
+    @children_repo_relative << url
   end
   
   def get_versionned_output_dir()
@@ -153,7 +159,7 @@ class CompositeRepository
     return @version
   end
   def is_changed()
-    return @currently_released_repo.nil? || @currently_released_repo.empty? || @currently_released_repo != @children_repo.sort!
+    return @currently_released_repo.nil? || @currently_released_repo.empty? || @currently_released_repo != @children_repo_absolute.sort!
   end
 
   def get_binding
@@ -174,7 +180,7 @@ class CompositeRepository
     current_latest=compute_last_version @outputPath
     if current_latest.nil?
      # raise "Expecting to find a version number in #{@outputPath}"
-      @version="3.0.0.000"
+      @version="1.0.0.000"
     else
       @currently_released_repo=compute_children_repos File.join(@outputPath,current_latest)
       @version=increment_version current_latest
@@ -296,7 +302,7 @@ class CompositeRepository
       #headers
       f1.puts("Deb filename,Deb Package,Deb Version,OSGi IU id,OSGi IU version,Description")
       #cloud-all also generates a deb package
-      f1.puts("intalio-cloud-all-#{@version}.deb,intalio-cloud-all,#{@version},NA,NA,\"Intalio|Cloud composite repository\"")
+      f1.puts("#{@name}-#{@version}.deb,#{@name},#{@version},NA,NA,\"#{@name}\"")
       @deb_osgi_csv_line.values.sort.each do |csv_line|
         f1.puts(csv_line)
       end
