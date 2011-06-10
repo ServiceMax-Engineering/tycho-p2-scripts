@@ -75,6 +75,8 @@ if [ -n "$ROOT_POM" ]; then
   if [ -f "Buildfile" ]; then
     [ -n "$no_buidfile" ] && rm Buildfile
   fi
+  #Reset the build number to what it was
+  sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$buildNumber<\/forceContextQualifier-->/" $ROOT_POM
 elif [ -f Buildfile ]; then
   #update the numbers for the release
   sed -i "s/$buildNumberLine/VERSION_NUMBER=\"$completeVersion\"/" Buildfile
