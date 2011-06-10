@@ -189,7 +189,7 @@ echo "ROOT_POM $ROOT_POM"
       fi
       echo "$version   $buildNumber"
     else
-      echo "Increment the buildNumber $currentBuildNumber"
+      echo "Release with the buildNumber $currentBuildNumber"
       strlength=`expr length $currentBuildNumber`
       buildNumber=`expr $currentBuildNumber`
       #pad with zeros so the build number is as many characters long as before

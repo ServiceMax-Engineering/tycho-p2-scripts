@@ -307,7 +307,7 @@ function copy_p2_repositories() {
     echo "$built_repository deployed in $p2repoPathComplete"
     #let's make sure we don't have already a repository folder:
     for existing_repo in ${existing_repos[*]}; do
-      if [ "$existing_repo" = "$p2repoPathComplete" ];
+      if [ "$existing_repo" = "$p2repoPathComplete" ]; then
         echo "FATAL: There are at least 2 repositories generated in this project in the folder $existing_repo."
         echo "It is required that all but one of the pom.xml where a repository is produced define:"
         echo " <properties><repositorySuffix>a_unique_suffix</repositorySuffix></properties>"
