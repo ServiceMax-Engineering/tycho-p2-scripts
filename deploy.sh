@@ -155,7 +155,7 @@ function compute_p2_repository_deployment_folder() {
       groupId=`xpath -q -e "/project/parent/groupId/text()" $pom`
     fi
     local repository_suffix=`xpath -q -e "/project/properties/repositorySuffix/text()" $pom`
-    [ -n "$repository_suffix" ] && repository_suffix="_"$repository_suffix
+    [ -n "$repository_suffix" ] && repository_suffix="."$repository_suffix
   fi
   if [ -z "$BRANCH" ]; then
     echo "Warning unknown BRANCH. Using 'unknown_branch' by default" 1>&2
@@ -165,7 +165,7 @@ function compute_p2_repository_deployment_folder() {
     echo "Warning unknown completeVersion Using 'unknown_version' by default" 1>&2
     completeVersion='unknown_version'
   fi
-  local p2repoPath=$BASE_FILE_PATH_P2_REPO/`echo $groupId | tr '.' '/'`$repository_suffix/$BRANCH
+  local p2repoPath=$BASE_FILE_PATH_P2_REPO/`echo $groupId | tr '.' '/'`/$BRANCH$repository_suffix
   local p2repoPathComplete="$p2repoPath/$completeVersion"
 
   if  [ -n "$P2_DEPLOYMENT_FOLDER_NAME" ]; then
