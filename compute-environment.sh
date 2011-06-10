@@ -318,7 +318,7 @@ export forceContextQualifier=$quote$forceContextQualifier$quote
 export buildr_forced_build_number=$squote"$buildr_forced_build_number"$squote
 export restore_buildNumberLine=$squote"$restore_buildNumberLine"$squote
 export commit_Buildfile=$quote$commit_Buildfile$quote
-export buildNumberLine=$quote$buildNumberLine$quote
+export buildNumberLine=$quote"$buildNumberLine"$quote
 
 export grpIdForCompositeRepo=$quote$grpIdForCompositeRepo$quote
 
