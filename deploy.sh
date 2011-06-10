@@ -155,7 +155,7 @@ function compute_p2_repository_deployment_folder() {
       groupId=`xpath -q -e "/project/parent/groupId/text()" $pom`
     fi
     local repository_suffix=`xpath -q -e "/project/properties/repositorySuffix/text()" $pom`
-    #[ -n "$repository_suffix" ] && repository_suffix="."$repository_suffix
+    [ -n "$repository_suffix" ] && repository_suffix="."$repository_suffix
   fi
   if [ -z "$BRANCH" ]; then
     echo "Warning unknown BRANCH. Using 'unknown_branch' by default" 1>&2
