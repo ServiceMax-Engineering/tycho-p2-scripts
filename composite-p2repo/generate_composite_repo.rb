@@ -62,7 +62,7 @@ class CompositeRepository
     @ArtifactOrMetadata="Artifact"
     @timestamp=Time.now.to_i
     @date=Time.now.utc
-    
+    @hasdebs=nil
     @versionned_output_dir=nil
     compute_versioned_output
     
@@ -70,7 +70,7 @@ class CompositeRepository
     
     write_composite_deb_ius_csv
   end
-
+  
   def add_childrepo( compositeMkrepoFile, version_glob="*" )
     if File.directory? compositeMkrepoFile
       compositeRepoParentFolder=Pathname.new compositeMkrepoFile.path
@@ -291,6 +291,7 @@ class CompositeRepository
     deb_files = Dir.glob(glob)
     puts "Looking for #{glob} gave #{deb_files}"
     if deb_files and !deb_files.empty?
+      @hasdebs=true
       dest_folder = File.join(@versionned_output_dir, 'debs')
       FileUtils.mkdir_p dest_folder
       FileUtils.cp(deb_files, dest_folder)
