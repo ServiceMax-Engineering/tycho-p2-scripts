@@ -138,7 +138,7 @@ function compute_p2_repository_deployment_folder() {
   local module_dir=${1%/*/*}
   local pom=$module_dir/pom.xml
   if [ ! -f $pom ]; then
-    if [ -z "$ROOT_POM " -a -f "$module_dir/Buildfile" ]; then
+    if [ -z "$ROOT_POM" -a -f "$module_dir/Buildfile" ]; then
       groupId="$grpIdForCompositeRepo"
     else
       echo "$1 must be a directory that contains a pom.xml file" 1>&2
