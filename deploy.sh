@@ -331,7 +331,7 @@ function copy_p2_repositories() {
 }
 
 if [ -z "$ROOT_POM" ]; then
-  "A buildr build: no p2 repository built by tycho to deploy. Let's look for a composite repository that was built"
+  echo "A buildr build: no p2 repository built by tycho to deploy. Let's look for a composite repository that was built"
   if [ -f "Buildfile" -a -f "target/repository" ]; then
     find_built_p2_repositories
     copy_p2_repositories
