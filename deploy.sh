@@ -336,6 +336,11 @@ if [ -z "$ROOT_POM" ]; then
     find_built_p2_repositories
     copy_p2_repositories
   fi
+  ### Create a report of repositories used during this build.
+  set +e
+  $SCRIPTPATH/tycho/tycho-resolve-p2repo-versions.rb --pom $WORKSPACE_MODULE_FOLDER/pom.xml
+  repo_report="pom.repositories_report.xml"
+  set -e
 else
   create_ius_and_debs_array
   find_built_p2_repositories
@@ -343,8 +348,3 @@ else
   copy_p2_repositories
 fi
 
-### Create a report of repositories used during this build.
-set +e
-$SCRIPTPATH/tycho/tycho-resolve-p2repo-versions.rb --pom $WORKSPACE_MODULE_FOLDER/pom.xml
-repo_report="pom.repositories_report.xml"
-set -e
