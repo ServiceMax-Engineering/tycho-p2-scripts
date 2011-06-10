@@ -91,7 +91,7 @@ class CompositeRepository
       raise "Could not locate a version directory in #{compositeRepoParentFolder.to_s}/#{version_glob}"
     end
     relative=File.join(relative.to_s,last_version)
-    absolute="/#{compositeRepoParentFolder.relative_path_from(Pathname.new(@basefolder))}"
+    absolute="/#{compositeRepoParentFolder.relative_path_from(Pathname.new(@basefolder))}/#{last_version}"
     puts "absolute #{absolute}"
     @children_repo_relative << relative
     @children_repo_absolute << absolute
