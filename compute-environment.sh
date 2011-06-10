@@ -315,8 +315,8 @@ export buildNumber=$quote$buildNumber$quote
 export completeVersion=$quote$completeVersion$quote
 
 export forceContextQualifier=$quote$forceContextQualifier$quote
-export buildr_forced_build_number=$quote$buildr_forced_build_number$quote
-export restore_buildNumberLine=$quote$restore_buildNumberLine$quote
+export buildr_forced_build_number=$squote$buildr_forced_build_number$squote
+export restore_buildNumberLine=$squote$restore_buildNumberLine$squote
 export commit_Buildfile=$quote$commit_Buildfile$quote
 export buildNumberLine=$quote$buildNumberLine$quote
 
