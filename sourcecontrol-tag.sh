@@ -112,7 +112,7 @@ if [ -n "$GIT_BRANCH" ]; then
   fi
   commit_b=`git status | grep Buildfile | grep modified`
   if [ -n "$commit_b" ]; then
-    git commit Buildfile -m "Release $completeVersion"
+    git commit Buildfile -m "Restore Buildfile for development"
   fi
   #in case someone has been working and pushing things during the build:
   git pull origin $GIT_BRANCH
