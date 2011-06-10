@@ -213,10 +213,8 @@ else
   buildNumberLine=`sed '/^VERSION_NUMBER=\".*-SNAPSHOT\"/!d' Buildfile`
   if [ -n "$buildNumberLine" ]; then
     echo "Release mode: auto-increment $buildNumberLine"
-echo "here reg2 $reg2 "
     #completeVersion=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
     completeVersion=`echo $buildNumberLine | sed 's/ /\//g' | sed 's/^VERSION_NUMBER=\"//g' | sed 's/-SNAPSHOT\"//g'`
-echo "after reg2 $completeVersion"
 
     # reconstruct the version and buildNumber.
     # make the assumption that the completeVersion matches a 4 seg numbers.
@@ -265,6 +263,7 @@ export buildNumber
 echo "Build Version $completeVersion"
 
 quote='"'
+squote="'"
 echo "# Computed build environment on $timestamp_and_id
 export SCRIPTPATH=$quote$SCRIPTPATH$quote
 export RELEASE_ENV=$quote$RELEASE_ENV$quote
