@@ -103,6 +103,7 @@ elif [ -f Buildfile ]; then
     echo "Executing $cmd"
     $cmd
     #Regenerate the 'latest' version:
+    composite_output=target/repository_latest
     cmd="$generate_composite_repo_path --name $composite_name --basefolder $composite_basefolder $absolutepathPrefixParam --output $composite_output $composite_otherurls_param --version latest --symlinkname=$SYM_LINK_CURRENT_NAME"
     echo "Executing $cmd"
     $cmd
