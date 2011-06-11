@@ -30,11 +30,11 @@ require "find"
 require "erb"
 require "pathname"
 require "fileutils"
-require 'set'
+require "set"
 
 class CompositeRepository
   
-  def initialize(output, version, basefolder, absolutepathPrefix, name, otherurls, test)
+  def initialize(output, version, basefolder, absolutepathPrefix, name, otherurls, test, generate_latest)
     @outputPath = Pathname.new(output).expand_path
     @basefolder = Pathname.new(basefolder).expand_path
     @absolutepathPrefix = absolutepathPrefix
@@ -191,6 +191,15 @@ class CompositeRepository
   #returns the last version folder
   #parent_dir contains version folders such as 1.0.0.001, 1.0.0.002 etc
   def compute_last_version(parent_dir, version_glob="*")
+    if 'latest'==@version
+      path=File.join(parent_dir,"latest")
+      if !File.directory?(path)
+        path=File.join(parent_dir,"current")
+      end
+      if File.directory?(path)
+        return File.basename(File.dirname(path))
+      end
+    end
     glob=File.join(parent_dir,version_glob)
     puts "Looking for the last version in #{glob}"
     versions = Dir.glob(File.join(glob,"artifacts.*")) | Dir.glob(File.join(glob,"dummy")) | Dir.glob(File.join(glob,"compositeArtifacts.*"))
