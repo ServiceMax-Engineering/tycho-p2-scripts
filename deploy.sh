@@ -344,6 +344,14 @@ function copy_p2_repositories() {
         apt-ftparchive packages $packages_rel_dir > $packages_rel_dir/Packages
       fi
       cd $WORKSPACE_MODULE_FOLDER
+
+      #Deploy the 'latest' version of the composite repository
+      if [ -d "target/repository_latest" ]; then
+        [ -d "$p2repoPath/latest" ] && rm -rf "$p2repoPath/latest"
+        mkdir -p $p2repoPath/latest
+        cp -r target/repository_latest/* $p2repoPath/latest
+      fi
+
     else
       echo "Warn: the constant BASE_FILE_PATH_P2_REPO is not defined so no deploym,ent is actually taking place."
     fi
