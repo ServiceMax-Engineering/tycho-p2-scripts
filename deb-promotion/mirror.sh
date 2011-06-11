@@ -21,14 +21,14 @@ p2director_path=$P2_DIRECTOR_HOME
 eclipse_mirror_url=http://download.eclipse.org/
 $p2director_path/start.sh -destination $destination \
  -application $application \
- -exclude *.source
+ -exclude *.source \
  -source $site_url \
  -consoleLog
 
 eclipse_mirror_url=http://download.eclipse.org/
 $p2director_path/start.sh -destination $destination \
  -application $applicationMetaData \
- -exclude *.source
+ -exclude *.source \
  -source $site_url \
  -consoleLog
 
