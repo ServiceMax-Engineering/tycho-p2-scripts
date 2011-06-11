@@ -98,6 +98,9 @@ class CompositeRepository
     @already_indexed_parents << compositeRepoParentFolder
     collect_deb_associated_packages(File.join(compositeRepoParentFolder.to_s,last_version))
     copy_deb_associated_files(File.join(compositeRepoParentFolder.to_s,last_version))
+    
+    #Choose the array to use for the generated repo: absolute or relative path:
+    @children_repo = @children_repo_absolute
   end
     
   def add_external_childrepos(otherurls_file)
