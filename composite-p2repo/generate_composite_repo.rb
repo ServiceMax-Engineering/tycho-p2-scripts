@@ -341,6 +341,7 @@ opt = Getopt::Long.getopts(
   ["--basefolder", "-b", Getopt::REQUIRED],
   ["--absolutepathPrefix", "-a", Getopt::OPTIONAL],
   ["--output", "-o", Getopt::REQUIRED],
+  ["--buildFolder", "-z", Getopt::OPTIONAL],
   ["--name", "-n", Getopt::OPTIONAL],
   ["--test", "-t", Getopt::OPTIONAL],
   ["--version", "-v", Getopt::OPTIONAL],
@@ -367,6 +368,13 @@ if opt["symlinkname"]
 else
   symlink_name="current"
 end
+if opt["buildFolder"]
+  buildFolder=opt["buildFolder"]
+else
+  buildFolder=output
+end
+
+
 
 # a file where each line that does not start with a '#'
 # is a url of another repository that is added to the child repos
@@ -403,7 +411,7 @@ if test == "true"
   puts "=== index.html:"
   puts htmlRes
 elsif
-  out_dir=compositeRepository.get_versionned_output_dir
+  out_dir=buildFolder
   puts "Writing the composite repository in #{out_dir}"
   File.open(File.join(out_dir,"compositeArtifacts.xml"), 'w') {|f| f.puts(artifactsRes) }
   File.open(File.join(out_dir,"compositeContent.xml"), 'w') {|f| f.puts(metadataRes) }
