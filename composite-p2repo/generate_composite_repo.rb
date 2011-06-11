@@ -191,6 +191,7 @@ class CompositeRepository
   #returns the last version folder
   #parent_dir contains version folders such as 1.0.0.001, 1.0.0.002 etc
   def compute_last_version(parent_dir, version_glob="*")
+    puts "version->#{@version}"
     if 'latest'==@version
       path=File.join(parent_dir,"latest")
       if !File.directory?(path)
