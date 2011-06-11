@@ -407,12 +407,12 @@ elsif
   File.open(File.join(out_dir,"compositeArtifacts.xml"), 'w') {|f| f.puts(artifactsRes) }
   File.open(File.join(out_dir,"compositeContent.xml"), 'w') {|f| f.puts(metadataRes) }
   File.open(File.join(out_dir,"index.html"), 'w') {|f| f.puts(htmlRes) }
+  puts "output #{output}"
   if (output =~ /target\/repository$/) == nil
-    current_symlink=File.join(output,symlink_name)
-    if File.symlink?(current_symlink) || File.exists?(current_symlink)
-      File.delete current_symlink
-    end
     Dir.chdir "#{out_dir}/.."
+    if File.symlink?(symlink_name) || File.exists?(symlink_name)
+      File.delete symlink_name
+    end
     File.symlink(out_dir,symlink_name)
     Dir.chdir "#{current_dir}"
   end
