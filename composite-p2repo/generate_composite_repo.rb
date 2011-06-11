@@ -200,7 +200,7 @@ class CompositeRepository
       end
       if File.directory?(path)
         puts "Found #{path}"
-        return File.basename(File.dirname(path))
+        return File.basename(path)
       end
     end
     glob=File.join(parent_dir,version_glob)
