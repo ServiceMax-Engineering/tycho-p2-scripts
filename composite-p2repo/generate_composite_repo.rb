@@ -34,7 +34,7 @@ require "set"
 
 class CompositeRepository
   
-  def initialize(output, version, basefolder, absolutepathPrefix, name, otherurls, test, generate_latest)
+  def initialize(output, version, basefolder, absolutepathPrefix, name, otherurls, test)
     @outputPath = Pathname.new(output).expand_path
     @basefolder = Pathname.new(basefolder).expand_path
     @absolutepathPrefix = absolutepathPrefix
