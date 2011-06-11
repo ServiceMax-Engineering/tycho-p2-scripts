@@ -194,6 +194,7 @@ class CompositeRepository
     puts "version->#{@version}"
     if 'latest'==@version
       path=File.join(parent_dir,"latest")
+      puts "Looking at #{path}"
       if !File.directory?(path)
         path=File.join(parent_dir,"current")
       end
