@@ -1,5 +1,5 @@
 BASE=./
 be/*
-cas/*
+cas/
 platform/xsharp.platform.repository/3.1.0.*
 
