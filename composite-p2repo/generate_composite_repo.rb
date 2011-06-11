@@ -84,6 +84,7 @@ class CompositeRepository
     
     #make it a path relative to the @versionned_output_dir
     relative=compositeRepoParentFolder.relative_path_from(Pathname.new(@versionned_output_dir))
+    puts "#{compositeRepoParentFolder.to_s} relative to #{@versionned_output_dir} is #{relative}"
     if relative.nil?
       raise "Could not compute the relative path of #{compositeRepoParentFolder.to_s} from #{Pathname.new(@versionned_output_dir).to_s}"
     end
