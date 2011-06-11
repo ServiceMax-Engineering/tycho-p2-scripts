@@ -6,6 +6,6 @@ http://www.intalio.org/public/p2repo/org/jruby/
 #the selectors
 BASE=./example
 be/*
-cas/*
+cas/
 platform/xsharp.platform.repository/3.1.0.*
 

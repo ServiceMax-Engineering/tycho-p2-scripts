@@ -98,6 +98,9 @@ class CompositeRepository
     @already_indexed_parents << compositeRepoParentFolder
     collect_deb_associated_packages(File.join(compositeRepoParentFolder.to_s,last_version))
     copy_deb_associated_files(File.join(compositeRepoParentFolder.to_s,last_version))
+    
+    #Choose the array to use for the generated repo: absolute or relative path:
+    @children_repo = @children_repo_absolute
   end
     
   def add_external_childrepos(otherurls_file)
@@ -191,16 +194,22 @@ class CompositeRepository
   #returns the last version folder
   #parent_dir contains version folders such as 1.0.0.001, 1.0.0.002 etc
   def compute_last_version(parent_dir, version_glob="*")
-    puts "version->#{@version}"
     if 'latest'==@version
       path=File.join(parent_dir,"latest")
       if !File.directory?(path)
-        puts "Looking at #{path}"
         path=File.join(parent_dir,"current")
       end
       if File.directory?(path)
-        puts "Found #{path}"
         return File.basename(path)
+      end
+    end
+    if version_glob == ""
+      #let's make sure that we have the exact directory where we want to be:
+      versions = Dir.glob(File.join(parent_dir,"artifacts.*")) | Dir.glob(File.join(parent_dir,"dummy")) | Dir.glob(File.join(parent_dir,"compositeArtifacts.*"))
+      puts "versions #{versions}  #{versions.empty?} #{parent_dir}"
+      if !versions.empty?
+        puts "Using #{parent_dir} as the exact folder"
+        return ""
       end
     end
     glob=File.join(parent_dir,version_glob)
