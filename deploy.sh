@@ -295,6 +295,26 @@ function populate_built_p2_repositories_with_debs() {
   fi
 }
 
+function index_apt_deployed() {
+  local p2repoPathComplete=$1
+  if [ ! -d $1 ]; then
+    echo "The parameter $1 is required to be a valid folder"
+  fi
+  cd $p2repoPathComplete
+  #we are here: $groupID/$branchName/$buildID and there is: debs
+  #in the deployment directory.
+  packages_rel_dir=$(basename `pwd`)/debs
+  cd ..
+  packages_rel_dir=$(basename `pwd`)/$packages_rel_dir
+  cd ..
+  if [ -d "$packages_rel_dir" ]; then
+    echo "apt-ftparchive packages $packages_rel_dir > $packages_rel_dir/Packages in "`pwd`
+    apt-ftparchive packages $packages_rel_dir > $packages_rel_dir/Packages
+  fi
+  cd $WORKSPACE_MODULE_FOLDER
+}
+
+
 #Copy the p2 repositories to their destination folders
 function copy_p2_repositories() {
   [ -z "$find_built_p2_repositories_was_called" ] && find_built_p2_repositories
@@ -331,25 +351,14 @@ function copy_p2_repositories() {
       #must make sure we create the symlink in the right folder to have rsync find it later.
       cd $p2repoPath
       ln -s $completeVersion $SYM_LINK_CURRENT_NAME
-
-      cd $p2repoPathComplete
-      #we are here: $groupID/$branchName/$buildID and there is: debs
-      #in the deployment directory.
-      packages_rel_dir=$(basename `pwd`)/debs
-      cd ..
-      packages_rel_dir=$(basename `pwd`)/$packages_rel_dir
-      cd ..
-      if [ -d "$packages_rel_dir" ]; then
-        echo "apt-ftparchive packages $packages_rel_dir > $packages_rel_dir/Packages in "`pwd`
-        apt-ftparchive packages $packages_rel_dir > $packages_rel_dir/Packages
-      fi
-      cd $WORKSPACE_MODULE_FOLDER
+      index_apt_deployed $p2repoPathComplete
 
       #Deploy the 'latest' version of the composite repository
       if [ -d "target/repository_latest" ]; then
         [ -d "$p2repoPath/latest" ] && rm -rf "$p2repoPath/latest"
         mkdir -p $p2repoPath/latest
         cp -r target/repository_latest/* $p2repoPath/latest
+        index_apt_deployed $p2repoPath/latest
       fi
 
     else
