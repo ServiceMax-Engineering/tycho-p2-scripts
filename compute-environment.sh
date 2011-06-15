@@ -237,7 +237,6 @@ else
       exit 14
     fi
     completeVersion="$version.$buildNumber"
-    echo "here buildNumber $buildNumber"
   else
     reg2="VERSION_NUMBER=\\\"(.*)\\\""
     buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < Buildfile | head -1`
@@ -272,9 +271,11 @@ else
 fi
 
 export completeVersion
+export nextCompleteVersion
 export version
 export buildNumber
 echo "Build Version $completeVersion"
+echo "Next Build Version $nextCompleteVersion"
 
 esc_buildNumberLine=`echo "$buildNumberLine" | sed -e 's/[\"]/\\\"/g'`
 esc_nextBuildNumberLine=`echo "$nextBuildNumberLine" | sed -e 's/[\"]/\\\"/g'`
