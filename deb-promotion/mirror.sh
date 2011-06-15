@@ -25,7 +25,6 @@ $p2director_path/start.sh -destination $destination \
  -source $site_url \
  -consoleLog
 
-eclipse_mirror_url=http://download.eclipse.org/
 $p2director_path/start.sh -destination $destination \
  -application $applicationMetaData \
  -exclude *.source \
