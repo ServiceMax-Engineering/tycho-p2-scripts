@@ -94,6 +94,7 @@ elif [ -f Buildfile ]; then
     #let's use a classic target folder for the build itself:
     build_folder=target/repository
     mkdir -p $composite_output
+    mkdir -p $build_folder
     generate_composite_repo_path=$SCRIPTPATH/composite-p2repo/generate_composite_repo.rb
     #[ -n "$composite_otherurls" ] && composite_otherurls_param="--otherurls=$composite_otherurls"
     composite_otherurls_param="--otherurls=$composite_repo"
