@@ -194,9 +194,9 @@ echo "ROOT_POM $ROOT_POM"
  echo " _ buildNumber=$buildNumber  strlength=$strlength"
       #pad with zeros so the build number is as many characters long as before
       printf_format="%0"$strlength"d\n"
- #export buildNumber
+ export buildNumber
  echo " _beforepintff buildNumber=$buildNumber  strlength=$strlength"
-      buildNumber=`source printf "$printf_format" "$buildNumber"`
+      buildNumber=`printf "$printf_format" "$buildNumber"`
  echo " _ afterPrintf BuildNumber=$buildNumber  strlength=$strlength"
       completeVersion="$version.$buildNumber"
  echo " version . buildNumber = $version.$buildNumber"
