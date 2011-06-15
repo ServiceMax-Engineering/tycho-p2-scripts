@@ -237,7 +237,7 @@ else
       exit 14
     fi
     completeVersion="$version.$buildNumber"
-
+    echo "here buildNumber $buildNumber"
   else
     reg2="VERSION_NUMBER=\\\"(.*)\\\""
     buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < Buildfile | head -1`
@@ -254,9 +254,9 @@ else
     buildr_forced_build_number=$buildNumberLine
   fi
   #format the context qualifier
-  nextBuildNumber=`expr $buildNumber + 1`
+  nextBuildNumber=`expr ${buildNumber#0*} + 1`
   #pad with zeros so the build number is as many characters long as before
-  strlength=`expr length $nextBuildNumber`
+  strlength=`expr length $buildNumber`
   printf_format="%0"$strlength"d\n"
   nextBuildNumber=`printf "$printf_format" "$nextBuildNumber"`
   nextCompleteVersion="$version.$nextBuildNumber"
