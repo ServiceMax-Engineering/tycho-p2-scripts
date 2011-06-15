@@ -190,17 +190,17 @@ echo "ROOT_POM $ROOT_POM"
     else
       echo "Release with the buildNumber $currentBuildNumber"
       strlength=`expr length $currentBuildNumber`
-      buildNumber=`expr $currentBuildNumber`
- echo " _ buildNumber=$buildNumber  strlength=$strlength"
+      buildNumber=`expr ${currentBuildNumber#0*}`
+ echo " buildNumber=$buildNumber  strlength=$strlength"
       #pad with zeros so the build number is as many characters long as before
       printf_format="%0"$strlength"d\n"
  #export buildNumber
  echo " _beforepintff buildNumber=$buildNumber  strlength=$strlength"
  echo "executing printf "$printf_format" $buildNumber"
-      __buildNumber=`printf "$printf_format" $buildNumber`
- echo " _ afterPrintf BuildNumber=$buildNumber  strlength=$strlength __buildNumber=$__buildNumber"
-      completeVersion="$version.$__buildNumber"
- echo " version . buildNumber = $version.$__buildNumber"
+      buildNumber=`printf "$printf_format" $buildNumber`
+ echo " _ afterPrintf BuildNumber=$buildNumber  strlength=$strlength"
+      completeVersion="$version.$buildNumber"
+ echo " version . buildNumber = $version.$buildNumber"
       #prepare the next dev build number line
       #format the context qualifier
       nextBuildNumber=`expr $buildNumber + 1`
@@ -208,6 +208,7 @@ echo "ROOT_POM $ROOT_POM"
       printf_format="%0"$strlength"d\n"
       nextBuildNumber=`printf "$printf_format" "$nextBuildNumber"`
       nextCompleteVersion="$version.$nextBuildNumber"
+ echo " nextCompleteVersion= $version.$nextBuildNumber"
     fi
   fi
 else
