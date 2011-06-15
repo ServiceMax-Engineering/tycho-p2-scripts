@@ -194,12 +194,12 @@ echo "ROOT_POM $ROOT_POM"
  echo " _ buildNumber=$buildNumber  strlength=$strlength"
       #pad with zeros so the build number is as many characters long as before
       printf_format="%0"$strlength"d\n"
- export buildNumber
+ #export buildNumber
  echo " _beforepintff buildNumber=$buildNumber  strlength=$strlength"
-      buildNumber=`printf "$printf_format" "$buildNumber"`
- echo " _ afterPrintf BuildNumber=$buildNumber  strlength=$strlength"
-      completeVersion="$version.$buildNumber"
- echo " version . buildNumber = $version.$buildNumber"
+      __buildNumber=`printf "$printf_format" $buildNumber`
+ echo " _ afterPrintf BuildNumber=$buildNumber  strlength=$strlength __buildNumber=$__buildNumber"
+      completeVersion="$version.$__buildNumber"
+ echo " version . buildNumber = $version.$__buildNumber"
       #prepare the next dev build number line
       #format the context qualifier
       nextBuildNumber=`expr $buildNumber + 1`
