@@ -191,6 +191,7 @@ echo "ROOT_POM $ROOT_POM"
       echo "Release with the buildNumber $currentBuildNumber"
       strlength=`expr length $currentBuildNumber`
       buildNumber=`expr $currentBuildNumber`
+ echo " _ buildNumber=$buildNumber  strlength=$strlength"
       #pad with zeros so the build number is as many characters long as before
       printf_format="%0"$strlength"d\n"
       buildNumber=`printf "$printf_format" "$buildNumber"`
