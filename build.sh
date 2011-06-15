@@ -93,8 +93,8 @@ elif [ -f Buildfile ]; then
     composite_output=$HTTPD_ROOT_PATH/`echo $grpId | tr '.' '/'`/$BRANCH/$completeVersion
     #let's use a classic target folder for the build itself:
     build_folder=target/repository
-    mkdir -p $composite_output
     mkdir -p $build_folder
+    mkdir -p $composite_output
     generate_composite_repo_path=$SCRIPTPATH/composite-p2repo/generate_composite_repo.rb
     #[ -n "$composite_otherurls" ] && composite_otherurls_param="--otherurls=$composite_otherurls"
     composite_otherurls_param="--otherurls=$composite_repo"
@@ -107,6 +107,7 @@ elif [ -f Buildfile ]; then
     $cmd
     #Regenerate the 'latest' version:
     build_folder=target/repository_latest
+    mkdir -p $build_folder
     cmd="$generate_composite_repo_path --name $composite_name --buildFolder $build_folder --basefolder $composite_basefolder $absolutepathPrefixParam --output $composite_output $composite_otherurls_param --version latest --symlinkname=$SYM_LINK_CURRENT_NAME"
     echo "Executing $cmd"
     $cmd
