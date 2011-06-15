@@ -23,7 +23,7 @@
   SCRIPT=$(readlink -f $0)
   # Absolute path this script is in.
   SCRIPTPATH=`dirname $SCRIPT`
-  $SCRIPTPATH/compute-environment.sh
+bash $SCRIPTPATH/compute-environment.sh
 #fi
 env_file=`pwd`
 env_file="$env_file/computed-build-environment"
@@ -37,8 +37,8 @@ chmod +x "$env_file"
 
 cd $WORKSPACE_MODULE_FOLDER
 
-$SCRIPTPATH/build.sh
+bash $SCRIPTPATH/build.sh
 bash $SCRIPTPATH/deploy.sh
-$SCRIPTPATH/sourcecontrol-tag.sh
+bash $SCRIPTPATH/sourcecontrol-tag.sh
 
 
