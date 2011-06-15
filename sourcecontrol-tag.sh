@@ -100,7 +100,7 @@ set -e
 
 if [ -n "$ROOT_POM" -a -n "$nextBuildNumber" ]; then
    echo "Update forceContextQualifier with $nextBuildNumber"
-   sed -i "s/<forceContextQualifier>.*<\/forceContextQualifier>/<!--forceContextQualifier>$nextBuildNumber<\/forceContextQualifier-->/" $ROOT_POM
+   sed -i "s/forceContextQualifier>.*<\/forceContextQualifier/forceContextQualifier>$nextBuildNumber<\/forceContextQualifier/" $ROOT_POM
    echo "forceContextQualifier updated"
 fi
 if [ -f Buildfile -a -n "$nextCompleteVersion"  ]; then
