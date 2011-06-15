@@ -195,7 +195,7 @@ echo "ROOT_POM $ROOT_POM"
       printf_format="%0"$strlength"d\n"
       buildNumber=`printf "$printf_format" "$buildNumber"`
       completeVersion="$version.$buildNumber"
-
+ echo " version . buildNumber = $version.$buildNumber"
       #prepare the next dev build number line
       #format the context qualifier
       nextBuildNumber=`expr $buildNumber + 1`
