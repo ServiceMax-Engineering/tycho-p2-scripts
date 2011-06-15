@@ -23,6 +23,7 @@
   SCRIPT=$(readlink -f $0)
   # Absolute path this script is in.
   SCRIPTPATH=`dirname $SCRIPT`
+[ -f computed-build-environment ] && rm computed-build-environment
 bash $SCRIPTPATH/compute-environment.sh
 #fi
 env_file=`pwd`
