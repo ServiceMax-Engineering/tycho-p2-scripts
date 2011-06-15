@@ -178,7 +178,7 @@ echo "ROOT_POM $ROOT_POM"
         buildNumber=$4
         strlength=`expr length $buildNumber`
         #format the context qualifier
-        buildNumber=`expr $buildNumber`
+        buildNumber=`expr ${$buildNumber#0*}`
         #pad with zeros so the build number is as many characters long as before
         printf_format="%0"$strlength"d\n"
         buildNumber=`printf "$printf_format" "$buildNumber"`
