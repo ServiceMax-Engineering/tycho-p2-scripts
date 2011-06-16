@@ -111,11 +111,11 @@ function write_p2_index() {
   fi
   if [ -f "$1/artifacts.jar" ]; then
     local artifacts="artifacts.jar"
-  elif[ -f "$1/artifacts.xml" ]; then
+  elif [ -f "$1/artifacts.xml" ]; then
     local artifacts="artifacts.xml"
-  elif[ -f "$1/compositeArtifacts.xml" ]; then
+  elif [ -f "$1/compositeArtifacts.xml" ]; then
     local artifacts="compositeArtifacts.xml"
-  elif[ -f "$1/compositeArtifacts.jar" ]; then
+  elif [ -f "$1/compositeArtifacts.jar" ]; then
     local artifacts="compositeArtifacts.jar"
   else
     echo "WARN Could not find artifacts.* or compositeArtifacts inside $1: this repository is not complete?"
@@ -124,11 +124,11 @@ function write_p2_index() {
 
   if [ -f "$1/content.jar" ]; then
     local content="content.jar"
-  elif[ -f "$1/content.xml" ]; then
+  elif [ -f "$1/content.xml" ]; then
     local content="content.xml"
-  elif[ -f "$1/compositeContent.xml" ]; then
+  elif [ -f "$1/compositeContent.xml" ]; then
     local content="compositeContent.xml"
-  elif[ -f "$1/compositeContent.jar" ]; then
+  elif [ -f "$1/compositeContent.jar" ]; then
     local content="compositeContent.jar"
   else
     echo "WARN: Could not find content.* or compositeContent inside $1: this repository is not complete?"
