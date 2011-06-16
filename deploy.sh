@@ -101,6 +101,46 @@ function get_deb_file() {
   done
 }
 
+#Generates the p2.index file as recommended here:
+#http://wiki.eclipse.org/Equinox/p2/p2_index
+#Expects one argument: a folder that is a built repository.
+function write_p2_index() {
+  if [ ! -d "$1" ]; then
+    echo "Expecting the argument $1 to be a valid folder"
+    exit 127
+  fi
+  if [ -f "$1/artifacts.jar" ]; then
+    local artifacts="artifacts.jar"
+  elif[ -f "$1/artifacts.xml" ]; then
+    local artifacts="artifacts.xml"
+  elif[ -f "$1/compositeArtifacts.xml" ]; then
+    local artifacts="compositeArtifacts.xml"
+  elif[ -f "$1/compositeArtifacts.jar" ]; then
+    local artifacts="compositeArtifacts.jar"
+  else
+    echo "WARN Could not find artifacts.* or compositeArtifacts inside $1: this repository is not complete?"
+    exit 123
+  fi
+
+  if [ -f "$1/content.jar" ]; then
+    local content="content.jar"
+  elif[ -f "$1/content.xml" ]; then
+    local content="content.xml"
+  elif[ -f "$1/compositeContent.xml" ]; then
+    local content="compositeContent.xml"
+  elif[ -f "$1/compositeContent.jar" ]; then
+    local content="compositeContent.jar"
+  else
+    echo "WARN: Could not find content.* or compositeContent inside $1: this repository is not complete?"
+    exit 123
+  fi
+
+  echo "# p2.index generated on ${timestamp_and_id}
+version = 1
+artifact.repository.factory.order = ${artifacts}, !
+metadata.repository.factory.order = ${content}, !" > $1/p2.index
+}
+
 #Find the p2 repositories that are built by maven/tycho
 #Populates the array built_p2_repositories
 function find_built_p2_repositories() {
@@ -108,6 +148,7 @@ function find_built_p2_repositories() {
   built_p2_repositories=()
   if [ -f "Buildfile" -a -d "target/repository" ]; then
     built_p2_repositories[${#built_p2_repositories[*]}]=`pwd`"/target/repository"
+    write_p2_index `pwd`"/target/repository"
   else
     reg3="<packaging>eclipse-repository<\/packaging>"
     reg4="<packaging>eclipse-update-site<\/packaging>"
@@ -127,6 +168,7 @@ function find_built_p2_repositories() {
           # OK we have a repo project.
           built_repository="$module_dir/target/$repository_or_site"
           built_p2_repositories[${#built_p2_repositories[*]}]="$built_repository"
+          write_p2_index $built_repository
         fi
       fi
     done
@@ -357,6 +399,7 @@ function copy_p2_repositories() {
 
       #Deploy the 'latest' version of the composite repository
       if [ -d "target/repository_latest" ]; then
+        write_p2_index `pwd`"/target/repository_latest"
         [ -d "$p2repoPath/latest" ] && rm -rf "$p2repoPath/latest"
         mkdir -p $p2repoPath/latest
         cp -r target/repository_latest/* $p2repoPath/latest
