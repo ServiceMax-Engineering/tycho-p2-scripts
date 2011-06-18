@@ -96,7 +96,7 @@ elif [ -f Buildfile ]; then
     fi
     composite_basefolder=$HTTPD_ROOT_PATH
     #this would be the final output:
-    composite_output=$HTTPD_ROOT_PATH/`echo $grpId | tr '.' '/'`/$BRANCH/$completeVersion
+    composite_output=$HTTPD_ROOT_PATH/`echo $grpId | tr '.' '/'`/$BRANCH_FOLDER_NAME/$completeVersion
     #let's use a classic target folder for the build itself:
     build_folder=target/repository
     mkdir -p $build_folder

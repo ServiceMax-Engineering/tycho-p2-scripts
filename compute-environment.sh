@@ -54,14 +54,21 @@ if [ -d ".git" ]; then
     fi
   fi
   export GIT_BRANCH
-  export BRANCH="$GIT_BRANCH"
+  export BRANCH_FOLDER_NAME="$GIT_BRANCH"
+  if [ -n "$COMPUTE_GITHUB_ACCOUNT" ]; then
+    #extract the github account
+    git_origin_url=`git remote -v | grep origin | head -1 | sed 's/^origin[[:space:]]//g' | sed 's/[[:space:]](fetch)$//'`
+    #this looks like: git@github.com:intalio/tycho-p2-scripts.git
+    github_account=`echo $git_origin_url | sed 's/.*://g' | sed 's/\/.*//g'`
+    export BRANCH_FOLDER_NAME="${github_account}-${GIT_BRANCH}"
+  fi
 elif [ -d ".svn" ]; then
     #By default assume the svn classic layout: parent folder is the name of the branch.
     [ -z "$SVN_BRANCH" ] && SVN_BRANCH=$(basename `pwd`)
     export SVN_BRANCH
-    export BRANCH="$SVN_BRANCH"
+    export BRANCH_FOLDER_NAME="$SVN_BRANCH"
 else
-    export BRANCH="trunk"
+    export BRANCH_FOLDER_NAME="trunk"
 fi
 
 if [ -z "$SYM_LINK_CURRENT_NAME"]; then
@@ -285,8 +292,8 @@ export MAVEN3_HOME=$quote$MAVEN3_HOME$quote
 export LOCAL_REPOSITORY=$quote$LOCAL_REPOSITORY$quote
 #The GIT_CLONE_REPO_URL not empty if the script did run a clone and checkout itself.
 export GIT_CLONE_REPO_URL=$quote$GIT_CLONE_REPO_URL$quote
-#The branch name:
-export BRANCH=$quote$BRANCH$quote
+#The branch folder name where the version-ed builds are deployed:
+export BRANCH_FOLDER_NAME=$quote$BRANCH_FOLDER_NAME$quote
 #The git branch
 export GIT_BRANCH=$quote$GIT_BRANCH$quote
 #The directory inside which the project is located. (or empty)
