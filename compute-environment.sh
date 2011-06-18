@@ -151,14 +151,15 @@ echo "ROOT_POM $ROOT_POM"
     buildNumber=$timestamp_and_id_forqualifier
     completeVersion="$version.$buildNumber"
   else
-    reg2="<!--forceContextQualifier>(.*)<\/forceContextQualifier-->"
-    buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < $ROOT_POM | head -1`
+#    reg2="forceContextQualifier>(.*)<\/forceContextQualifier"
+#    buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < $ROOT_POM | head -1`
+    buildNumberLine=`sed '/<version>.*-SNAPSHOT<\/version>/!d' pom.xml | head -1`
     echo "buildNumberLine $buildNumberLine"
     if [ -z "$buildNumberLine" ]; then
       echo "Could not find the build-number to use in $ROOT_POM; The line $reg2 must be defined"
       exit 2;
     fi
-    currentBuildNumber=`echo "$buildNumberLine" | awk 'match($0, "'$reg2'", a) { print a[1] }'`
+    currentBuildNumber=`echo $buildNumberLine | sed 's/ /\//g' | sed 's/^<version>//g' | sed 's/-SNAPSHOT<\/version>//g'`
 
     reg_prop=".{(.*)}"
     forcedBuildVersion=`echo "$currentBuildNumber" | awk 'match($0, "'$reg_prop'", a) { print a[1] }'`
