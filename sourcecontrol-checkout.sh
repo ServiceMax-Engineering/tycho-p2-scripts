@@ -38,8 +38,8 @@ if [ -n "$GIT_CLONE_REPO_URL" ]; then
     #if it is different, let's wipe-out the workspace.
     git_origin_url=`git remote -v | grep origin | head -1 | sed 's/^origin[[:space:]]//g' | sed 's/[[:space:]](fetch)$//'`
     if [ "$git_origin_url" != "$GIT_CLONE_REPO_URL" ]; then
-      echo "Wiping out the worksapce as the current git repo: $git_origin_url is not identical to the one defined GIT_CLONE_REPO_URL=$GIT_CLONE_REPO_URL"
-      rm -rf .git *
+      echo "Wiping out the workspace as the current git repo: $git_origin_url is not identical to the one defined GIT_CLONE_REPO_URL=$GIT_CLONE_REPO_URL"
+      rm -rf * .??*
     fi
   fi
 
