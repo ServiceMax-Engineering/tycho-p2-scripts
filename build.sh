@@ -68,6 +68,12 @@ if [ -n "$ROOT_POM" ]; then
   sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQualifier>$buildNumber<\/forceContextQualifier>/" $ROOT_POM
   #### Build now
   $MAVEN3_HOME/bin/mvn -f $ROOT_POM clean verify -Dmaven.repo.local=$LOCAL_REPOSITORY
+  mvn_exit_code=$?
+  echo "maven build's exit code: $mvn_exit_code"
+  if [ "$mvn_exit_code" != "0" ];; then
+    echo "the maven build failed"
+    exit 14
+  fi
   [ ! -f "Buildfile" ] && no_buidfile="true"
   generate_debs
   #cleanup so we don't get confused later during the tagging
