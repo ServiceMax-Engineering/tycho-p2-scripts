@@ -29,15 +29,17 @@ SCRIPTPATH=`dirname $SCRIPT`
 WORKSPACE_FOLDER=`pwd`
 
 echo "Executing compute-environment.sh in the folder "`pwd`
+
+if [ -z "$MAVEN3_HOME" ]; then
+  MAVEN3_HOME=~/tools/apache-maven-3.0-beta-1
+fi
+
+
 #make sure we are at the root of the folder where the chckout actually happened.
 if [ ! -d ".git" -a ! -d ".svn" -a -z "$NO_SOURCE_CONTROL_UPDATES" ]; then
   echo "FATAL: could not find .git or .svn in the Current Directory `pwd`"
   echo "The script must execute in the folder where the checkout of the sources occurred."
   exit 2;
-fi
-
-if [ -z "$MAVEN3_HOME" ]; then
-  MAVEN3_HOME=~/tools/apache-maven-3.0-beta-1
 fi
 
 if [ -d ".git" ]; then
@@ -74,15 +76,6 @@ fi
 
 if [ -z "$SYM_LINK_CURRENT_NAME" ]; then
   SYM_LINK_CURRENT_NAME="current"
-fi
-
-if [ -z "$NO_SOURCE_CONTROL_UPDATES" ]; then
-  if [ -d ".git" ]; then
-    git checkout $GIT_BRANCH
-    git pull origin $GIT_BRANCH
-  elif [ -d ".svn" ]; then
-    svn up
-  fi
 fi
 
 # Create the local Maven repository.
