@@ -24,6 +24,8 @@
   # Absolute path this script is in.
   SCRIPTPATH=`dirname $SCRIPT`
 [ -f computed-build-environment ] && rm computed-build-environment
+
+bash $SCRIPTPATH/sourcecontrol-checkout.sh
 bash $SCRIPTPATH/compute-environment.sh
 #fi
 env_file=`pwd`
@@ -38,7 +40,6 @@ chmod +x "$env_file"
 
 cd $WORKSPACE_MODULE_FOLDER
 
-bash $SCRIPTPATH/sourcecontrol-checkout.sh
 bash $SCRIPTPATH/build.sh
 bash $SCRIPTPATH/deploy.sh
 bash $SCRIPTPATH/sourcecontrol-tag.sh
