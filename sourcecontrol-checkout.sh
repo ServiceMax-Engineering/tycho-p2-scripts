@@ -24,8 +24,6 @@
 #load the environment constants
 # Absolute path to this script.
 
-set +x
-
 SCRIPT=$(readlink -f $0)
 # Absolute path this script is in.
 SCRIPTPATH=`dirname $SCRIPT`
@@ -33,8 +31,6 @@ SCRIPTPATH=`dirname $SCRIPT`
 [ -f "$RELEASE_ENV" ] && . $RELEASE_ENV
 
 WORKSPACE_FOLDER=`pwd`
-
-env
 
 if [ -n "$GIT_CLONE_REPO_URL" ]; then
   if [ -d ".git" ]; then
