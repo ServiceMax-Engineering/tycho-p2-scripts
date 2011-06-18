@@ -70,7 +70,7 @@ if [ -n "$ROOT_POM" ]; then
   $MAVEN3_HOME/bin/mvn -f $ROOT_POM clean verify -Dmaven.repo.local=$LOCAL_REPOSITORY
   mvn_exit_code=$?
   echo "maven build's exit code: $mvn_exit_code"
-  if [ "$mvn_exit_code" != "0" ];; then
+  if [ "$mvn_exit_code" != "0" ]; then
     echo "the maven build failed"
     exit 14
   fi
