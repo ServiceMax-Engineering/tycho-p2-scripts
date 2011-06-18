@@ -283,6 +283,8 @@ export RELEASE_ENV=$quote$RELEASE_ENV$quote
 export MAVEN3_HOME=$quote$MAVEN3_HOME$quote
 #The maven local repository
 export LOCAL_REPOSITORY=$quote$LOCAL_REPOSITORY$quote
+#The GIT_CLONE_REPO_URL not empty if the script did run a clone and checkout itself.
+export GIT_CLONE_REPO_URL=$quote$GIT_CLONE_REPO_URL$quote
 #The branch name:
 export BRANCH=$quote$BRANCH$quote
 #The git branch
