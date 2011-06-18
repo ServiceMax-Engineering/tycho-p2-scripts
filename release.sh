@@ -40,8 +40,22 @@ chmod +x "$env_file"
 
 cd $WORKSPACE_MODULE_FOLDER
 
-bash $SCRIPTPATH/build.sh
-bash $SCRIPTPATH/deploy.sh
-bash $SCRIPTPATH/sourcecontrol-tag.sh
+$SCRIPTPATH/build.sh
+
+#explicitly check that the build was fine:
+build_exit_code=$?
+echo "build's exit code: $build_exit_code"
+if [ "$build_exit_code" != "0" ]; then
+  echo "The build failed and exited with $build_exit_code"
+  exit 14
+fi
+$SCRIPTPATH/deploy.sh
+build_exit_code=$?
+echo "deployment's exit code: $build_exit_code"
+if [ "$build_exit_code" != "0" ]; then
+  echo "The deployment failed and exited with $build_exit_code"
+  exit 15
+fi
+$SCRIPTPATH/sourcecontrol-tag.sh
 
 
