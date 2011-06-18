@@ -32,6 +32,8 @@ SCRIPTPATH=`dirname $SCRIPT`
 
 WORKSPACE_FOLDER=`pwd`
 
+env
+
 if [ -n "$GIT_CLONE_REPO_URL" ]; then
   if [ -d ".git" ]; then
     #let make sure the origin is the same than the current .git
