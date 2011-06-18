@@ -24,6 +24,8 @@
 #load the environment constants
 # Absolute path to this script.
 
+set +x
+
 SCRIPT=$(readlink -f $0)
 # Absolute path this script is in.
 SCRIPTPATH=`dirname $SCRIPT`
