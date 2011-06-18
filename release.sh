@@ -49,6 +49,10 @@ if [ "$build_exit_code" != "0" ]; then
   echo "The build failed and exited with $build_exit_code"
   exit 14
 fi
+if [ -n "$BUILD_ONLY" ]; then
+  echo "Successful build. Only build: don't deploy and tag $BUILD_ONLY"
+  exit 0
+fi
 $SCRIPTPATH/deploy.sh
 build_exit_code=$?
 echo "deployment's exit code: $build_exit_code"
