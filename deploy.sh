@@ -232,8 +232,8 @@ function compute_p2_repositories_deployment_folders() {
   compute_p2_repositories_deployment_folders_was_called=true
   [ -z "$find_built_p2_repositories_was_called" ] && find_built_p2_repositories
   p2_repositories_deployment_folders=()
-  for built_p2_repository in $built_p2_repositories; do
-    destination=`compute_p2_repository_deployment_folder | tail -n 1`
+  for built_p2_repository in ${built_p2_repositories[*]}; do
+    destination=`compute_p2_repository_deployment_folder $built_p2_repository | tail -n 1`
     echo "destination=$destination"
     p2_repositories_deployment_folders[${#p2_repositories_deployment_folders[*]}]="$destination"
   done
@@ -262,7 +262,7 @@ function apt_index() {
 }
 
 
-#Expects the path to a built p2 reposiutory folder.
+#Expects the path to a built p2 repository folder.
 #Locate the IUs that are associated to a debian file.
 #Copies the deb file into a sub-folder 'debs' inside the built repository.
 function populate_built_p2_repository_with_debs() {
@@ -280,34 +280,40 @@ function populate_built_p2_repository_with_debs() {
   #Then we call the apt-get indexer to generate the index for those deb files.
   #how do we know what plugin, product or features are published here?
   #we iterate over the file names hugues says.
-  for subname in 'plugins' 'features'; do
-     #The IUs of the features has the suffix '.feature.group' that does not appear in the file name
-     #but does appear in the IU id:
-     [ "$subname" = "features" ] && iu_suffix=".feature.group" || iu_suffix=""
-     for jarfile in `ls $built_repository/$subname/*.jar 2>/dev/null`; do
-      local jarfile_name=`basename $jarfile`
-      local iu_id=`echo "$jarfile_name" | sed -nr 's/(.*)_.*\.jar/\1/p'`$iu_suffix
-      local iu_version=`echo "$jarfile_name" | sed -nr 's/.*_(.*)\.jar/\1/p'`
-      local iuid_version=$iu_id"_"$iu_version
-      local deb_file=`get_deb_file $iuid_version`
-      #[ -n "$DEBUG" ] && echo "iu_id $iuid_version -> deb $deb_file"
-      if [ -n "$deb_file" ]; then
-        mkdir -p "$built_repository/debs"
-        cp $deb_file "$built_repository/debs"
-      fi
-    done
-    #take care of the products. we use the name of the executable: 
-    #for example binary/cloud.platform.executable.gtk.linux.x86_64_3.1.1.549
-    for execzip in `ls $built_repository/binary/*.executable.gtk.linux.x86_64_* 2>/dev/null`; do
-      local execfile_name=`basename $execzip`
-      local iuid_version=`echo "$execfile_name" | sed 's/\.executable\.gtk\.linux\.x86_64_/_/'`
-      local deb_file=`get_deb_file $iuid_version`
-      [ -n "$DEBUG" ] && echo "$execfile_name: $iuid_version -> $deb_file"
-      if [ -n "$deb_file" ]; then
-        mkdir -p "$built_repository/debs"
-        cp $deb_file "$built_repository/debs"
-      fi
-    done
+  for subname in "$built_repository/plugins" "$built_repository/features"; do
+    #The IUs of the features has the suffix '.feature.group' that does not appear in the file name
+    #but does appear in the IU id:
+    [ "$subname" = "features" ] && iu_suffix=".feature.group" || iu_suffix=""
+    local any_jars=`find $built_repository/$subname -type f -name *.jar`
+    if [ "$any_jars" ]; then
+      for jarfile in `ls $built_repository/$subname/*.jar 2>/dev/null`; do
+        local jarfile_name=`basename $jarfile`
+        local iu_id=`echo "$jarfile_name" | sed -nr 's/(.*)_.*\.jar/\1/p'`$iu_suffix
+        local iu_version=`echo "$jarfile_name" | sed -nr 's/.*_(.*)\.jar/\1/p'`
+        local iuid_version=$iu_id"_"$iu_version
+        local deb_file=`get_deb_file $iuid_version`
+        #[ -n "$DEBUG" ] && echo "iu_id $iuid_version -> deb $deb_file"
+        if [ -n "$deb_file" ]; then
+          mkdir -p "$built_repository/debs"
+          cp $deb_file "$built_repository/debs"
+        fi
+      done
+    fi
+    local any_products=`find $built_repository/binary -type f -name *.executable.gtk.linux.x86_64_*`
+    if [ "$any_products" ]; then
+      #take care of the products. we use the name of the executable: 
+      #for example binary/cloud.platform.executable.gtk.linux.x86_64_3.1.1.549
+      for execzip in `ls $built_repository/binary/*.executable.gtk.linux.x86_64_* 2>/dev/null`; do
+        local execfile_name=`basename $execzip`
+        local iuid_version=`echo "$execfile_name" | sed 's/\.executable\.gtk\.linux\.x86_64_/_/'`
+        local deb_file=`get_deb_file $iuid_version`
+        [ -n "$DEBUG" ] && echo "$execfile_name: $iuid_version -> $deb_file"
+        if [ -n "$deb_file" ]; then
+          mkdir -p "$built_repository/debs"
+          cp $deb_file "$built_repository/debs"
+        fi
+      done
+    fi
   done
 
   if [ -d "$built_repository/debs" ]; then
@@ -322,11 +328,14 @@ function populate_built_p2_repository_with_debs() {
 function populate_built_p2_repositories_with_debs() {
   populate_built_p2_repositories_with_debs_was_called="true"
   if [ -z "$ROOT_POM" ]; then
-    for debfile in `ls target/*.deb 2>/dev/null`; do
-      mkdir -p target/repository/debs
-      cp debfile target/repository/debs
-    done
-    [ -d "target/repository/debs" ] && apt_index target/repository/debs
+    local any_debs=`find target -type f -name *.deb`
+    if [ "$any_debs" ]; then
+      for debfile in `ls target/*.deb 2>/dev/null`; do
+        mkdir -p target/repository/debs
+        cp debfile target/repository/debs
+      done
+      [ -d "target/repository/debs" ] && apt_index target/repository/debs
+    fi
   else
     [ -z "$create_ius_and_debs_array_was_called" ] && create_ius_and_debs_array
     [ -z "$find_built_p2_repositories_was_called" ] && find_built_p2_repositories
