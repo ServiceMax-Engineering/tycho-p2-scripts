@@ -189,7 +189,7 @@ echo "ROOT_POM $ROOT_POM"
     else
       echo "Release with the buildNumber $currentBuildNumber"
       strlength=`expr length $currentBuildNumber`
-      buildNumber=`expr ${currentBuildNumber#0*}`
+      buildNumber=`echo $currentBuildNumber | sed 's/^0*//g'`
       #pad with zeros so the build number is as many characters long as before
       printf_format="%0"$strlength"d\n"
       buildNumber=`printf "$printf_format" $buildNumber`
