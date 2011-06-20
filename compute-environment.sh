@@ -157,7 +157,7 @@ echo "ROOT_POM $ROOT_POM"
       echo "Could not find the build-number to use in $ROOT_POM; The line $reg2 must be defined"
       exit 2;
     fi
-    currentBuildNumber=`echo $buildNumberLine | sed 's/.*forceContextQualifier>\(.*\)<\/forceContextQualifier.*$/\1/p' | head -1`
+    currentBuildNumber=`echo $buildNumberLine | sed 's/.*forceContextQualifier>\(.*\)<\/forceContextQualifier.*$/\1/'`
 
     reg_prop=".{(.*)}"
     forcedBuildVersion=`echo "$currentBuildNumber" | awk 'match($0, "'$reg_prop'", a) { print a[1] }'`
