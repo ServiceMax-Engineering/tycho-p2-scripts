@@ -103,6 +103,14 @@ class CompositeRepository
     #Choose the array to use for the generated repo: absolute or relative path:
     @children_repo = @children_repo_relative
   end
+  
+  def evaluate_line(line)
+    if line =~ /\#\{.*\}/
+      eval('"'+ line + '"')
+    else
+      line
+    end
+  end
     
   def add_external_childrepos(otherurls_file)
     if otherurls_file.nil?
@@ -123,7 +131,7 @@ class CompositeRepository
             puts "skip #{line}"
             #continue
           elsif line =~ /^BASE=(.*)/
-            base=$1
+            base=evaluate_line($1)
             puts "current base #{base}"
             base = File.expand_path base
             if ! File.exists?(base)
