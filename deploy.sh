@@ -331,7 +331,7 @@ function populate_built_p2_repositories_with_debs() {
     [ -z "$create_ius_and_debs_array_was_called" ] && create_ius_and_debs_array
     [ -z "$find_built_p2_repositories_was_called" ] && find_built_p2_repositories
 
-    for built_repository in $built_p2_repositories; do
+    for built_repository in ${built_p2_repositories[*]}; do
       populate_built_p2_repository_with_debs $built_repository
     done
   fi
