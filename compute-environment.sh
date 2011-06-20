@@ -151,9 +151,7 @@ echo "ROOT_POM $ROOT_POM"
     buildNumber=$timestamp_and_id_forqualifier
     completeVersion="$version.$buildNumber"
   else
-#    reg2="forceContextQualifier>(.*)<\/forceContextQualifier"
-#    buildNumberLine=`awk '{if ($1 ~ /'$reg2'/){print $1}}' < $ROOT_POM | head -1`
-    buildNumberLine=`sed '/forceContextQualifier>(.*)<\/forceContextQualifier/\1/!d' pom.xml | head -1`
+    buildNumberLine=`sed '/forceContextQualifier>.*<\/forceContextQualifier/!d' pom.xml | head -1`
     echo "buildNumberLine $buildNumberLine"
     if [ -z "$buildNumberLine" ]; then
       echo "Could not find the build-number to use in $ROOT_POM; The line $reg2 must be defined"
