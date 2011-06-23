@@ -49,7 +49,7 @@ if [ "$build_exit_code" != "0" ]; then
   echo "The build failed and exited with $build_exit_code"
   exit 14
 fi
-if [ -n "$BUILD_ONLY" ]; then
+if [ -n "$BUILD_ONLY" -a "$BUILD_ONLY" = "true" ]; then
   echo "Successful build. Only build: don't deploy and tag $BUILD_ONLY"
   exit 0
 fi

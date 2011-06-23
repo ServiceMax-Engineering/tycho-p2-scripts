@@ -428,9 +428,7 @@ if [ -z "$ROOT_POM" ]; then
   if [ -f "Buildfile" -a -d "target/repository" ]; then
     echo "A buildr build: no p2 repository built by tycho to deploy. Let's look for a composite repository that was built"
     find_built_p2_repositories
-    echo "Found ${#built_p2_repositories[*]} p2 repositories $?"
     populate_built_p2_repositories_with_debs
-    echo "Exited the populate_built_p2_repositories_with_debs method $?"
     copy_p2_repositories
   else
     echo "Not a tycho build and not a composite repo build"
