@@ -133,8 +133,8 @@ function getGroupIdForCompositeRepo() {
 
 
 #we write this one in the build file
-timestamp_and_id=`date +%Y-%m-%d-%H%M%S`
-timestamp_and_id_forqualifier=`date +%Y%m%d%H%M`
+timestamp_and_id=`date -u +%Y-%m-%d-%H%M%S`
+timestamp_and_id_forqualifier=`date -u +%Y%m%d%H%M`
 if [ -f "$ROOT_POM" ]; then
 echo "ROOT_POM $ROOT_POM"
 
