@@ -96,11 +96,11 @@ elif [ -f Buildfile ]; then
     fi
     composite_basefolder=$HTTPD_ROOT_PATH
     #this would be the final output:
-    composite_output=$HTTPD_ROOT_PATH/`echo $grpId | tr '.' '/'`/$BRANCH_FOLDER_NAME/$completeVersion
+    composite_output_base=$HTTPD_ROOT_PATH/`echo $grpId | tr '.' '/'`/$BRANCH_FOLDER_NAME
     #let's use a classic target folder for the build itself:
     build_folder=target/repository
     mkdir -p $build_folder
-    mkdir -p $composite_output
+    mkdir -p $composite_output_base
     generate_composite_repo_path=$SCRIPTPATH/composite-p2repo/generate_composite_repo.rb
     #[ -n "$composite_otherurls" ] && composite_otherurls_param="--otherurls=$composite_otherurls"
     composite_otherurls_param="--otherurls=$composite_repo"
@@ -108,13 +108,13 @@ elif [ -f Buildfile ]; then
     
     [ -n "$HTTPD_ROOT_PATH_BASE_FOLDER_NAME" ] && absolutepathPrefixParam="--absolutepathPrefix $HTTPD_ROOT_PATH_BASE_FOLDER_NAME"
     #cmd="$generate_composite_repo_path --name all --basefolder $HOME/p2repo/com/intalio/cloud/ --output $HOME/p2repo/com/intalio/cloud/all --otherurls=otherurls_for_composite_repo.txt"
-    cmd="$generate_composite_repo_path --name $composite_name --buildFolder $build_folder --basefolder $composite_basefolder $absolutepathPrefixParam --output $composite_output $composite_otherurls_param --version $completeVersion --symlinkname=$SYM_LINK_CURRENT_NAME"
+    cmd="$generate_composite_repo_path --name $composite_name --buildFolder $build_folder --basefolder $composite_basefolder $absolutepathPrefixParam --output $composite_output_base $composite_otherurls_param --version $completeVersion --symlinkname=$SYM_LINK_CURRENT_NAME"
     echo "Executing $cmd"
     $cmd
     #Regenerate the 'latest' version:
     build_folder=target/repository_latest
     mkdir -p $build_folder
-    cmd="$generate_composite_repo_path --name $composite_name --buildFolder $build_folder --basefolder $composite_basefolder $absolutepathPrefixParam --output $composite_output $composite_otherurls_param --version latest --symlinkname=$SYM_LINK_CURRENT_NAME"
+    cmd="$generate_composite_repo_path --name $composite_name --buildFolder $build_folder --basefolder $composite_basefolder $absolutepathPrefixParam --output $composite_output_base $composite_otherurls_param --version latest --symlinkname=$SYM_LINK_CURRENT_NAME"
     echo "Executing $cmd"
     $cmd
   fi
