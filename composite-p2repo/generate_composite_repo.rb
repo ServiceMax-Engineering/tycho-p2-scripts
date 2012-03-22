@@ -237,10 +237,12 @@ class CompositeRepository
   def compute_versioned_output()
     compute_version
     puts "Output path #{@outputPath}"
-    if (@outputPath =~ /target\/repository$/) != nil
+    if (@outputPath.to_s =~ /target\/repository$/) != nil
       @versionned_output_dir = @outputPath
+    elsif @outputPath.to_s.end_with?(@version)
+      raise "The output directory #{@outputPath.to_s} must not end with the version #{@version}"
     else
-      @versionned_output_dir = "#{@outputPath}/#{@version}"
+      @versionned_output_dir = "#{@outputPath.to_s}/#{@version}"
     end
     puts "Got #{@versionned_output_dir}"
     if @test != "true"
