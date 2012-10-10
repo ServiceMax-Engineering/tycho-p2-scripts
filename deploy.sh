@@ -395,6 +395,8 @@ function copy_p2_repositories() {
         echo "FATAL: There are at least 2 repositories generated in this project in the folder $existing_repo."
         echo "It is required that all but one of the pom.xml where a repository is produced define:"
         echo " <properties><repositorySuffix>a_unique_suffix</repositorySuffix></properties>"
+        echo "Or to replace the last token of the groupId by another one define "
+        echo " <properties><repositoryOverrideSuffix>a_unique_suffix</repositoryOverrideSuffix></properties>"
         exit 128
       fi
     done 
