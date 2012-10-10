@@ -205,7 +205,7 @@ function compute_p2_repository_deployment_folder() {
     if [ -n "$repository_override_suffix" ]; then
       # delete the last token in the groupId and replace it by the override
       # for example org.intalio.eclipse.jetty with override 'equinox' will deploy in org/intalio/eclipse/equinox
-      local groupIdSlashed=`dirname $groupIdSlashed`/$repository_suffix_override
+      local groupIdSlashed=`dirname $groupIdSlashed`/$repository_override_suffix
     fi
   fi 
   [ -z "$groupIdSlashed" ] && local groupIdSlashed=`echo $groupId | tr '.' '/'`
