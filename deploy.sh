@@ -197,8 +197,18 @@ function compute_p2_repository_deployment_folder() {
       groupId=`xpath -q -e "/project/parent/groupId/text()" $pom`
     fi
     local repository_suffix=`xpath -q -e "/project/properties/repositorySuffix/text()" $pom`
-    [ -n "$repository_suffix" ] && repository_suffix="."$repository_suffix
-  fi
+    local repository_override_suffix=`xpath -q -e "/project/properties/repositoryOverrideSuffix/text()" $pom`
+    local groupIdSlashed=`echo $groupId | tr '.' '/'`
+    if [ -n "$repository_suffix" ]; then
+      local groupIdSlashed="$groupIdSlashed/$repository_suffix"
+    fi
+    if [ -n "$repository_override_suffix" ]; then
+      # delete the last token in the groupId and replace it by the override
+      # for example org.intalio.eclipse.jetty with override 'equinox' will deploy in org/intalio/eclipse/equinox
+      local groupIdSlashed=`dirname $groupIdSlashed`/$repository_suffix_override
+    fi
+  fi 
+  [ -z "$groupIdSlashed" ] && local groupIdSlashed=`echo $groupId | tr '.' '/'`
   if [ -z "$BRANCH_FOLDER_NAME" ]; then
     echo "Warning unknown BRANCH_FOLDER_NAME. Using 'unknown_branch' by default" 1>&2
     BRANCH_FOLDER_NAME='unknown_branch_name'
@@ -207,7 +217,7 @@ function compute_p2_repository_deployment_folder() {
     echo "Warning unknown completeVersion Using 'unknown_version' by default" 1>&2
     completeVersion='unknown_version'
   fi
-  local p2repoPath=$BASE_FILE_PATH_P2_REPO/`echo $groupId | tr '.' '/'`/$BRANCH_FOLDER_NAME$repository_suffix
+  local p2repoPath=$BASE_FILE_PATH_P2_REPO/$groupIdSlashed/$BRANCH_FOLDER_NAME
   local p2repoPathComplete="$p2repoPath/$completeVersion"
 
   if  [ -n "$P2_DEPLOYMENT_FOLDER_NAME" ]; then
