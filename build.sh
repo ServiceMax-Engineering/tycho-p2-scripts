@@ -5,11 +5,11 @@
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # and Apache License v2.0 which accompanies this distribution.
-# The Eclipse Public License is available at 
+# The Eclipse Public License is available at
 # http://www.eclipse.org/legal/epl-v10.html
 # The Apache License v2.0 is available at
 # http://www.opensource.org/licenses/apache2.0.php
-# You may elect to redistribute this code under either of these licenses. 
+# You may elect to redistribute this code under either of these licenses.
 # ========================================================================
 # Author hmalphettes
 #
@@ -67,7 +67,7 @@ if [ -n "$ROOT_POM" ]; then
   #update the numbers for the release
   sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQualifier>$buildNumber<\/forceContextQualifier>/" $ROOT_POM
   #### Build now
-  $MAVEN3_HOME/bin/mvn -f $ROOT_POM clean verify -Dmaven.repo.local=$LOCAL_REPOSITORY
+  $MAVEN3_HOME/bin/mvn -f $ROOT_POM clean verify -Dmaven.repo.local=$LOCAL_REPOSITORY $MVN_PROFILES
   mvn_exit_code=$?
   echo "maven build's exit code: $mvn_exit_code"
   if [ "$mvn_exit_code" != "0" ]; then
@@ -105,7 +105,7 @@ elif [ -f Buildfile ]; then
     #[ -n "$composite_otherurls" ] && composite_otherurls_param="--otherurls=$composite_otherurls"
     composite_otherurls_param="--otherurls=$composite_repo"
     composite_name="$grpId"
-    
+
     [ -n "$HTTPD_ROOT_PATH_BASE_FOLDER_NAME" ] && absolutepathPrefixParam="--absolutepathPrefix $HTTPD_ROOT_PATH_BASE_FOLDER_NAME"
     #cmd="$generate_composite_repo_path --name all --basefolder $HOME/p2repo/com/intalio/cloud/ --output $HOME/p2repo/com/intalio/cloud/all --otherurls=otherurls_for_composite_repo.txt"
     cmd="$generate_composite_repo_path --name $composite_name --buildFolder $build_folder --basefolder $composite_basefolder $absolutepathPrefixParam --output $composite_output_base $composite_otherurls_param --version $completeVersion --symlinkname=$SYM_LINK_CURRENT_NAME"
