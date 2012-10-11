@@ -67,6 +67,7 @@ if [ -n "$ROOT_POM" ]; then
   #update the numbers for the release
   sed -i "s/<!--forceContextQualifier>.*<\/forceContextQualifier-->/<forceContextQualifier>$buildNumber<\/forceContextQualifier>/" $ROOT_POM
   #### Build now
+  [ -z "$MAVEN3_HOME" -o ! -f "$MAVEN3_HOME/bin/mvn" ] && MAVEN3_HOME="$MAVEN_HOME"
   $MAVEN3_HOME/bin/mvn -f $ROOT_POM clean verify -Dmaven.repo.local=$LOCAL_REPOSITORY $MVN_PROFILES
   mvn_exit_code=$?
   echo "maven build's exit code: $mvn_exit_code"
