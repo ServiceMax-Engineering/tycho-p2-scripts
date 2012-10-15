@@ -167,8 +167,10 @@ function find_built_p2_repositories() {
         if [ -n "$packagingRepo" ]; then
           # OK we have a repo project.
           built_repository="$module_dir/target/$repository_or_site"
-          built_p2_repositories[${#built_p2_repositories[*]}]="$built_repository"
-          write_p2_index $built_repository
+          if [ -d "$built_repository" ]; then # make sure the repo is built
+            built_p2_repositories[${#built_p2_repositories[*]}]="$built_repository"
+            write_p2_index $built_repository
+          fi
         fi
       fi
     done
