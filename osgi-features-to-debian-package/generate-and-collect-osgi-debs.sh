@@ -23,9 +23,7 @@
 SCRIPT=$(readlink -f $0)
 # Absolute path this script is in.
 SCRIPTPATH=`dirname $SCRIPT` 
-
 BUILDR_FILE=$SCRIPTPATH/buildr-generate-deb-from-features.rb
-
 if [ -z "$CURRENT_DIR" ]; then
  CURRENT_DIR=`pwd`
 fi
@@ -39,12 +37,12 @@ fi
 if [ -f "pom.xml" ]; then
   #clean up the deb file to files for paranoia reasons
   find $CURRENT_DIR -type f -name "*.deb" -exec rm -f {} \;
-  buildr --buildfile $BUILDR_FILE package
+  #buildr --buildfile $BUILDR_FILE package
   
   #now the bit of ruby that adds the csv files about the generated debs for each repositories.
-  generate_deb_ius_path="$SCRIPTPATH/collect-deb-osgi-csv.rb"
-  echo "Executing $generate_deb_ius_path"
-  $generate_deb_ius_path
+  #generate_deb_ius_path="$SCRIPTPATH/collect-deb-osgi-csv.rb"
+  #echo "Executing $generate_deb_ius_path"
+  #$generate_deb_ius_path
 
   echo "Exit code of $generate_deb_ius_path: $?"
 fi
