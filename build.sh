@@ -120,6 +120,7 @@ elif [ -f Buildfile ]; then
     $cmd
   fi
 
+  echo $PATH
   buildr package
 
 else
