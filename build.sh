@@ -100,12 +100,21 @@ elif [ -f Buildfile ]; then
     composite_output_base=$HTTPD_ROOT_PATH/`echo $grpId | tr '.' '/'`/$BRANCH_FOLDER_NAME
     #let's use a classic target folder for the build itself:
     build_folder=target/repository
-    mkdir -p $build_folder
-    mkdir -p $composite_output_base
+    #mkdir -p $build_folder
+    #mkdir -p $composite_output_base
     generate_composite_repo_path=$SCRIPTPATH/composite-p2repo/generate_composite_repo.rb
     #[ -n "$composite_otherurls" ] && composite_otherurls_param="--otherurls=$composite_otherurls"
     composite_otherurls_param="--otherurls=$composite_repo"
     composite_name="$grpId"
+
+
+echo "******************************************"
+echo $build_folder
+echo $composite_output_base
+echo $generate_composite_repo_path
+echo $composite_otherurls_param
+echo $composite_name
+echo "********************************************************"
 
     [ -n "$HTTPD_ROOT_PATH_BASE_FOLDER_NAME" ] && absolutepathPrefixParam="--absolutepathPrefix $HTTPD_ROOT_PATH_BASE_FOLDER_NAME"
     #cmd="$generate_composite_repo_path --name all --basefolder $HOME/p2repo/com/intalio/cloud/ --output $HOME/p2repo/com/intalio/cloud/all --otherurls=otherurls_for_composite_repo.txt"
