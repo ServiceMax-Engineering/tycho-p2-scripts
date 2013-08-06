@@ -100,8 +100,8 @@ elif [ -f Buildfile ]; then
     composite_output_base=$HTTPD_ROOT_PATH/`echo $grpId | tr '.' '/'`/$BRANCH_FOLDER_NAME
     #let's use a classic target folder for the build itself:
     build_folder=target/repository
-    mkdir -p $build_folder
-    mkdir -p $composite_output_base
+    #mkdir -p $build_folder
+    #mkdir -p $composite_output_base
     generate_composite_repo_path=$SCRIPTPATH/composite-p2repo/generate_composite_repo.rb
     #[ -n "$composite_otherurls" ] && composite_otherurls_param="--otherurls=$composite_otherurls"
     composite_otherurls_param="--otherurls=$composite_repo"
