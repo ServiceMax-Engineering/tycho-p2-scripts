@@ -6,7 +6,7 @@ elif [ -f "../release_env" ]; then
 else
   if [ -z "$HTTPD_ROOT_PATH" ]; then
     #The path on the filesystem to the root of the folder served by the web server
-    export HTTPD_ROOT_PATH="$HOME/p2repo"
+    export HTTPD_ROOT_PATH="/p2repo"
   fi
   if [ -z "$HTTPD_ROOT_PATH_BASE_FOLDER_NAME" ]; then
     #Name of the root folder under which that folder is served.
