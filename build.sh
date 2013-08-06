@@ -108,13 +108,13 @@ elif [ -f Buildfile ]; then
     composite_name="$grpId"
 
 
-puts "******************************************"
-puts $build_folder
-puts $composite_output_base
-puts $generate_composite_repo_path
-puts $composite_otherurls_param
-puts $composite_name
-puts "********************************************************"
+echo "******************************************"
+echo $build_folder
+echo $composite_output_base
+echo $generate_composite_repo_path
+echo $composite_otherurls_param
+echo $composite_name
+echo "********************************************************"
 
     [ -n "$HTTPD_ROOT_PATH_BASE_FOLDER_NAME" ] && absolutepathPrefixParam="--absolutepathPrefix $HTTPD_ROOT_PATH_BASE_FOLDER_NAME"
     #cmd="$generate_composite_repo_path --name all --basefolder $HOME/p2repo/com/intalio/cloud/ --output $HOME/p2repo/com/intalio/cloud/all --otherurls=otherurls_for_composite_repo.txt"
