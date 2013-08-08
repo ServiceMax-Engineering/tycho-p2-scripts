@@ -75,10 +75,22 @@ if [ -z "$SYM_LINK_CURRENT_NAME"]; then
   SYM_LINK_CURRENT_NAME="current"
 fi
 
+if [ -z "$REMOTE_VM" ]; then
+  export REMOTE_VM="repo.cloud.intalio.com"
+fi
+
+if [ -z "$REMOTE_USER" ]; then
+  export REMOTE_USER="repo"
+fi
+
+if [ -z "$ROOT_PATH" ]; then
+ export ROOT_PATH="/repo2"
+fi
+
 #Base folder on the file system where the p2-repositories are deployed.
 if [ -z "$BASE_FILE_PATH_P2_REPO" ]; then
   #Assume we are on the release machine logged in as the release user.
-  BASE_FILE_PATH_P2_REPO=$HOME/p2repo
+  BASE_FILE_PATH_P2_REPO=$ROOT_PATH/p2repo
 fi
 
 if [ -z "$SYM_LINK_CURRENT_NAME" ]; then
@@ -142,8 +154,9 @@ echo "ROOT_POM $ROOT_POM"
   #tags the sources for a release build.
   reg="<version>(.*)-SNAPSHOT<\/version>"
   line=`awk '{if ($1 ~ /'$reg'/){print $1}}' < $ROOT_POM | head -1`
-  version=`echo "$line" | awk 'match($0, "<version>(.*)-SNAPSHOT</version>", a) { print a[1] }'`
-  
+  #version=`echo "$line" | awk 'match($0, "<version>(.*)-SNAPSHOT</version>", a) { print a[1] }'`
+  version=${line%%-SNAPSHOT*}
+  version=${version##*>}
   if [ -n "$forceContextQualifier" ]; then
     buildNumber=$forceContextQualifier
     completeVersion="$version.$buildNumber"
@@ -357,6 +370,9 @@ export JOB_URL=$quote$JOB_URL$quote
 export NODE_NAME=$quote$NODE_NAME$quote
 export NODE_LABELS=$quote$NODE_LABELS$quote
 
-" > computed-build-environment
+export REMOTE_VM=$quote$REMOTE_VM$quote
+export REMOTE_USER=$quote$REMOTE_USER$quote
+export ROOT_PATH=$quote$ROOT_PATH$quote
 
+" > computed-build-environment
 

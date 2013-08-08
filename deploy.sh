@@ -42,6 +42,7 @@ chmod +x "$env_file"
 . "$env_file"
 
 cd $WORKSPACE_MODULE_FOLDER
+echo $WORKSPACE_MODULE_FOLDER
 echo "Executing deployment of the p2 repositories in "`pwd`
 
 #Finds all the installable units for which there is a deb package.
@@ -153,7 +154,8 @@ function find_built_p2_repositories() {
     reg3="<packaging>eclipse-repository<\/packaging>"
     reg4="<packaging>eclipse-update-site<\/packaging>"
     for pom in `find $WORKSPACE_MODULE_FOLDER -name pom.xml -type f`; do
-      module_dir=`echo "$pom" | awk 'match($0, "(.*)/pom.xml", a) { print a[1] }'`
+      module_dir=`echo "$pom"`
+      module_dir=${module_dir%%/pom.xml}
       #echo "module_dir $module_dir"
       #Look for the target/repository folder:
       #if [ -d "$module_dir/target/repository" ]; then
@@ -404,34 +406,37 @@ function copy_p2_repositories() {
     done 
 
     existing_repos[${#existing_repos[*]}]=$p2repoPathComplete
+
     if [ -n "$BASE_FILE_PATH_P2_REPO" ]; then
-      if [ -d "$p2repoPathComplete" ]; then
-        echo "Warn: Removing the existing repository $p2repoPathComplete"
-        rm -rf $p2repoPathComplete
-      fi
-      mkdir -p $p2repoPathComplete
+#      if [ -d "$p2repoPathComplete" ]; then
+#        echo "Warn: Removing the existing repository $p2repoPathComplete"
+#        rm -rf $p2repoPathComplete
+#      fi
+#      mkdir -p $p2repoPathComplete
       echo "Deploying $built_repository/* in $p2repoPathComplete"
-      cp -r $built_repository/* $p2repoPathComplete
-      if [ -h "$p2repoPath/$SYM_LINK_CURRENT_NAME" ]; then
-        rm "$p2repoPath/$SYM_LINK_CURRENT_NAME"
-      fi
+      #cp -r $built_repository/* $p2repoPathComplete
+      ssh ${REMOTE_USER}@${REMOTE_VM} "cd $p2repoPath; rm -rf $completeVersion; mkdir $completeVersion"
+      scp -r $built_repository/* ${REMOTE_USER}@${REMOTE_VM}:${p2repoPathComplete}
       #must make sure we create the symlink in the right folder to have rsync find it later.
-      cd $p2repoPath
-      ln -s $completeVersion $SYM_LINK_CURRENT_NAME
-      index_apt_deployed $p2repoPathComplete
+      ssh ${REMOTE_USER}@${REMOTE_VM} "cd $p2repoPath; rm -rf $SYM_LINK_CURRENT_NAME; ln -sf $completeVersion $SYM_LINK_CURRENT_NAME"
+      #index_apt_deployed $p2repoPathComplete
 
       #Deploy the 'latest' version of the composite repository
       if [ -d "target/repository_latest" ]; then
         write_p2_index `pwd`"/target/repository_latest"
-        [ -d "$p2repoPath/latest" ] && rm -rf "$p2repoPath/latest"
-        mkdir -p $p2repoPath/latest
-        cp -r target/repository_latest/* $p2repoPath/latest
-        index_apt_deployed $p2repoPath/latest
+        #[ -d "$p2repoPath/latest" ] && rm -rf "$p2repoPath/latest"
+        #mkdir -p $p2repoPath/latest
+        #cp -r target/repository_latest/* $p2repoPath/latest
+        ssh ${REMOTE_USER}@${REMOTE_VM} "cd $p2repoPath; rm -rf latest; mkdir latest"
+        scp -r target/repository_latest/* ${REMOTE_USER}@${REMOTE_VM}:$p2repoPath/latest
+	#index_apt_deployed $p2repoPath/latest
       fi
 
     else
       echo "Warn: the constant BASE_FILE_PATH_P2_REPO is not defined so no deploym,ent is actually taking place."
     fi
+
+
   done
   if [ -z "${existing_repos[0]}" ]; then
     echo "No repositories to deploy ${built_p2_repositories[0]}"
@@ -458,4 +463,3 @@ else
   repo_report="pom.repositories_report.xml"
   set -e
 fi
-
