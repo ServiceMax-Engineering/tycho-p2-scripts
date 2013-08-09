@@ -31,7 +31,7 @@ bash $SCRIPTPATH/compute-environment.sh
 env_file=`pwd`
 env_file="$env_file/computed-build-environment"
 if [ ! -f "$env_file" ]; then
-  currentdir = `pwd`
+  currentdir=`pwd`
   echo "Could not find the file $currentdir/computed-build-environment was compute-environment.sh correctly executed?"
   exit 127
 fi
