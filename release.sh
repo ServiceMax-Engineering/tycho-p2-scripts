@@ -19,13 +19,11 @@
 # Load the computed build environment
 # Then invoke maven or build
 
-#if [ ! -f "$env_file" ]; then
-  SCRIPT=$(readlink -f $0)
-  # Absolute path this script is in.
-  SCRIPTPATH=`dirname $SCRIPT`
+SCRIPT=$(readlink -f $0)
+# Absolute path this script is in.
+SCRIPTPATH=`dirname $SCRIPT`
 [ -f computed-build-environment ] && rm computed-build-environment
 
-bash $SCRIPTPATH/sourcecontrol-checkout.sh
 bash $SCRIPTPATH/compute-environment.sh
 #fi
 env_file=`pwd`

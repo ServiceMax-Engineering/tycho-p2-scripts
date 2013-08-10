@@ -108,36 +108,25 @@ if [ -f Buildfile -a -n "$nextCompleteVersion"  ]; then
   sed -i "s/^VERSION_NUMBER.*/VERSION_NUMBER=\"$nextCompleteVersion-SNAPSHOT\"/" Buildfile
   echo "Buildfile updated"
 fi
-if [ -n "$GIT_BRANCH" ]; then
-  if [ -n "$ROOT_POM" ]; then
-    commit_b=`git diff $ROOT_POM`
-    if [ -n "$commit_b" ]; then
-      echo "About to git commit $ROOT_POM -m 'Restore $ROOT_POM for development'"
-      git commit $ROOT_POM -m "Restore $ROOT_POM for development"
-      echo "Great success"
-    else
-      echo "Nothing to commit at the moment"
-    fi
+if [ -n "$ROOT_POM" ]; then
+  commit_b=`git diff $ROOT_POM`
+  if [ -n "$commit_b" ]; then
+    echo "About to git commit $ROOT_POM -m 'Restore $ROOT_POM for development'"
+    git commit $ROOT_POM -m "Restore $ROOT_POM for development"
+    echo "Great success"
   else
-    commit_b=`git diff Buildfile`
-    if [ -n "$commit_b" ]; then
-      git commit Buildfile -m "Restore Buildfile for development"
-    fi
+    echo "Nothing to commit at the moment"
   fi
-  #in case someone has been working and pushing things during the build:
-  echo "About to git pull origin $GIT_BRANCH"
-  git pull origin $GIT_BRANCH
-  echo "git pull succeeded"
-  echo "About to git push origin $GIT_BRANCH"
-  git push origin $GIT_BRANCH
-  echo "git push succeeded"
-elif [ -d ".svn" ]; then
-  #in case someone has been working and pushing things during the build:
-  svn up
-  if [ -n "$ROOT_POM" ]; then
-    svn commit $ROOT_POM -m "Restore $ROOT_POM for development"
+else
+  commit_b=`git diff Buildfile`
+  if [ -n "$commit_b" ]; then
+    git commit Buildfile -m "Restore Buildfile for development"
   fi
 fi
-
-
-
+#in case someone has been working and pushing things during the build:
+echo "About to git pull origin $GIT_BRANCH"
+git pull origin $GIT_BRANCH
+echo "git pull succeeded"
+echo "About to git push origin $GIT_BRANCH"
+git push origin $GIT_BRANCH
+echo "git push succeeded"
